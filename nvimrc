@@ -43,6 +43,8 @@ set laststatus=2
 let mapleader = ","
 let g:mapleader = ","
 
+nmap <leader>t :term<cr>
+
 inoremap {		{}
 inoremap {<CR>	{<CR>}<Esc>O<Tab>
 inoremap {{		{
@@ -53,6 +55,9 @@ inoremap ((		(
 noremap <Space><Space>		:tabedit ~/.nvimrc<CR>
 noremap <S-Tab>				:tabprevious<CR>
 noremap <Tab>				:tabnext<CR>
+
+noremap <C-g>				:NERDTreeToggle<CR>
+noremap <S-z>				:set foldmethod=syntax<CR>
 
 vnoremap <Tab>				>
 vnoremap <S-Tab>			<
@@ -68,8 +73,10 @@ noremap <C-u>				<C-r>
 noremap <silent>			<C-s>	:w!<CR>
 noremap <silent>			<C-s>	:q<CR>
 
-noremap <C-g>				:NERDTreeToggle<CR>
 
-noremap <S-z>				:set foldmethod=syntax<CR>
+tnoremap <S-Up> <C-\><C-n><S-w>Up
+tnoremap <S-Down> <C-\><C-n><S-w>Down
+tnoremap <S-Left> <C-\><C-n><S-w>Left
+tnoremap <S-Right> <C-\><C-n><S-w>Right
 
 set autochdir
