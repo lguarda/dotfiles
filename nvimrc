@@ -39,6 +39,7 @@ set ai
 set si
 set whichwrap+=<,>,h,l,[,]
 set list listchars=tab:»·,trail:·
+set foldnestmax=1
 
 set autoread
 "set ruler
@@ -63,7 +64,8 @@ noremap <S-Tab>				:tabprevious<CR>
 noremap <Tab>				:tabnext<CR>
 
 noremap <C-g>				:NERDTreeToggle<CR>
-noremap <S-z>				:set foldmethod=syntax<CR>
+noremap <S-z>				:set foldmethod=indent<CR>
+noremap <S-z>				:set fdm=indent
 
 vnoremap <Tab>				>
 vnoremap <S-Tab>			<
