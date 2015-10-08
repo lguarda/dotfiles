@@ -5,6 +5,7 @@ Plug 'https://github.com/scrooloose/syntastic'
 Plug 'https://github.com/morhetz/gruvbox'
 Plug 'https://github.com/scrooloose/nerdtree'
 Plug 'https://github.com/bling/vim-airline'
+Plug 'kien/rainbow_parentheses.vim'
 
 call plug#end()
 
@@ -19,6 +20,11 @@ let g:syntastic_c_include_dirs = ['../../../include', '../../include','../includ
 syntax on
 try
 	colorscheme gruvbox
+	au VimEnter * RainbowParenthesesToggle
+	au Syntax * RainbowParenthesesLoadRound
+	au Syntax * RainbowParenthesesLoadSquare
+	au Syntax * RainbowParenthesesLoadBraces
+	au Syntax * RainbowParenthesesLoadChevrons
 catch
 endtry
 set background=dark
