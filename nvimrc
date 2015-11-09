@@ -5,7 +5,6 @@ Plug 'https://github.com/scrooloose/syntastic'
 Plug 'https://github.com/morhetz/gruvbox'
 Plug 'https://github.com/scrooloose/nerdtree'
 Plug 'https://github.com/bling/vim-airline'
-Plug 'kien/rainbow_parentheses.vim'
 
 call plug#end()
 
@@ -20,11 +19,6 @@ let g:syntastic_c_include_dirs = ['../../../include', '../../include','../includ
 syntax on
 try
 	colorscheme gruvbox
-	au VimEnter * RainbowParenthesesToggle
-	au Syntax * RainbowParenthesesLoadRound
-	au Syntax * RainbowParenthesesLoadSquare
-	au Syntax * RainbowParenthesesLoadBraces
-	au Syntax * RainbowParenthesesLoadChevrons
 catch
 endtry
 set background=dark
@@ -52,12 +46,7 @@ let g:mapleader = ","
 
 nmap <leader>t :term<cr>
 
-inoremap {		{}
 inoremap {<CR>	{<CR>}<Esc>O<Tab>
-inoremap {{		{
-inoremap {}		{}
-inoremap (		()<Left>
-inoremap ((		(
 
 noremap <Space><Space>		:tabedit ~/.nvimrc<CR>
 noremap <S-Tab>				:tabprevious<CR>
@@ -81,10 +70,14 @@ noremap <C-u>				<C-r>
 noremap <silent>			<C-s>	:w!<CR>
 noremap <silent>			<C-s>	:q<CR>
 
+try
 
 tnoremap <S-Up> <C-\><C-n><S-w>Up
 tnoremap <S-Down> <C-\><C-n><S-w>Down
 tnoremap <S-Left> <C-\><C-n><S-w>Left
 tnoremap <S-Right> <C-\><C-n><S-w>Right
+
+catch
+endtry
 
 set autochdir
