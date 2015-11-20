@@ -1,11 +1,15 @@
+set encoding=utf-8
+set fileencoding=utf-8
+
 try
 call plug#begin('~/.vim/plugged')
 
-Plug 'https://github.com/kien/ctrlp.vim'
-Plug 'https://github.com/scrooloose/syntastic'
-Plug 'https://github.com/morhetz/gruvbox'
-Plug 'https://github.com/scrooloose/nerdtree'
-Plug 'https://github.com/bling/vim-airline'
+	Plug 'https://github.com/kien/ctrlp.vim'
+	Plug 'https://github.com/scrooloose/syntastic'
+	Plug 'https://github.com/morhetz/gruvbox'
+	Plug 'https://github.com/scrooloose/nerdtree'
+	Plug 'https://github.com/bling/vim-airline'
+	Plug 'https://github.com/luochen1990/rainbow'
 
 call plug#end()
 catch
@@ -35,11 +39,14 @@ set cursorline
 set ai
 set si
 set whichwrap+=<,>,h,l,[,]
-set list listchars=tab:»·,trail:·
+set list listchars=tab:»·,trail:·,eol:¶
+set wildmenu
+set wildmode=longest:full,list:full
 set foldnestmax=1
-
+set hlsearch
 set autoread
 set laststatus=2
+set backspace=indent,eol,start
 
 let mapleader = ","
 let g:mapleader = ","
@@ -55,7 +62,7 @@ noremap <Tab>				:tabnext<CR>
 noremap <C-g>				:NERDTreeToggle<CR>
 noremap <S-z>				:set foldmethod=indent<CR>
 noremap <S-z>				:set fdm=indent
-
+noremap <CR>				:nohlsearch<CR>
 vnoremap <Tab>				>
 vnoremap <S-Tab>			<
 
@@ -70,14 +77,11 @@ noremap <C-u>				<C-r>
 noremap <silent>			<C-s>	:w!<CR>
 noremap <silent>			<C-s>	:q<CR>
 
-try
-
-tnoremap <S-Up> <C-\><C-n><S-w>Up
-tnoremap <S-Down> <C-\><C-n><S-w>Down
-tnoremap <S-Left> <C-\><C-n><S-w>Left
-tnoremap <S-Right> <C-\><C-n><S-w>Right
-
-catch
-endtry
+if has('nvim')
+	tnoremap <S-Up> <C-\><C-n><S-w>Up
+	tnoremap <S-Down> <C-\><C-n><S-w>Down
+	tnoremap <S-Left> <C-\><C-n><S-w>Left
+	tnoremap <S-Right> <C-\><C-n><S-w>Right
+endif
 
 set autochdir
