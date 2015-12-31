@@ -46,11 +46,11 @@ set background=dark
 
 set number									" display line number
 set cc=80									" display column layout
-set tabstop=2								" redifine tab display as n space
+set tabstop=4								" redifine tab display as n space
 set t_Co=256								" change nubmer of term color
 set cursorline								" hightlight current line
-set shiftwidth=2
-set expandtab
+set shiftwidth=4
+"set expandtab
 set autoindent
 set smartindent
 set whichwrap+=<,>,h,l,[,]					" warp cusrsor when reache end and begin of line
