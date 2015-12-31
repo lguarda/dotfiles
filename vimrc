@@ -46,11 +46,11 @@ set background=dark
 
 set number									" display line number
 set cc=80									" display column layout
-set tabstop=4								" redifine tab display as n space
+set tabstop=2								" redifine tab display as n space
 set t_Co=256								" change nubmer of term color
 set cursorline								" hightlight current line
-set shiftwidth=4
-"set expandtab
+set shiftwidth=2
+set expandtab
 set autoindent
 set smartindent
 set whichwrap+=<,>,h,l,[,]					" warp cusrsor when reache end and begin of line
@@ -94,8 +94,8 @@ noremap ;     :
 noremap gg=G		gg=G''
 noremap <M-left>	20z<left>
 noremap <M-right>	20z<right>
-noremap <M-j>  :m+<CR>
-noremap <M-k>  :m--<CR>
+noremap <leader>k  :m--<CR>
+noremap <leader>j  :m+<CR>
 
 noremap <C-A>			gI
 noremap <C-a>			0i
@@ -140,17 +140,26 @@ noremap <C-u>				<C-r>
 noremap <silent>			<C-s>	:w!<CR>
 noremap <silent>			<C-s>	:q<CR>
 
+set pastetoggle=<F2>
 map! <F3> <C-R>=strftime('%c')<CR>
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
 autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
 
 autocmd FileType c map! <F4> printf( __func__" line:"__LINE__"\n");
 autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
-
+noremap <C-x>k  :topleft new<CR>:terminal<CR>
+noremap <C-x>j  :botbelow new<CR>:terminal<CR>
+noremap <C-x>h  :leftabove vnew<CR>:terminal<CR>
+noremap <C-x>l  :rightbelow vnew<CR>:terminal<CR>
+noremap <C-x><Tab>  :tabnew<CR>:terminal<CR>
 
 if has('nvim')
-	tnoremap <M-Up> <C-\><C-n><S-w>Up
-	tnoremap <M-Down> <C-\><C-n><S-w>Down
-	tnoremap <M-Left> <C-\><C-n><S-w>Left
-	tnoremap <M-Right> <C-\><C-n><S-w>Right
+  autocmd BufEnter, term://* startinsert
+  autocmd BufLeave, term://* stopinsert
+  tnoremap <Esc> <C-\><C-n>
+  tnoremap <C-x>k <C-\><C-n>:topleft new<CR>:terminal<CR>
+  tnoremap <C-x>j <C-\><C-n>:botbelow new<CR>:terminal<CR>
+  tnoremap <C-x>h <C-\><C-n>:leftabove vnew<CR>:terminal<CR>
+  tnoremap <C-x>l <C-\><C-n>:rightbelow vnew<CR>:terminal<CR>
+  tnoremap <C-x><Tab>  <C-\><C-n>:tabnew<CR>:terminal<CR>
 endif
