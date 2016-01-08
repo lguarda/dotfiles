@@ -11,6 +11,7 @@ try
 	Plug 'https://github.com/octol/vim-cpp-enhanced-highlight'
 	Plug 'https://github.com/will133/vim-dirdiff'
 	Plug 'https://github.com/vim-scripts/a.vim'
+	Plug 'https://github.com/mbbill/undotree'
 
 	if has('nvim')
 		Plug 'https://github.com/critiqjo/lldb.nvim'
@@ -19,6 +20,7 @@ try
 	call plug#end()
 catch
 endtry
+let g:airline#extensions#branch#enabled=1
 
 let g:syntastic_cpp_compiler = 'c++'
 let g:syntastic_cpp_compiler_options = ' -std=c++03 -stdlib=libc++ -Wall -Werror -Wextra'
@@ -50,7 +52,7 @@ set tabstop=4								" redifine tab display as n space
 set t_Co=256								" change nubmer of term color
 set cursorline								" hightlight current line
 set shiftwidth=4
-"set expandtab
+" set expandtab
 set autoindent
 set smartindent
 set whichwrap+=<,>,h,l,[,]					" warp cusrsor when reache end and begin of line
@@ -68,7 +70,9 @@ set nowrap									" dont warp long line
 set virtualedit=onemore
 set timeoutlen=400							" delay of key combinations ms
 set updatetime=500
-
+set matchpairs=(:),[:],{:},<:>
+set lazyredraw          " redraw only when we need to.
+set incsearch           "search as characters are entered
 hi Folded ctermbg=16
 
 let mapleader = ","
@@ -88,7 +92,10 @@ inoremap <C-a>	<Esc><S-i>
 inoremap <C-e>	<Esc><S-a>
 inoremap <M-left>	20z<left>
 inoremap <C-e>	<Esc><S-a>
+inoremap hh <C-o>:stopinsert<CR>:echo<CR>
 
+cnoremap hh <Esc>
+vnoremap nn <ESC>
 noremap <C-f>   /
 noremap ;     :
 noremap gg=G		gg=G''
@@ -108,6 +115,7 @@ noremap <S-Tab>				:tabprevious<CR>
 noremap <Tab>				:tabnext<CR>
 
 noremap <C-g>				:NERDTreeToggle<CR>
+noremap <C-b>				::UndotreeToggle<CR>
 noremap <S-z>				:set fdm=syntax<CR>zR
 nnoremap <space>			:nohlsearch<CR>
 
@@ -137,8 +145,14 @@ cnoremap <C-k>	<Up>
 inoremap <C-u>				<Esc><C-r>
 noremap <C-u>				<C-r>
 
-noremap <silent>			<C-s>	:w!<CR>
-noremap <silent>			<C-s>	:q<CR>
+inoremap <C-s>        <Esc>:w<CR><insert><Right>
+noremap <silent>			<C-s>	:w<CR>
+noremap <silent>			<C-q>	:q<CR>
+noremap <C-x>w        :execute ToggleLineWrap()<CR>''
+
+vnoremap <M-c> "+2yy
+vnoremap <M-x> "+dd 
+noremap <M-v> "+p
 
 set pastetoggle=<F2>
 map! <F3> <C-R>=strftime('%c')<CR>
@@ -162,4 +176,21 @@ if has('nvim')
   tnoremap <C-x>h <C-\><C-n>:leftabove vnew<CR>:terminal<CR>
   tnoremap <C-x>l <C-\><C-n>:rightbelow vnew<CR>:terminal<CR>
   tnoremap <C-x><Tab>  <C-\><C-n>:tabnew<CR>:terminal<CR>
+  tnoremap <M-v> <Esc>"+p<insert>
 endif
+let g:isWrap = 0
+function! ToggleLineWrap()
+  if g:isWrap == 1
+    set nowrap
+    noremap j j
+    noremap k k
+    let g:isWrap = 0
+    echo "Toggle wrap off"
+  else
+    set wrap linebreak
+    noremap j gj
+    noremap k gk
+    let g:isWrap = 1
+    echo "Toggle wrap on"
+  endif
+endfunction
