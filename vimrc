@@ -58,6 +58,7 @@ endtry
 set background=dark
 
 set number									" display line number
+set numberwidth=1
 set cc=80									" display column layout
 set tabstop=4								" redifine tab display as n space
 set t_Co=256								" change nubmer of term color
