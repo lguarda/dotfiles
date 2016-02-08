@@ -13,8 +13,6 @@ try
 	Plug 'https://github.com/vim-scripts/a.vim'
 	Plug 'https://github.com/tpope/vim-fugitive'
 	Plug 'https://github.com/mbbill/undotree'
-	Plug 'https://github.com/ryanoasis/vim-devicons'
-	"Plug 'https://github.com/vim-scripts/vim-pad'
 	Plug 'https://github.com/godlygeek/tabular'
 	Plug 'https://github.com/vim-scripts/mru.vim'
 	Plug 'https://github.com/easymotion/vim-easymotion'
@@ -88,6 +86,8 @@ set lazyredraw          " redraw only when we need to.
 set incsearch           "search as characters are entered
 set undodir=/tmp
 set undofile
+set fillchars+=vert:│
+hi! VertSplit ctermfg=darkgrey ctermbg=bg term=NONE
 hi Folded ctermbg=16
 
 let mapleader = ","
@@ -280,6 +280,6 @@ let g:EasyMotion_do_mapping = 0 " Disable default mappings
 nmap f <Plug>(easymotion-sl)
 nmap F <Plug>(easymotion-overwin-f2)
 let g:EasyMotion_keys = 'alskjdhfwiueg'
-let g:EasyMotion_do_shade = 1
-map W <Plug>(easymotion-bd-w)
-let g:EasyMotion_smartcase = 0
+let g:EasyMotion_do_shade = 0
+nmap W <Plug>(easymotion-bd-w)
+let g:EasyMotion_smartcase = 1
