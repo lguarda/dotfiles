@@ -80,7 +80,7 @@ set tabstop=4								" redifine tab display as n space
 set t_Co=256								" change nubmer of term color
 set cursorline								" hightlight current line
 set shiftwidth=4
-set expandtab								" use muliple space instead of tab
+"set expandtab								" use muliple space instead of tab
 set autoindent
 set smartindent
 set whichwrap+=<,>,h,l,[,]					" warp cusrsor when reache end and begin of line
