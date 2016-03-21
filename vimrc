@@ -269,64 +269,64 @@ vnoremap n     :NR<CR>
 "==========
 
 function! ToggleLineWrap()
-  if b:isWrap == 0
-    set nowrap
-    noremap <buffer> j j
-    noremap <buffer> k k
-    let b:isWrap = 1
-    echo "Toggle wrap off"
-  else
-    setlocal wrap linebreak
-    noremap <buffer> j gj
-    noremap <buffer> k gk
-    let b:isWrap = 0
-    echo "Toggle wrap on"
-  endif
+	if b:isWrap == 0
+		set nowrap
+		noremap <buffer> j j
+		noremap <buffer> k k
+		let b:isWrap = 1
+		echo "Toggle wrap off"
+	else
+		setlocal wrap linebreak
+		noremap <buffer> j gj
+		noremap <buffer> k gk
+		let b:isWrap = 0
+		echo "Toggle wrap on"
+	endif
 endfunction
 
 function! ToggleBinaryMode()
-    if b:isBinary == 0
-        :%!xxd
-        let b:isBinary = 1
-    else
-        :%!xxd -r
-        let b:isBinary = 0
-    endif
+	if b:isBinary == 0
+		:%!xxd
+		let b:isBinary = 1
+	else
+		:%!xxd -r
+		let b:isBinary = 0
+	endif
 endfunction
 
 command! AnchorToggle call AnchorToggle()
 function! AnchorToggle()
-    if b:isAnchor == 1
-        let b:isAnchor = 0
-        exec "noremap j j"
-        exec "noremap k k"
-    else
-        let b:isAnchor = 1
-    endif
+	if b:isAnchor == 1
+		let b:isAnchor = 0
+		exec "noremap j j"
+		exec "noremap k k"
+	else
+		let b:isAnchor = 1
+	endif
 endfunction
 
 function! Anchor()
-    if !exists("b:isAnchor")
-        let b:isAnchor = 1
-    endif
-    if b:isAnchor == 1
-        if winline() < winheight(0) / 8
-            exec "noremap <buffer> k gk<C-y>"
-        else
-            exec "noremap <buffer> k gk"
-        endif
-        if winline() > (winheight(0) - winheight(0) / 8)
-            exec "noremap <buffer> j gj<C-e>"
-        else
-            exec "noremap <buffer> j gj"
-        endif
-    endif
+	if !exists("b:isAnchor")
+		let b:isAnchor = 1
+	endif
+	if b:isAnchor == 1
+		if winline() < winheight(0) / 8
+			exec "noremap <buffer> k gk<C-y>"
+		else
+			exec "noremap <buffer> k gk"
+		endif
+		if winline() > (winheight(0) - winheight(0) / 8)
+			exec "noremap <buffer> j gj<C-e>"
+		else
+			exec "noremap <buffer> j gj"
+		endif
+	endif
 endfunction
 
 "" NERDTress File highlighting
 function! NERDTreeHighlightFile(extension, fg, bg)
- exec 'autocmd filetype nerdtree syn match ' . 'nerd' . a:extension .' #^\s\+.*\.'. a:extension .'$#'
- exec 'autocmd filetype nerdtree highlight ' . 'nerd' . a:extension .' ctermbg='. a:bg .' ctermfg='. a:fg .' guibg='. a:bg .' guifg='. a:fg
+	exec 'autocmd filetype nerdtree syn match ' . 'nerd' . a:extension .' #^\s\+.*\.'. a:extension .'$#'
+	exec 'autocmd filetype nerdtree highlight ' . 'nerd' . a:extension .' ctermbg='. a:bg .' ctermfg='. a:fg .' guibg='. a:bg .' guifg='. a:fg
 endfunction
 
 call NERDTreeHighlightFile('cpp', 'green', 'none')
@@ -337,4 +337,7 @@ call NERDTreeHighlightFile('py', 'cyan', 'none')
 call NERDTreeHighlightFile('py\*', 'cyan', 'none')
 call NERDTreeHighlightFile('sh', 'yellow', 'none')
 call NERDTreeHighlightFile('sh\*', 'yellow', 'none')
-call NERDTreeHighlightFile('php', 'magenta', 'none')
+call NERDTreeHighlightFile('ini', 'darkyellow', 'none')
+call NERDTreeHighlightFile('php', 'lightyellow', 'none')
+call NERDTreeHighlightFile('lua', 'lightblue', 'none')
+call NERDTreeHighlightFile('moon', 'blue', 'none')
