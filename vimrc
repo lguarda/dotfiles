@@ -1,13 +1,11 @@
 try
 	call plug#begin('~/.vim/plugged')
-	Plug 'https://github.com/scrooloose/syntastic'
 	Plug 'https://github.com/morhetz/gruvbox'
 	Plug 'https://github.com/scrooloose/nerdtree'
 	Plug 'https://github.com/mhartington/oceanic-next'
 	Plug 'https://github.com/bling/vim-airline'
-    Plug 'https://github.com/luochen1990/rainbow'
 	Plug 'https://github.com/itchyny/vim-cursorword'
-    Plug 'https://github.com/octol/vim-cpp-enhanced-highlight'
+	Plug 'https://github.com/octol/vim-cpp-enhanced-highlight'
 	Plug 'https://github.com/will133/vim-dirdiff'
 	Plug 'https://github.com/vim-scripts/a.vim'
 	Plug 'https://github.com/tpope/vim-fugitive'
@@ -15,42 +13,50 @@ try
 	Plug 'https://github.com/godlygeek/tabular'
 	Plug 'https://github.com/vim-scripts/mru.vim'
 	Plug 'https://github.com/easymotion/vim-easymotion'
-    Plug 'https://github.com/matze/vim-move'
-    Plug 'https://github.com/kana/vim-textobj-user'
-    Plug 'https://github.com/kana/vim-textobj-function'
-    Plug 'https://github.com/rhysd/vim-textobj-anyblock'
-    Plug 'https://github.com/sgur/vim-textobj-parameter'
-    Plug 'https://github.com/AndrewRadev/switch.vim'
-    Plug 'https://github.com/terryma/vim-multiple-cursors'
-    Plug 'https://github.com/scrooloose/nerdcommenter'
-    Plug 'https://github.com/KKPMW/moonshine-vim'
-    Plug 'https://github.com/chrisbra/NrrwRgn'
-    Plug 'https://github.com/justinmk/vim-syntax-extra'
+	Plug 'https://github.com/matze/vim-move'
+	Plug 'https://github.com/kana/vim-textobj-user'
+	Plug 'https://github.com/kana/vim-textobj-function'
+	Plug 'https://github.com/rhysd/vim-textobj-anyblock'
+	Plug 'https://github.com/sgur/vim-textobj-parameter'
+	Plug 'https://github.com/AndrewRadev/switch.vim'
+	Plug 'https://github.com/terryma/vim-multiple-cursors'
+	Plug 'https://github.com/scrooloose/nerdcommenter'
+	Plug 'https://github.com/KKPMW/moonshine-vim'
+	Plug 'https://github.com/chrisbra/NrrwRgn'
+	Plug 'https://github.com/justinmk/vim-syntax-extra'
+	Plug 'https://github.com/luochen1990/rainbow'
+	Plug 'https://github.com/oblitum/rainbow'
+	Plug 'https://github.com/airblade/vim-gitgutteR'
 
 	if has('nvim')
+		Plug 'https://github.com/benekastah/neomake'
 		Plug 'https://github.com/critiqjo/lldb.nvim'
 	endif
 
 	call plug#end()
 catch
 endtry
-let g:airline#extensions#hunks#enabled=0
+let g:neomake_error_sign = {
+			\ 'text': '⚠',
+			\ 'texthl': 'ErrorMsg',
+			\ }
+
+let g:airline#extensions#hunks#enabled=1
 let g:airline#extensions#branch#enabled=1
+let g:airline#extensions#whitespace#enabled=0
 let g:airline_powerline_fonts = 1
+let g:airline_theme='oceanicnext'
+let g:airline_mode_map = {'c': 'C', '^S': 'S-BLOCK', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '^V': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
 
-let g:syntastic_cpp_compiler = 'g++'
-let g:syntastic_cpp_compiler_options = ' -std=c++03 -stdlib=libc++ -Wall -Werror -Wextra'
-let g:syntastic_cpp_include_dirs = ['../../../include', '../../include','../include','./include']
-
-let g:syntastic_c_compiler = 'gcc'
-let g:syntastic_c_compiler_options = ' -Wall -Werror -Wextra'
-let g:syntastic_c_include_dirs = ['../../../include', '../../include','../include','./include']
+let g:gitgutter_sign_removed="-"
+let g:gitgutter_sign_modified_removed="\u22cd"
 
 let g:switch_mapping = '['
 let g:switch_reverse_mapping = ']'
 let g:switch_custom_definitions = [
-      \   ['--', '++']
-      \ ]
+			\   ['--', '++'],
+			\   ['yes', 'no']
+			\ ]
 let g:cpp_class_scope_highlight = 1
 
 let g:NERDTreeDirArrows=0
@@ -66,6 +72,7 @@ set background=dark
 set nocompatible
 set hidden
 set showtabline=1
+set noshowmode
 set number									" display line number
 set numberwidth=1
 "set cc=80									" display column layout
@@ -126,6 +133,7 @@ inoremap <C-j>	<Down>
 inoremap <C-h>	<Left>
 inoremap <C-l>	<Right>
 
+nnoremap <silent> <C-t> :let @3=@"<CR>xp:let@"=@3<CR>
 nnoremap t <C-]>
 nnoremap <S-t> <C-t>
 noremap <C-f>   /
@@ -154,7 +162,7 @@ noremap <S-down> 5<C-w>-
 
 vnoremap <Tab>				>
 vnoremap <S-Tab>			<
-
+vnoremap <Space>            :s/\s\+$//<CR>
 
 noremap <S-k>				<C-w><Up>
 noremap <S-j>				<C-w><Down>
@@ -202,27 +210,28 @@ nnoremap <down> <C-e>
 map! <F3> <C-R>=strftime('%c')<CR>
 
 if has('nvim')
-  tnoremap <Esc> <C-\><C-n>
-  tnoremap <C-x>k <C-\><C-n>:topleft new<CR>:terminal<CR>
-  tnoremap <C-x>j <C-\><C-n>:botright new<CR>:terminal<CR>
-  tnoremap <C-x>h <C-\><C-n>:leftabove vnew<CR>:terminal<CR>
-  tnoremap <C-x>l <C-\><C-n>:rightbelow vnew<CR>:terminal<CR>
-  tnoremap <C-x><Tab>  <C-\><C-n>:tabnew<CR>:terminal<CR>
-  tnoremap <M-v> <Esc>"+p<insert>
-  tnoremap ''	''<Left>
-  tnoremap ""	""<Left>
-  tnoremap ()	()<Left>
-  tnoremap []	[]<Left>
-  tnoremap <>	<><Left>
-  tnoremap hh	<Esc>
+	tnoremap <Esc> <C-\><C-n>
+	tnoremap <C-x>k <C-\><C-n>:topleft new<CR>:terminal<CR>
+	tnoremap <C-x>j <C-\><C-n>:botright new<CR>:terminal<CR>
+	tnoremap <C-x>h <C-\><C-n>:leftabove vnew<CR>:terminal<CR>
+	tnoremap <C-x>l <C-\><C-n>:rightbelow vnew<CR>:terminal<CR>
+	tnoremap <C-x><Tab>  <C-\><C-n>:tabnew<CR>:terminal<CR>
+	tnoremap <M-v> <Esc>"+p<insert>
+	tnoremap ''	''<Left>
+	tnoremap ""	""<Left>
+	tnoremap ()	()<Left>
+	tnoremap []	[]<Left>
+	tnoremap <>	<><Left>
+	tnoremap hh	<Esc>
 endif
 
+autocmd! BufWritePost * silent! Neomake!
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 autocmd ColorScheme * hi! VertSplit ctermfg=darkgrey ctermbg=bg term=NONE
-autocmd ColorScheme *hi! LineNr ctermfg=darkgrey ctermbg=bg
-autocmd ColorScheme *hi Folded ctermbg=16
+autocmd ColorScheme * hi! LineNr ctermfg=darkgrey ctermbg=bg
+autocmd ColorScheme * hi Folded ctermbg=16
 autocmd BufEnter, term://* startinsert
 autocmd BufLeave, term://* stopinsert
 autocmd BufEnter * if !exists('b:isAnchor') | let b:isAnchor = 1 | endif
