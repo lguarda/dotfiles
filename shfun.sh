@@ -105,6 +105,72 @@ gddall () {
     done
 }
 
+gmb () {
+if [ "$#" -eq 2 ];then
+    local revHead
+    local l1
+    local l2
+    local len1
+    local len2
+    local mb1
+    local mb2
+    local mb1s
+    local mb2s
+    local hash1
+    local hash2
+
+    l1=$(git rev-list $1)
+    l2=$(git rev-list $2)
+
+    len1=$(echo $l1 | wc -l)
+    len2=$(echo $l2 | wc -l)
+
+
+    mergeBase=$(git merge-base $1 $2)
+    i=0
+    git rev-list $1 | 
+    while read CMD; do
+        if [ $CMD = $mergeBase ];then
+            mb1=$i
+        fi
+        i=$(($i + 1))
+    done
+    i=0
+    git rev-list $2 | 
+    while read CMD; do
+        if [ $CMD = $mergeBase ];then
+            mb2=$i
+        fi
+        i=$(($i + 1))
+    done
+    mb1s=$mb1
+    mb2s=$mb2
+    if [ $mb1 -gt $mb2 ];then
+        mb2=$(($mb2 - $mb1))
+        mb1=$(($mb1 - $mb1))
+    else
+        mb1=$(($mb1 - $mb2))
+        mb2=$(($mb2 - $mb2))
+    fi
+    i=0
+    while :
+    do
+        hash1="                                        ";hash2="                                        "
+        if [ $mb1 -ge 0 ];then 
+            hash1=$(echo -n $(echo $l1 | sed -n $(echo $(($mb1 + 1)))p))
+            #echo -n $hash1
+        fi
+        if [ $mb2 -ge 0 ];then 
+            hash2=$(echo -n $(echo $l2 | sed -n $(echo $(($mb2 + 1)))p))
+            #echo -n $hash2
+        fi
+        if [ $hash1 = $hash2 ];then; printf "\x1b[32m%s = %s\x1b[0m\n" "$hash1" "$hash2"
+        else printf "\x1b[33m%s ~ %s\x1b[0m\n" "$hash1" "$hash2";fi
+        mb1=$(($mb1 + 1)); mb2=$(($mb2 + 1))
+        if [ $mb1 -gt $len1 ] && [ $mb2 -gt $len2 ];then; break; fi
+    done
+fi
+}
 #tibi stuff
 function up-line-or-search-prefix () # smart up search (search in history anything matching before the cursor)
 {
