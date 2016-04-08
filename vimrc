@@ -68,6 +68,7 @@ try
 	colorscheme OceanicNext
 catch
 endtry
+set noeol
 set background=dark
 set nocompatible
 set hidden
@@ -98,15 +99,15 @@ set autochdir								" auto change directories of file
 set nowrap									" dont warp long line
 set virtualedit=onemore
 set timeoutlen=400							" delay of key combinations ms
-set updatetime=500
+set updatetime=250
 set matchpairs=(:),[:],{:},<:>				" hl pairs and jump with %
 set lazyredraw								" redraw only when we need to.
 set incsearch								" While typing a search command, show where the pattern is
 set undodir=/tmp
 set undofile
-set fillchars+=vert:│						" use pipe as split character
+set fillchars+=vert:ʃ"│						" use pipe as split character
 set pastetoggle=<F2>
-
+set notagbsearch " disable the error E432 see :h E432
 hi! VertSplit ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg term=NONE
 hi! LineNr ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg
 hi Folded ctermbg=16
@@ -133,6 +134,8 @@ inoremap <C-j>	<Down>
 inoremap <C-h>	<Left>
 inoremap <C-l>	<Right>
 
+nnoremap <silent> x "_x
+nnoremap <silent> <S-x> "_<S-x>
 nnoremap <silent> <C-t> :let @3=@"<CR>xp:let@"=@3<CR>
 nnoremap t <C-]>
 nnoremap <S-t> <C-t>
@@ -148,7 +151,6 @@ noremap <C-e>			g$
 
 noremap <M-r>               :RainbowToggle<CR>
 noremap <C-g>				:NERDTreeToggle<CR>
-noremap <C-b>				:UndotreeToggle<CR>:UndotreeFocus<CR>
 noremap <Space><Space>		:tabedit ~/.vimrc<CR>
 nnoremap <S-Tab>			:tabprevious<CR>
 nnoremap <Tab>				:tabnext<CR>
@@ -179,21 +181,22 @@ inoremap <C-u>				<Esc><C-r>
 noremap <C-u>				<C-r>
 
 inoremap <C-s>        <Esc>:w<CR><insert><Right>
-noremap <silent>			<C-s>	:w<CR>
-noremap <silent>			<C-q>	:q<CR>
+nnoremap <silent>			<C-s>	:w<CR>
+nnoremap <silent>			<C-q>	:q<CR>
 
-noremap <C-x><S-s>  :w !sudo tee %<CR>L<CR>
-noremap <C-j>       <S-j>
-noremap <C-l>       <S-l>
-noremap <C-h>       <S-h>
+nnoremap <C-x><S-s>  :w !sudo tee %<CR>L<CR>
+nnoremap <C-j>       <S-j>
+nnoremap <C-l>       <S-l>
+nnoremap <C-h>       <S-h>
 
-"==========system ClipBoard access
+"==========system ClipBoard acces
 vnoremap <M-c> "+2yy
 vnoremap <M-x> "+dd 
 noremap <M-v> "+P
 inoremap <M-v> <C-o>"+P
 "==========
 
+nnoremap <C-x><C-d>       :w !diff % -<CR>
 noremap <C-x><C-w>        :execute ToggleLineWrap()<CR>''
 noremap <C-x><C-r>        :so $MYVIMRC<CR>
 noremap <C-x>k  :topleft new<CR>:terminal<CR>
@@ -245,7 +248,12 @@ autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
 autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
 autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Right>);<Esc>2<Left><insert>
 
-
+"==========undotree
+noremap <C-b>				:UndotreeToggle<CR>
+let g:undotree_SetFocusWhenToggle=1
+let g:undotree_WindowLayout=4
+"==========
+"
 "==========easy Motion config
 let g:EasyMotion_do_mapping = 0 " Disable default mappings
 nmap f <Plug>(easymotion-sl)
@@ -270,7 +278,7 @@ vnoremap n     :NR<CR>
 
 function! ToggleLineWrap()
 	if b:isWrap == 0
-		set nowrap
+		setlocal nowrap
 		noremap <buffer> j j
 		noremap <buffer> k k
 		let b:isWrap = 1
@@ -341,3 +349,21 @@ call NERDTreeHighlightFile('ini', 'darkyellow', 'none')
 call NERDTreeHighlightFile('php', 'lightyellow', 'none')
 call NERDTreeHighlightFile('lua', 'lightblue', 'none')
 call NERDTreeHighlightFile('moon', 'blue', 'none')
+
+function! CleanEmptyBuffers()
+  let buffers = filter(range(0, bufnr('$')), 'buflisted(v:val) && empty(bufname(v:val)) && bufwinnr(v:val)<0')
+  if !empty(buffers)
+    exe 'bw '.join(buffers, ' ')
+  endif
+endfunction
+
+let g:marks = []
+function! Test()
+    let a:m = 'l'
+    let a:l = 355
+    let a:c = 7
+    let a:asd = {'mark':a:m,'line':a:l,'col':a:c}
+    call add(g:marks, a:asd)
+endfunction
+
+let s:all_marks = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.'`^<>[]{}()\""
