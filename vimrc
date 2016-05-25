@@ -44,7 +44,7 @@ let g:neomake_error_sign = {
 let g:airline#extensions#hunks#enabled=1
 let g:airline#extensions#branch#enabled=1
 let g:airline#extensions#whitespace#enabled=0
-let g:airline_powerline_fonts = 1
+"let g:airline_powerline_fonts = 1
 let g:airline_theme='oceanicnext'
 let g:airline_mode_map = {'c': 'C', '^S': 'S-BLOCK', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '^V': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
 
@@ -85,7 +85,7 @@ set shiftwidth=4
 set autoindent
 set smartindent
 set whichwrap+=<,>,h,l,[,]					" warp cusrsor when reache end and begin of line
-set list listchars=tab:»·,trail:· ",eol:¶		" highlight tab space en eol
+set list listchars=tab:»\ ,trail:· ",eol:¶		" highlight tab space en eol
 set foldnestmax=1							" allow 0 nested fold
 set noswapfile
 set autoread								" change file when editing from the outside
@@ -105,13 +105,20 @@ set lazyredraw								" redraw only when we need to.
 set incsearch								" While typing a search command, show where the pattern is
 set undodir=/tmp
 set undofile
-set fillchars+=vert:ʃ"│						" use pipe as split character
+set fillchars=""vert:"│						" use pipe as split character
 set pastetoggle=<F2>
 set notagbsearch " disable the error E432 see :h E432
-hi! VertSplit ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg term=NONE
-hi! LineNr ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg
-hi Folded ctermbg=16
 
+try
+	hi! VertSplit ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg term=NONE
+	hi! LineNr ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg
+	hi Folded ctermbg=16
+	hi NonText ctermfg=bg
+	hi CursorLine ctermbg=233
+	hi CursorWord1 ctermbg=bg
+	hi CursorLineNr ctermbg=bg
+catch
+endtry
 "==========Pair characters change
 inoremap {<CR>	{}<Left><cr><cr><up><tab>
 inoremap {}	{}<Left>
@@ -274,6 +281,16 @@ map cc <plug>NERDCommenterToggle
 let g:nrrw_rgn_vert = 1
 let g:nrrw_rgn_resize_window = 'column'
 vnoremap n     :NR<CR>
+"==========
+
+"=========GitGutter
+try
+	hi GitGutterAdd ctermbg=bg
+	hi GitGutterDelete ctermbg=bg
+	hi GitGutterChange ctermbg=bg
+	hi GitGutterChangeDelete ctermbg=bg
+catch
+endtry
 "==========
 
 function! ToggleLineWrap()
