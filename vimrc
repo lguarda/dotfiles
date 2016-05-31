@@ -27,6 +27,7 @@ try
 	Plug 'https://github.com/luochen1990/rainbow'
 	Plug 'https://github.com/oblitum/rainbow'
 	Plug 'https://github.com/airblade/vim-gitgutteR'
+	Plug 'https://github.com/elzr/vim-json'
 
 	if has('nvim')
 		Plug 'https://github.com/benekastah/neomake'
@@ -376,11 +377,22 @@ endfunction
 
 let g:marks = []
 function! Test()
-    let a:m = 'l'
-    let a:l = 355
-    let a:c = 7
-    let a:asd = {'mark':a:m,'line':a:l,'col':a:c}
-    call add(g:marks, a:asd)
+    let l:m = 'l'
+    let l:l = 355
+    let l:c = 7
+    let l:asd = {'mark':l:m,'line':l:l,'col':l:c}
+    call add(g:marks, l:asd)
 endfunction
 
 let s:all_marks = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.'`^<>[]{}()\""
+
+command! Ifndef call Insert_ifndef()
+
+function! Insert_ifndef()
+  let l:filename = substitute(toupper(expand("%:t")), "\\.", "_", "g")
+  execute "normal! gg"
+  execute "normal! i#ifndef " . l:filename . "\r"
+  execute "normal! i# define " . l:filename . "\r\r"
+  execute "normal! Go\r#endif /* " . l:filename . " */"
+  normal! kk
+endfunction
