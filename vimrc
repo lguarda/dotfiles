@@ -206,7 +206,7 @@ inoremap <M-v> <C-o>"+P
 
 nnoremap <C-x><C-d>       :w !diff % -<CR>
 noremap <C-x><C-w>        :execute ToggleLineWrap()<CR>''
-noremap <C-x><C-r>        :so $MYVIMRC<CR>
+noremap <C-x><C-r>        :so $MYVIMRC<CR>:nohlsearch<CR>
 noremap <C-x>k  :topleft new<CR>:terminal<CR>
 noremap <C-x>j  :botright new<CR>:terminal<CR>
 noremap <C-x>h  :leftabove vnew<CR>:terminal<CR>
@@ -395,4 +395,98 @@ function! Insert_ifndef()
   execute "normal! i# define " . l:filename . "\r\r"
   execute "normal! Go\r#endif /* " . l:filename . " */"
   normal! kk
+endfunction
+
+"s/(\(.*\),\s*\(.*\))/(\2, \1)
+"s/(\(.*\),\s*\(.*/))/(\1, \2)/gc
+
+function! Switch_arg(nb)
+	let l:c = 1
+	let l:str = "s/(\\(.*\\)"
+
+	while l:c < a:nb
+		let l:str = join([l:str, ",\\s*\\(.*\\)"], "")
+		let l:c += 1
+	endwhile
+	let l:str = join([l:str, ")"], "")
+	let l:c = 1
+	let l:str = join([l:str, "/(\\1"], "")
+	while l:c < a:nb
+		let l:str = join([l:str, ", \\", l:c+1], "")
+		let l:c += 1
+	endwhile
+	let l:str = join([l:str, ")/gc"], "")
+	let @a = l:str
+endfunction
+
+highlight currawong ctermbg=darkred guibg=darkred
+
+let g:mtags = []
+
+command! Test3 call Test3()
+function! Test3()
+	let g:str = ":match currawong /"
+	:for i in g:mtags
+	:  let g:str = g:str . '\%' . string(i) . 'l\|'
+	:endfor
+	if len(g:mtags) > 0
+		:let g:str = strpart(g:str, 0, len(g:str) - 2)
+	endif
+	let g:str = g:str . '/'
+	:execute g:str
+endfunction
+
+command! Test2 call Test2()
+function! Test2()
+	:set modifiable
+	"let b:line = winline()
+	let b:line = strpart(getline('.'), 3, len(getline('.')))
+
+	let b:num = index(g:mtags, b:line)
+	if b:num == -1
+		:call add(g:mtags, b:line)
+		execute "normal! ^R[*]"
+	else
+		:call remove(g:mtags, b:num)
+		execute "normal! ^R[ ]"
+	endif
+	:call writefile(msgpackdump(g:mtags), '/home/leman/fname.mpack', 'b')
+	:call uniq(sort(g:mtags))
+	:set nomodifiable
+	":Test3
+endfunction
+
+command! Test call Test()
+function! Test()
+	let fname = expand('/home/leman/fname.mpack')
+	let mpack = readfile(fname, 'b')
+	let g:mtags = msgpackparse(mpack)
+	:vne ~/.config/test
+	:vertical resize 35
+	:set modifiable
+	:setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
+	:set noundofile
+	:nnoremap <buffer> <space> :Test2<CR>
+	:nnoremap <buffer> <CR> :Test2<CR>
+
+	let g:allt = getline(0, '$')
+	:for i in g:mtags
+		if index(g:allt, i) == -1
+			:call remove(g:mtags, index(g:mtags, i))
+		endif
+	:endfor
+
+	execute "normal! gg"
+	let b:c = 0
+	while b:c < line('$')
+		let b:c += 1
+		if index(g:mtags, getline('.')) == -1
+			execute "normal! ^I[ ]"
+		else
+			execute "normal! ^I[*]"
+		endif
+ 		normal! j
+	endwhile
+	:set nomodifiable
+	":Test3
 endfunction
