@@ -3,6 +3,7 @@ try
 	Plug 'https://github.com/morhetz/gruvbox'
 	Plug 'https://github.com/scrooloose/nerdtree'
 	Plug 'https://github.com/mhartington/oceanic-next'
+	Plug 'https://github.com/KeitaNakamura/neodark.vim'
 	Plug 'https://github.com/bling/vim-airline'
 	Plug 'https://github.com/itchyny/vim-cursorword'
 	Plug 'https://github.com/octol/vim-cpp-enhanced-highlight'
@@ -28,6 +29,7 @@ try
 	Plug 'https://github.com/oblitum/rainbow'
 	Plug 'https://github.com/airblade/vim-gitgutteR'
 	Plug 'https://github.com/elzr/vim-json'
+	Plug 'https://github.com/vim-scripts/OmniCppComplete'
 
 	if has('nvim')
 		Plug 'https://github.com/benekastah/neomake'
@@ -47,7 +49,7 @@ let g:airline#extensions#branch#enabled=1
 let g:airline#extensions#whitespace#enabled=0
 "let g:airline_powerline_fonts = 1
 let g:airline_theme='oceanicnext'
-let g:airline_mode_map = {'c': 'C', '^S': 'S-BLOCK', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '^V': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
+let g:airline_mode_map = {'c': 'C', '^S': 'S-B', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
 
 let g:gitgutter_sign_removed="-"
 let g:gitgutter_sign_modified_removed="\u22cd"
@@ -64,9 +66,19 @@ let g:NERDTreeDirArrows=0
 let mapleader = ","
 let g:mapleader = ","
 
+"omni cpp
+let OmniCpp_NamespaceSearch = 1
+let OmniCpp_GlobalScopeSearch = 1
+let OmniCpp_ShowAccess = 1
+let OmniCpp_ShowPrototypeInAbbr = 1 " show function parameters
+let OmniCpp_MayCompleteDot = 1 " autocomplete after .
+let OmniCpp_MayCompleteArrow = 1 " autocomplete after ->
+let OmniCpp_MayCompleteScope = 1 " autocomplete after ::
+let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
+
 syntax on
 try
-	colorscheme OceanicNext
+	colorscheme neodark
 catch
 endtry
 set noeol
@@ -109,6 +121,7 @@ set undofile
 set fillchars=""vert:"│						" use pipe as split character
 set pastetoggle=<F2>
 set notagbsearch " disable the error E432 see :h E432
+set completeopt=menuone,menu,longest,preview
 
 try
 	hi! VertSplit ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg term=NONE
@@ -255,6 +268,10 @@ autocmd FileType c map! <F4> printf( __func__" line:"__LINE__"\n");
 autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
 autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
 autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Right>);<Esc>2<Left><insert>
+
+" omnicpp
+au BufNewFile,BufRead,BufEnter *.cpp,*.hpp set omnifunc=omni#cpp#complete#Main
+au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
 
 "==========undotree
 noremap <C-b>				:UndotreeToggle<CR>
@@ -423,17 +440,29 @@ highlight currawong ctermbg=darkred guibg=darkred
 
 let g:mtags = []
 
+
+command! SetTags call SetTags()
+function! SetTags()
+	let l:str = ":set tags="
+	:for i in g:mtags
+	:  let l:str = l:str . i . ','
+	:endfor
+    :execute l:str
+	:echomsg l:str
+endfunction
+
 command! Test3 call Test3()
 function! Test3()
-	let g:str = ":match currawong /"
+	let l:str = ":match currawong /"
 	:for i in g:mtags
-	:  let g:str = g:str . '\%' . string(i) . 'l\|'
+	:  let l:str = l:str . '\%' . string(i) . 'l\|'
 	:endfor
 	if len(g:mtags) > 0
-		:let g:str = strpart(g:str, 0, len(g:str) - 2)
+		:let l:str = strpart(l:str, 0, len(l:str) - 2)
 	endif
-	let g:str = g:str . '/'
-	:execute g:str
+	let l:str = l:str . '/'
+    :execute l:str
+	":echomsg l:str
 endfunction
 
 command! Test2 call Test2()
@@ -450,18 +479,29 @@ function! Test2()
 		:call remove(g:mtags, b:num)
 		execute "normal! ^R[ ]"
 	endif
-	:call writefile(msgpackdump(g:mtags), '/home/leman/fname.mpack', 'b')
+	:call writefile(msgpackdump(g:mtags), $HOME . '/fname.mpack', 'b')
 	:call uniq(sort(g:mtags))
 	:set nomodifiable
+	:SetTags
 	":Test3
+endfunction
+
+command! GetTagsList call GetTagsList()
+function! GetTagsList()
+	let fname = expand($HOME . '/fname.mpack')
+	let mpack = readfile(fname, 'b')
+	let g:mtags = msgpackparse(mpack)
+    let g:tlist = expand($HOME . '/.vim/tags/tlist')
+    :SetTags
 endfunction
 
 command! Test call Test()
 function! Test()
-	let fname = expand('/home/leman/fname.mpack')
+	let fname = expand($HOME . '/fname.mpack')
 	let mpack = readfile(fname, 'b')
 	let g:mtags = msgpackparse(mpack)
-	:vne ~/.config/test
+    let g:tlist = expand($HOME . '/.vim/tags/tlist')
+	:execute 'vne' g:tlist
 	:vertical resize 35
 	:set modifiable
 	:setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
