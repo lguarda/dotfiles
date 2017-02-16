@@ -249,6 +249,7 @@ if has('nvim')
 	tnoremap hh	<Esc>
 endif
 
+autocmd VimEnter * GetTagsList
 autocmd! BufWritePost * silent! Neomake!
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
@@ -283,7 +284,7 @@ let g:undotree_WindowLayout=4
 let g:EasyMotion_do_mapping = 0 " Disable default mappings
 nmap f <Plug>(easymotion-sl)
 nmap F <Plug>(easymotion-overwin-f2)
-let g:EasyMotion_keys = 'alskjdhfwiueg'
+let g:EasyMotion_keys = 'alskjdhfwiuegnv'
 let g:EasyMotion_do_shade = 0
 nmap W <Plug>(easymotion-bd-w)
 vmap W <Plug>(easymotion-bd-w)
@@ -448,7 +449,7 @@ function! SetTags()
 	:  let l:str = l:str . i . ','
 	:endfor
     :execute l:str
-	:echomsg l:str
+	":echomsg l:str
 endfunction
 
 command! Test3 call Test3()
@@ -530,3 +531,35 @@ function! Test()
 	:set nomodifiable
 	":Test3
 endfunction
+
+function! LineEnding() abort
+  if &fileformat == 'dos'
+    return "\r\n"
+  elseif &fileformat == 'mac'
+    return "\r"
+  endif
+
+  return "\n"
+endfunction
+
+function! GetOffset(line, col) abort
+  if &encoding != 'utf-8'
+    let sep = LineEnding()
+    let buf = a:line == 1 ? '' : (join(getline(1, a:line-1), sep) . sep)
+    let buf .= a:col == 1 ? '' : getline('.')[:a:col-2]
+    return len(iconv(buf, &encoding, 'utf-8'))
+  endif
+  return line2byte(a:line) + (a:col-2)
+endfunction
+
+function! OffsetCursor() abort
+  let l:lol = GetOffset(line('.'), col('.'))
+  echo l:lol
+endfunction
+
+"global feature thread safe
+"
+"coreFile 0.0.0   : open file, read access, write access
+"screen 0.0.0     : grid x/x display, float display
+"scheduler 0.0.0  : link input/output
+"coreEditor 0..0.0: edit memory
