@@ -76,11 +76,15 @@ let OmniCpp_MayCompleteArrow = 1 " autocomplete after ->
 let OmniCpp_MayCompleteScope = 1 " autocomplete after ::
 let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 
+
 syntax on
 try
 	colorscheme neodark
 catch
 endtry
+if has('nvim')
+    set nofixeol
+endif
 set noeol
 set background=dark
 set nocompatible
@@ -249,7 +253,9 @@ if has('nvim')
 	tnoremap hh	<Esc>
 endif
 
-autocmd VimEnter * GetTagsList
+if has('nvim')
+    autocmd VimEnter * GetTagsList
+endif
 autocmd! BufWritePost * silent! Neomake!
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
@@ -415,123 +421,102 @@ function! Insert_ifndef()
   normal! kk
 endfunction
 
-"s/(\(.*\),\s*\(.*\))/(\2, \1)
-"s/(\(.*\),\s*\(.*/))/(\1, \2)/gc
-
-function! Switch_arg(nb)
-	let l:c = 1
-	let l:str = "s/(\\(.*\\)"
-
-	while l:c < a:nb
-		let l:str = join([l:str, ",\\s*\\(.*\\)"], "")
-		let l:c += 1
-	endwhile
-	let l:str = join([l:str, ")"], "")
-	let l:c = 1
-	let l:str = join([l:str, "/(\\1"], "")
-	while l:c < a:nb
-		let l:str = join([l:str, ", \\", l:c+1], "")
-		let l:c += 1
-	endwhile
-	let l:str = join([l:str, ")/gc"], "")
-	let @a = l:str
-endfunction
-
 highlight currawong ctermbg=darkred guibg=darkred
 
-let g:mtags = []
+if has('nvim')
+    let g:mtags = []
 
 
-command! SetTags call SetTags()
-function! SetTags()
-	let l:str = ":set tags="
-	:for i in g:mtags
-	:  let l:str = l:str . i . ','
-	:endfor
-    :execute l:str
-	":echomsg l:str
-endfunction
+    command! SetTags call SetTags()
+    function! SetTags()
+        let l:str = ":set tags="
+        :for i in g:mtags
+        :  let l:str = l:str . i . ','
+        :endfor
+        :execute l:str
+        ":echomsg l:str
+    endfunction
 
-command! Test3 call Test3()
-function! Test3()
-	let l:str = ":match currawong /"
-	:for i in g:mtags
-	:  let l:str = l:str . '\%' . string(i) . 'l\|'
-	:endfor
-	if len(g:mtags) > 0
-		:let l:str = strpart(l:str, 0, len(l:str) - 2)
-	endif
-	let l:str = l:str . '/'
-    :execute l:str
-	":echomsg l:str
-endfunction
+    command! Test3 call Test3()
+    function! Test3()
+        let l:str = ":match currawong /"
+        :for i in g:mtags
+        :  let l:str = l:str . '\%' . string(i) . 'l\|'
+        :endfor
+        if len(g:mtags) > 0
+            :let l:str = strpart(l:str, 0, len(l:str) - 2)
+        endif
+        let l:str = l:str . '/'
+        :execute l:str
+        ":echomsg l:str
+    endfunction
 
-command! Test2 call Test2()
-function! Test2()
-	:set modifiable
-	"let b:line = winline()
-	let b:line = strpart(getline('.'), 3, len(getline('.')))
+    command! Test2 call Test2()
+    function! Test2()
+        :set modifiable
+        "let b:line = winline()
+        let b:line = strpart(getline('.'), 3, len(getline('.')))
 
-	let b:num = index(g:mtags, b:line)
-	if b:num == -1
-		:call add(g:mtags, b:line)
-		execute "normal! ^R[*]"
-	else
-		:call remove(g:mtags, b:num)
-		execute "normal! ^R[ ]"
-	endif
-	:call writefile(msgpackdump(g:mtags), $HOME . '/fname.mpack', 'b')
-	:call uniq(sort(g:mtags))
-	:set nomodifiable
-	:SetTags
-	":Test3
-endfunction
+        let b:num = index(g:mtags, b:line)
+        if b:num == -1
+            :call add(g:mtags, b:line)
+            execute "normal! ^R[*]"
+        else
+            :call remove(g:mtags, b:num)
+            execute "normal! ^R[ ]"
+        endif
+        :call writefile(msgpackdump(g:mtags), $HOME . '/fname.mpack', 'b')
+        :call uniq(sort(g:mtags))
+        :set nomodifiable
+        :SetTags
+        ":Test3
+    endfunction
 
-command! GetTagsList call GetTagsList()
-function! GetTagsList()
-	let fname = expand($HOME . '/fname.mpack')
-	let mpack = readfile(fname, 'b')
-	let g:mtags = msgpackparse(mpack)
-    let g:tlist = expand($HOME . '/.vim/tags/tlist')
-    :SetTags
-endfunction
+    command! GetTagsList call GetTagsList()
+    function! GetTagsList()
+        let fname = expand($HOME . '/fname.mpack')
+        let mpack = readfile(fname, 'b')
+        let g:mtags = msgpackparse(mpack)
+        let g:tlist = expand($HOME . '/.vim/tags/tlist')
+        :SetTags
+    endfunction
 
-command! Test call Test()
-function! Test()
-	let fname = expand($HOME . '/fname.mpack')
-	let mpack = readfile(fname, 'b')
-	let g:mtags = msgpackparse(mpack)
-    let g:tlist = expand($HOME . '/.vim/tags/tlist')
-	:execute 'vne' g:tlist
-	:vertical resize 35
-	:set modifiable
-	:setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
-	:set noundofile
-	:nnoremap <buffer> <space> :Test2<CR>
-	:nnoremap <buffer> <CR> :Test2<CR>
+    command! Test call Test()
+    function! Test()
+        let fname = expand($HOME . '/fname.mpack')
+        let mpack = readfile(fname, 'b')
+        let g:mtags = msgpackparse(mpack)
+        let g:tlist = expand($HOME . '/.vim/tags/tlist')
+        :execute 'vne' g:tlist
+        :vertical resize 35
+        :set modifiable
+        :setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
+        :set noundofile
+        :nnoremap <buffer> <space> :Test2<CR>
+        :nnoremap <buffer> <CR> :Test2<CR>
 
-	let g:allt = getline(0, '$')
-	:for i in g:mtags
-		if index(g:allt, i) == -1
-			:call remove(g:mtags, index(g:mtags, i))
-		endif
-	:endfor
+        let g:allt = getline(0, '$')
+        :for i in g:mtags
+            if index(g:allt, i) == -1
+                :call remove(g:mtags, index(g:mtags, i))
+            endif
+        :endfor
 
-	execute "normal! gg"
-	let b:c = 0
-	while b:c < line('$')
-		let b:c += 1
-		if index(g:mtags, getline('.')) == -1
-			execute "normal! ^I[ ]"
-		else
-			execute "normal! ^I[*]"
-		endif
- 		normal! j
-	endwhile
-	:set nomodifiable
-	":Test3
-endfunction
-
+        execute "normal! gg"
+        let b:c = 0
+        while b:c < line('$')
+            let b:c += 1
+            if index(g:mtags, getline('.')) == -1
+                execute "normal! ^I[ ]"
+            else
+                execute "normal! ^I[*]"
+            endif
+            normal! j
+        endwhile
+        :set nomodifiable
+        ":Test3
+    endfunction
+endif
 function! LineEnding() abort
   if &fileformat == 'dos'
     return "\r\n"
