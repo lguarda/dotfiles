@@ -135,7 +135,7 @@ function toBase(integer, basePool){
     return num;
 }
 
-var base = ['0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f'];
+var base = ['0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f', '?'];
 var saltBeg = "qaz["
 var saltEnd = "]zaq"
 
@@ -150,6 +150,9 @@ var rl = readline.createInterface({
 toBase(1234, base);
 rl.question(">>What's your name?  ", function(answer) {
    console.log(saltBeg + answer + saltEnd);
-   console.log(SHA256(saltBeg + answer + saltEnd));
+   console.log(SHA256(saltBeg + answer + saltEnd).substring(0,10));
+   var ll = parseInt(SHA256(saltBeg + answer + saltEnd).substring(0,10), 16);
+   console.log(ll);
+   console.log(toBase(ll, base));
    rl.close();
 });
