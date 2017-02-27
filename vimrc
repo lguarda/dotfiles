@@ -30,6 +30,14 @@ try
 	Plug 'https://github.com/airblade/vim-gitgutteR'
 	Plug 'https://github.com/elzr/vim-json'
 	Plug 'https://github.com/vim-scripts/OmniCppComplete'
+	Plug 'https://github.com/kshenoy/vim-signature'
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+    Plug 'junegunn/fzf.vim'
+    Plug 'https://github.com/junegunn/goyo.vim'
+let g:goyo_width = 100
+let g:goyo_height = 100
+let g:goyo_linenr = 1
+nnoremap <silent> <C-d> :Goyo<CR>
 
 	if has('nvim')
 		Plug 'https://github.com/benekastah/neomake'
@@ -47,7 +55,7 @@ let g:neomake_error_sign = {
 let g:airline#extensions#hunks#enabled=1
 let g:airline#extensions#branch#enabled=1
 let g:airline#extensions#whitespace#enabled=0
-"let g:airline_powerline_fonts = 1
+let g:airline_powerline_fonts = 0
 let g:airline_theme='oceanicnext'
 let g:airline_mode_map = {'c': 'C', '^S': 'S-B', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
 
@@ -164,7 +172,6 @@ nnoremap <silent> <S-x> "_<S-x>
 nnoremap <silent> <C-t> :let @3=@"<CR>xp:let@"=@3<CR>
 nnoremap t <C-]>
 nnoremap <S-t> <C-t>
-noremap <C-f>   /
 noremap ;     :
 noremap <M-left>	20z<left>
 noremap <M-right>	20z<right>
@@ -181,6 +188,28 @@ nnoremap <S-Tab>			:tabprevious<CR>
 nnoremap <Tab>				:tabnext<CR>
 noremap <S-z>				:set fdm=syntax<CR>zR
 nnoremap <space>			:nohlsearch<CR>
+noremap <C-f>               :set noautochdir<CR>:call fzf#run(fzf#wrap({'dir': '$HOME', 'down': '30%', 'promtp':'~/'}))<CR>
+
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
+let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 noremap <S-right> :vertical resize +5<CR>
 noremap <S-left> :vertical resize -5<CR>
@@ -230,6 +259,7 @@ noremap <C-x>h  :leftabove vnew<CR>:terminal<CR>
 noremap <C-x>l  :rightbelow vnew<CR>:terminal<CR>
 noremap <C-x><Tab>  :tabnew<CR>:terminal<CR>
 noremap <C-x><C-b> :call ToggleBinaryMode()<CR>
+noremap <C-c> :call ToggleGutterMode()<CR>
 noremap <C-x><C-q> :%s/cb2a/cup/gc
 noremap + <C-a>
 noremap - <C-x>
@@ -253,6 +283,7 @@ if has('nvim')
 	tnoremap hh	<Esc>
 endif
 
+autocmd BufEnter * set autochdir
 if has('nvim')
     autocmd VimEnter * GetTagsList
 endif
@@ -267,6 +298,7 @@ autocmd BufEnter, term://* startinsert
 autocmd BufLeave, term://* stopinsert
 autocmd BufEnter * if !exists('b:isAnchor') | let b:isAnchor = 1 | endif
 autocmd BufEnter * if !exists('b:isBinary') | let b:isBinary = 0 | endif
+autocmd BufEnter * if !exists('b:gutterMod') | let b:gutterMod = 0 | endif
 autocmd BufEnter * if !exists('b:isWrap') | let b:isWrap = 1 | endif
 autocmd CursorMoved * call Anchor()
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
@@ -341,6 +373,18 @@ function! ToggleBinaryMode()
 	else
 		:%!xxd -r
 		let b:isBinary = 0
+	endif
+endfunction
+
+function! ToggleGutterMode()
+	if b:gutterMod == 0
+        noremap <buffer> <S-j>				:GitGutterNextHunk<CR>
+        noremap <buffer> <S-k>				:GitGutterPrevHunk<CR>
+		let b:gutterMod = 1
+	else
+        noremap <buffer> <S-k>				<C-w><Up>
+        noremap <buffer> <S-j>				<C-w><Down>
+		let b:gutterMod = 0
 	endif
 endfunction
 
