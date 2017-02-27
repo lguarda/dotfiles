@@ -221,5 +221,35 @@ function b2h()                  # binary to hexa
     echo $(( [#16]2#$1 ));
 }
 
+function cdf() {
+   local file
+   local dir
+   file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
+}
+
+function fd() {
+  local dir
+  dir=$(find ${1:-$HOME} -type d -print 2> /dev/null | fzf +m) && cd "$dir"
+}
+
+# fbr - checkout git branch
+function fbr() {
+  local branches branch
+  branches=$(git branch -vv) &&
+  branch=$(echo "$branches" | fzf +m) &&
+  git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+}
+# fshow - git commit browser
+function fshow() {
+  git log --graph --color=always \
+      --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+  fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --bind "ctrl-m:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                {}
+FZF-EOF"
+}
+
 bindkey "^[[1;5A" up-line-or-search-prefix
 bindkey "^[[1;5B" down-line-or-search-prefix
