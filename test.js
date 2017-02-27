@@ -119,37 +119,82 @@ function toBase(integer, basePool){
     var i = 0;
 
     while (integer != 0) {
-        console.log(integer);
         convertedNumber[i] = integer % baseLen;
         integer = Math.floor(integer / baseLen);
         i++;
     }
     i--;
-    console.log(convertedNumber);
-    console.log(i);
     while (i >= 0) {
         num = num + basePool[convertedNumber[i]];
         i--;
     }
-    console.log(num);
     return num;
 }
 
-var base = ['0','1','2','3','4','5','6','7','8','9', 'a', 'b', 'c', 'd', 'e', 'f'];
+function inArray(needle, haystack) {
+    var length = haystack.length;
+    for(var i = 0; i < length; i++) {
+        if(haystack[i] == needle) return true;
+    }
+    return false;
+}
+
+var base = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd',
+'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
+'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D',
+'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M',
+'0','1','2','3','4','5','6','7','8','9'];
+
+var basecn = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd',
+'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm'];
+
+var basecm = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D',
+'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'];
+
+var basen = ['0','1','2','3','4','5','6','7','8','9'];
+
+var nn = 0;
+var nc = 0;
+var nm = 0;
+
 var saltBeg = "qaz["
 var saltEnd = "]zaq"
+var size = 14;
 
-var readline = require('readline');
+var str;
 
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+function funny() {
+	var ll = parseInt(SHA256(saltBeg + str + saltEnd + size), 16);
+	var ll2 = toBase(ll, base).substring(0, size);
+	nn = 0;
+	nc = 0;
+	nm = 0;
+	for (lol in ll2) {
+		if (inArray(ll2.charAt(lol), basen)) {
+			nn++;
+		}
+		else if (inArray(ll2.charAt(lol), basecm)) {
+			nm++;
+		}
+		else if (inArray(ll2.charAt(lol), basecn)) {
+			nc++;
+		}
+	}
+	str = ll2;
+}
 
-});
-
-toBase(1234, base);
-rl.question(">>What's your name?  ", function(answer) {
-   console.log(saltBeg + answer + saltEnd);
-   console.log(SHA256(saltBeg + answer + saltEnd));
-   rl.close();
-});
+function lolfun() {
+	nn = 0;
+	nc = 0;
+	nm = 0;
+	str = "leo";
+	str = document.getElementById('nanana').value;
+	while (nn < 4 || nc < 4 || nm < 4) {
+		funny();
+	}
+	console.log(str);
+	document.getElementById("demo").innerHTML = str
+	if (document.getElementById("alpha").checked == true){
+		alert("Hello! I am an alert box!!");
+	}
+}
