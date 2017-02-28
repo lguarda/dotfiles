@@ -465,6 +465,27 @@ function! Insert_ifndef()
   normal! kk
 endfunction
 
+"s/(\(.*\),\s*\(.*\))/(\2, \1)
+"s/(\(.*\),\s*\(.*/))/(\1, \2)/gc
+
+function! Switch_arg(nb)
+	let l:c = 1
+	let l:str = "s/(\\(.*\\)"
+
+	while l:c < a:nb
+		let l:str = join([l:str, ",\\s*\\(.*\\)"], "")
+		let l:c += 1
+	endwhile
+	let l:str = join([l:str, ")"], "")
+	let l:c = 1
+	let l:str = join([l:str, "/(\\1"], "")
+	while l:c < a:nb
+		let l:str = join([l:str, ", \\", l:c+1], "")
+		let l:c += 1
+	endwhile
+	let l:str = join([l:str, ")/gc"], "")
+	let @a = l:str
+endfunction
 highlight currawong ctermbg=darkred guibg=darkred
 
 if has('nvim')
