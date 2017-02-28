@@ -34,8 +34,8 @@ try
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
     Plug 'https://github.com/junegunn/goyo.vim'
-let g:goyo_width = 100
-let g:goyo_height = 100
+let g:goyo_width = 1000
+let g:goyo_height = 1000
 let g:goyo_linenr = 1
 nnoremap <silent> <C-d> :Goyo<CR>
 
@@ -188,8 +188,8 @@ nnoremap <S-Tab>			:tabprevious<CR>
 nnoremap <Tab>				:tabnext<CR>
 noremap <S-z>				:set fdm=syntax<CR>zR
 nnoremap <space>			:nohlsearch<CR>
-noremap <C-f>               :set noautochdir<CR>:call fzf#run(fzf#wrap({'dir': '$HOME', 'down': '30%', 'promtp':'~/'}))<CR>
-
+noremap <C-f>               :set noautochdir<CR>:call fzf#run(fzf#wrap({'dir': '$HOME', 'down': '30%', 'options':'--prompt "~/" --preview="pygmentize -g {-1}" --ansi'}))<CR>
+"execute ":NERDTreeToggle " . expand("%:p:h")
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-x': 'split',
