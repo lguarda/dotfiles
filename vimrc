@@ -1,5 +1,6 @@
+"{{{ Plugin
 try
-call plug#begin('~/.vim/plugged') "{{{
+call plug#begin('~/.vim/plugged')
 
 "{{{ Color Scheme
 Plug 'https://github.com/morhetz/gruvbox'
