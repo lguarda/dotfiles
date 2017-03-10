@@ -652,9 +652,10 @@ function! OffsetCursor() abort
 	echo l:lol
 endfunction
 
-let g:DAYFUNC = [":PlugUpdate"]
-let g:MONTHFUNC = [":PlugUpdate"]
-let g:YEARFUNC = [":PlugUpdate"]
+let g:DAYFUNC = []
+let g:WEEKFUNC = [":PlugUpdate"]
+let g:MONTHFUNC = []
+let g:YEARFUNC = []
 
 command! TimeCheck call TimeCheck()
 function! TimeCheck()
@@ -680,6 +681,12 @@ function! TimeCheck()
 	if g:TODAYMONTH != l:month
 		let g:TODAYMONTH = l:month
 		for i in g:MONTHFUNC
+			execute i
+		endfor
+	endif
+	if ((l:day) % 7 == 1) && (g:TODAYDAY != l:day)
+		let g:TODAYDAY = l:day
+		for i in g:DAYFUNC
 			execute i
 		endfor
 	endif
