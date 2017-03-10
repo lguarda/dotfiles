@@ -216,6 +216,7 @@ endtry
 "{{{ Var
 let mapleader = ","
 let g:mapleader = ","
+let $NVIM_TUI_ENABLE_CURSOR_SHAPE=0
 "}}}
 
 "{{{ Basic Setting
@@ -688,6 +689,7 @@ function! TimeCheck()
 			execute i
 		endfor
 	endif
+	wshada
 endfunction
 
 "}}}
