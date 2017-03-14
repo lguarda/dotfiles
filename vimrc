@@ -408,13 +408,13 @@ if has('nvim')
 	tnoremap hh <Esc>
 endif
 
-nnoremap <C-x>1 :call Switch_arg(1)<CR>@a<left><left><left><left><left><left><left><left><left><left><left><left><left><left><left>
-nnoremap <C-x>2  :call Switch_arg(2)<CR>@a<left><left><left><left><left><left><left><left><left><left><left><left><left><left><left>
-nnoremap <C-x>3  :call Switch_arg(3)<CR>@a<left><left><left><left><left><left><left><left><left><left><left><left><left><left><left>
-nnoremap <C-x>4  :call Switch_arg(4)<CR>@a<left><left><left><left><left><left><left><left><left><left><left><left><left><left><left>
-nnoremap <C-x>5  :call Switch_arg(5)<CR>@a<left><left><left><left><left><left><left><left><left><left><left><left><left><left><left>
-nnoremap <C-x>6  :call Switch_arg(6)<CR>@a<left><left><left><left><left><left><left><left><left><left><left><left><left><left><left>
-nnoremap <C-x>7  :call Switch_arg(7)<CR>@a<left><left><left><left><left><left><left><left><left><left><left><left><left><left><left>
+nnoremap <C-x>1 :call Switch_arg(1)<CR>@a
+nnoremap <C-x>2  :call Switch_arg(2)<CR>@a
+nnoremap <C-x>3  :call Switch_arg(3)<CR>@a
+nnoremap <C-x>4  :call Switch_arg(4)<CR>@a
+nnoremap <C-x>5  :call Switch_arg(5)<CR>@a
+nnoremap <C-x>6  :call Switch_arg(6)<CR>@a
+nnoremap <C-x>7  :call Switch_arg(7)<CR>@a
 
 "}}}
 
@@ -537,7 +537,7 @@ function! Switch_arg(nb)
 		let l:str = join([l:str, ", \\", l:c+1], "")
 		let l:c += 1
 	endwhile
-	let l:str = join([l:str, ")/g|:nohlsearch"], "")
+	let l:str = join([l:str, ")/g|:nohlsearch" . repeat("€kl", 16)], "")
 	let @a = l:str
 endfunction
 highlight currawong ctermbg=darkred guibg=darkred
