@@ -25,6 +25,12 @@ try
 	Plug 'https://github.com/elzr/vim-json'
 	Plug 'https://github.com/kshenoy/vim-signature'
 
+    Plug 'https://github.com/vimwiki/vimwiki'
+    "{{{
+    autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
+    autocmd BufEnter *.wiki :nmap <Leader>wh <Plug>Vimwiki2HTMLBrowse
+    let @b = "i* [ ] [[lvwww€kl€klyihttps://opsise.al€kbtlasia€kb€kbsian.net/browse/pli|wwwwi€kl]] -"
+    "}}}
 	Plug 'https://github.com/chrisbra/NrrwRgn'
 	"{{{
 	let g:nrrw_rgn_vert = 1
@@ -214,8 +220,8 @@ endtry
 "}}}
 
 "{{{ Var
-let mapleader = ","
-let g:mapleader = ","
+let mapleader = "\<Space>"
+let g:mapleader = "\<Space>"
 let $NVIM_TUI_ENABLE_CURSOR_SHAPE=0
 "}}}
 
@@ -223,6 +229,7 @@ let $NVIM_TUI_ENABLE_CURSOR_SHAPE=0
 syntax on
 try
 	colorscheme neodark
+    let g:neodark#background = 'black'
 catch
 endtry
 
@@ -270,18 +277,19 @@ set fillchars=""vert:"â”‚                     " use pipe as split character
 set pastetoggle=<F2>                        " toggle paste mode vi legacy
 set notagbsearch                            " disable the error E432 see :h E432
 set completeopt=menuone,menu,longest,preview
+"set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
 "}}}
 
 "{{{ Color Fix
 try
 	hi! VertSplit ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg term=NONE
 	hi! LineNr ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg
-	hi Folded ctermbg=16
-	hi NonText ctermfg=bg
+	hi Folded ctermbg=16 guibg=#000000
+	hi NonText ctermfg=bg guifg=bg
 	hi CursorLine ctermbg=233
-	hi CursorWord1 ctermbg=bg
-	hi CursorWord0 ctermbg=bg
-	hi CursorLineNr ctermbg=bg
+	hi CursorWord1 ctermbg=bg guibg=bg
+	hi CursorWord0 ctermbg=bg guibg=bg
+	hi CursorLineNr ctermbg=bg guibg=bg
 catch
 endtry
 "}}}
@@ -322,10 +330,13 @@ cnoremap <C-j> <Down>
 cnoremap <C-k> <Up>
 cnoremap hh <Esc>
 
-noremap <S-k> <C-w><Up>
-noremap <S-j> <C-w><Down>
-noremap <S-h> <C-w><Left>
-noremap <S-l> <C-w><Right>
+nnoremap <S-k> <C-w><Up>
+nnoremap <S-j> <C-w><Down>
+nnoremap <S-h> <C-w><Left>
+nnoremap <S-l> <C-w><Right>
+
+nnoremap n nzz
+nnoremap N Nzz
 "}}}
 
 nnoremap <silent> x "_x
@@ -350,6 +361,8 @@ noremap <S-down> 5<C-w>-
 vnoremap <Tab> >
 vnoremap <S-Tab> <
 vnoremap <Space> :s/\s\+$//<CR>
+vnoremap p <esc>:let @a = @"<cr>gvd"aP
+vnoremap P "_dP
 
 inoremap <C-u> <Esc><C-r>
 noremap <C-u> <C-r>
@@ -441,6 +454,8 @@ autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
 autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
 autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Right>);<Esc>2<Left><insert>
 autocmd FileType vim set fdm=marker
+autocmd FileType vim set fdm=marker
+autocmd BufRead,BufNewFile *.conf setfiletype dosini
 "}}}
 
 "{{{ Function
@@ -634,6 +649,53 @@ if has('nvim')
 		:set nomodifiable
 		":Test3
 	endfunction
+
+	let g:DAYFUNC = []
+	let g:WEEKFUNC = [":PlugUpdate"]
+	let g:MONTHFUNC = []
+	let g:YEARFUNC = []
+
+	command! TimeCheck call TimeCheck()
+	function! TimeCheck()
+		let l:year = strftime('%y')
+		let l:month = strftime('%m')
+		let l:day = strftime('%d')
+
+		if !exists("g:TODAYYEAR")
+			let g:TODAYYEAR = l:year
+		endif
+		if !exists("g:TODAYMONTH")
+			let g:TODAYMONTH = l:month
+		endif
+		if !exists("g:TODAYDAY")
+			let g:TODAYDAY = l:day
+		endif
+		if g:TODAYYEAR != l:year
+			let g:TODAYYEAR = l:year
+			for i in g:YEARFUNC
+				execute i
+			endfor
+		endif
+		if g:TODAYMONTH != l:month
+			let g:TODAYMONTH = l:month
+			for i in g:MONTHFUNC
+				execute i
+			endfor
+		endif
+		if ((l:day) % 7 == 1) && (g:TODAYDAY != l:day)
+			let g:TODAYDAY = l:day
+			for i in g:WEEKFUNC
+				execute i
+			endfor
+		endif
+		if g:TODAYDAY != l:day
+			let g:TODAYDAY = l:day
+			for i in g:DAYFUNC
+				execute i
+			endfor
+		endif
+		wshada
+	endfunction
 endif
 
 function! LineEnding() abort
@@ -661,51 +723,7 @@ function! OffsetCursor() abort
 	echo l:lol
 endfunction
 
-let g:DAYFUNC = []
-let g:WEEKFUNC = [":PlugUpdate"]
-let g:MONTHFUNC = []
-let g:YEARFUNC = []
+function! OffsetMatch()
 
-command! TimeCheck call TimeCheck()
-function! TimeCheck()
-	let l:year = strftime('%y')
-	let l:month = strftime('%m')
-	let l:day = strftime('%d')
-
-	if !exists("g:TODAYYEAR")
-		let g:TODAYYEAR = l:year
-	endif
-	if !exists("g:TODAYMONTH")
-		let g:TODAYMONTH = l:month
-	endif
-	if !exists("g:TODAYDAY")
-		let g:TODAYDAY = l:day
-	endif
-	if g:TODAYYEAR != l:year
-		let g:TODAYYEAR = l:year
-		for i in g:YEARFUNC
-			execute i
-		endfor
-	endif
-	if g:TODAYMONTH != l:month
-		let g:TODAYMONTH = l:month
-		for i in g:MONTHFUNC
-			execute i
-		endfor
-	endif
-	if ((l:day) % 7 == 1) && (g:TODAYDAY != l:day)
-		let g:TODAYDAY = l:day
-		for i in g:DAYFUNC
-			execute i
-		endfor
-	endif
-	if g:TODAYDAY != l:day
-		let g:TODAYDAY = l:day
-		for i in g:DAYFUNC
-			execute i
-		endfor
-	endif
-	wshada
+	call matchadd('Search', "\\%>'a.*\\%<'q", 12324)
 endfunction
-
-"}}}
