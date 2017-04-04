@@ -23,14 +23,18 @@ try
 	Plug 'https://github.com/terryma/vim-multiple-cursors'
 	Plug 'https://github.com/justinmk/vim-syntax-extra'
 	Plug 'https://github.com/elzr/vim-json'
-	Plug 'https://github.com/kshenoy/vim-signature'
+	"Plug 'https://github.com/kshenoy/vim-signature'
+	"Plug 'https://github.com/lilydjwg/colorizer'
+	"Plug 'https://github.com/google/vim-searchindex'
+	Plug 'https://github.com/joonty/vdebug'
 
-    Plug 'https://github.com/vimwiki/vimwiki'
-    "{{{
-    autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
-    autocmd BufEnter *.wiki :nmap <Leader>wh <Plug>Vimwiki2HTMLBrowse
-    let @b = "i* [ ] [[lvwww€kl€klyihttps://opsise.al€kbtlasia€kb€kbsian.net/browse/pli|wwwwi€kl]] -"
-    "}}}
+	Plug 'https://github.com/vimwiki/vimwiki'
+	"{{{
+	autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
+	autocmd BufEnter *.wiki :nmap <Leader>wh <Plug>Vimwiki2HTMLBrowse
+	let @b = "i€üvdwjji€kb€kb q€kbi* [ ] [[lvwww€kl€klyihttps://opsise.al€kbtlasia€kb€kbsian.net/browse/pli|wwwwi€kl]] -i [[plinote|note]]"
+	let g:vimwiki_list_ignore_newline=0
+	"}}}
 	Plug 'https://github.com/chrisbra/NrrwRgn'
 	"{{{
 	let g:nrrw_rgn_vert = 1
@@ -139,10 +143,14 @@ try
 			noremap <buffer> <S-j>              :GitGutterNextHunk<CR>
 			noremap <buffer> <S-k>              :GitGutterPrevHunk<CR>
 			let b:gutterMod = 1
+            let g:airline_mode_map['n'] = 'N-GutterMode'
+            let g:active_mod['g:gutterMod'] = 1
 		else
 			noremap <buffer> <S-k>              <C-w><Up>
 			noremap <buffer> <S-j>              <C-w><Down>
 			let b:gutterMod = 0
+            let g:airline_mode_map['n'] = 'N'
+            let g:active_mod['g:gutterMod'] = 0
 		endif
 	endfunction
 
@@ -220,21 +228,23 @@ endtry
 "}}}
 
 "{{{ Var
+let g:active_mod = {}
 let mapleader = "\<Space>"
 let g:mapleader = "\<Space>"
-let $NVIM_TUI_ENABLE_CURSOR_SHAPE=0
+let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 "}}}
 
 "{{{ Basic Setting
 syntax on
 try
 	colorscheme neodark
-    let g:neodark#background = 'black'
+	let g:neodark#background = 'black'
 catch
 endtry
 
 if has('nvim')
 	set nofixeol                            " dont add automaticaly a newline in file
+	set termguicolors
 endif
 set noeol
 set background=dark
@@ -253,7 +263,7 @@ set shiftwidth=4
 set autoindent
 set smartindent
 set whichwrap+=<,>,h,l,[,]                  " warp cusrsor when reache end and begin of line
-set list listchars=tab:Â»\ ,trail:Â· ",eol:Â¶  " highlight tab space en eol
+set list listchars=tab:>\ ,trail:·",eol:Â¶  " highlight tab space en eol
 set foldnestmax=1                           " allow 0 nested fold
 set noswapfile                              " do not use ~swapfile
 set autoread                                " change file when editing from the outside
@@ -363,6 +373,7 @@ vnoremap <S-Tab> <
 vnoremap <Space> :s/\s\+$//<CR>
 vnoremap p <esc>:let @a = @"<cr>gvd"aP
 vnoremap P "_dP
+vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 
 inoremap <C-u> <Esc><C-r>
 noremap <C-u> <C-r>
@@ -727,3 +738,24 @@ function! OffsetMatch()
 
 	call matchadd('Search', "\\%>'a.*\\%<'q", 12324)
 endfunction
+
+command! JsonIndent call JsonIndent()
+function! JsonIndent()
+    execute '%!python -m json.tool'
+endfunction
+"let s:base1      = ['#2a2525', 236]
+"let s:base2      = ['#352e2e', 237]
+"let s:base3      = ['#545152', 59]
+"let s:base4      = ['#8a8a8a', 245]
+"let s:base5      = ['#55d05f', 250]
+"let s:red        = ['#f05050', 168]
+"let s:green      = ['#bf87ff', 108]
+"let s:yellow     = ['#d5d700', 179]
+"let s:blue       = ['#01A7E5', 74]
+"let s:purple     = ['#8CC63E', 140]
+"let s:orange     = ['#F89828', 173]
+"let s:pink       = ['#d7afaf', 181]
+"let s:teal       = ['#5fafd7', 73]
+"let s:beige      = ['#d7af87', 180]
+"let s:light_blue = ['#5fd7d7', 80]
+"let s:brown      = ['#af8787', 138]
