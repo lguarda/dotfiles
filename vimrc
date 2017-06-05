@@ -1,3 +1,10 @@
+"{{{ Var
+let g:mod = []
+let mapleader = "\<Space>"
+let g:mapleader = "\<Space>"
+let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+"}}}
+
 "{{{ Plugin
 let g:plug_window = "rightbelow new"
 try
@@ -10,7 +17,7 @@ try
 	Plug 'https://github.com/KKPMW/moonshine-vim'
 	"}}}
 
-	Plug 'https://github.com/itchyny/vim-cursorword'
+	"Plug 'https://github.com/itchyny/vim-cursorword'
 	Plug 'https://github.com/will133/vim-dirdiff'
 	Plug 'https://github.com/vim-scripts/a.vim'
 	Plug 'https://github.com/tpope/vim-fugitive'
@@ -23,17 +30,19 @@ try
 	Plug 'https://github.com/terryma/vim-multiple-cursors'
 	Plug 'https://github.com/justinmk/vim-syntax-extra'
 	Plug 'https://github.com/elzr/vim-json'
-	"Plug 'https://github.com/kshenoy/vim-signature'
+	Plug 'https://github.com/kshenoy/vim-signature'
 	"Plug 'https://github.com/lilydjwg/colorizer'
-	"Plug 'https://github.com/google/vim-searchindex'
-	Plug 'https://github.com/joonty/vdebug'
-
+	Plug 'https://github.com/google/vim-searchindex'
 	Plug 'https://github.com/vimwiki/vimwiki'
 	"{{{
 	autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
 	autocmd BufEnter *.wiki :nmap <Leader>wh <Plug>Vimwiki2HTMLBrowse
 	let @b = "i€üvdwjji€kb€kb q€kbi* [ ] [[lvwww€kl€klyihttps://opsise.al€kbtlasia€kb€kbsian.net/browse/pli|wwwwi€kl]] -i [[plinote|note]]"
 	let g:vimwiki_list_ignore_newline=0
+	let wiki = {}
+	let wiki.path = '~/vimwiki/'
+	let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp', 'js' : 'javascript'}
+	let g:vimwiki_list = [wiki]
 	"}}}
 	Plug 'https://github.com/chrisbra/NrrwRgn'
 	"{{{
@@ -116,20 +125,20 @@ try
 	let g:airline#extensions#hunks#enabled=1
 	let g:airline#extensions#branch#enabled=1
 	let g:airline#extensions#whitespace#enabled=0
-	let g:airline_powerline_fonts = 0
+	let g:airline_powerline_fonts = 1
 	let g:airline_theme='oceanicnext'
 	let g:airline_mode_map = {'c': 'C', '^S': 'S-B', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
 	"}}}
 
 	Plug 'https://github.com/airblade/vim-gitgutteR'
 	"{{{
+	call add(g:mod, 'gutterMod')
 	let g:gitgutter_sign_removed="-"
 	let g:gitgutter_sign_modified_removed="\u22cd"
-
+	let g:gitgutter_realtime = 0
+	let g:gitgutter_eager = 0
 	noremap <C-c> :call ToggleGutterMode()<CR>
-
 	autocmd BufEnter * if !exists('b:gutterMod') | let b:gutterMod = 0 | endif
-
 	try
 		hi GitGutterAdd ctermbg=bg
 		hi GitGutterDelete ctermbg=bg
@@ -137,21 +146,21 @@ try
 		hi GitGutterChangeDelete ctermbg=bg
 	catch
 	endtry
-
 	function! ToggleGutterMode()
 		if b:gutterMod == 0
-			noremap <buffer> <S-j>              :GitGutterNextHunk<CR>
-			noremap <buffer> <S-k>              :GitGutterPrevHunk<CR>
+			noremap <buffer> <S-j>              :GitGutterNextHunk<CR>zz
+			noremap <buffer> <S-k>              :GitGutterPrevHunk<CR>zz
+			noremap <buffer> <S-h>              :GitGutterUndoHunk<CR>
+			noremap <buffer> <S-l>              :GitGutterPreviewHunk<CR>
 			let b:gutterMod = 1
-            let g:airline_mode_map['n'] = 'N-GutterMode'
-            let g:active_mod['g:gutterMod'] = 1
 		else
 			noremap <buffer> <S-k>              <C-w><Up>
 			noremap <buffer> <S-j>              <C-w><Down>
+			noremap <buffer> <S-h>              <C-w><left>
+			noremap <buffer> <S-l>              <C-w><right>
 			let b:gutterMod = 0
-            let g:airline_mode_map['n'] = 'N'
-            let g:active_mod['g:gutterMod'] = 0
 		endif
+		call CallForMode()
 	endfunction
 
 	"}}}
@@ -163,27 +172,8 @@ try
 	let g:NERDTreeDirArrows=0
 
 	noremap <C-g>               :NERDTreeToggle<CR>
-
-	function! NERDTreeHighlightFile(extension, fg, bg)
-		exec 'autocmd filetype nerdtree syn match ' . 'nerd' . a:extension .' #^\s\+.*\.'. a:extension .'$#'
-		exec 'autocmd filetype nerdtree highlight ' . 'nerd' . a:extension .' ctermbg='. a:bg .' ctermfg='. a:fg .' guibg='. a:bg .' guifg='. a:fg
-	endfunction
-
 	"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 	autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-
-	call NERDTreeHighlightFile('cpp', 'green', 'none')
-	call NERDTreeHighlightFile('hpp', 'green', 'none')
-	call NERDTreeHighlightFile('c', 'lightgreen', 'none')
-	call NERDTreeHighlightFile('h', 'lightgreen', 'none')
-	call NERDTreeHighlightFile('py', 'cyan', 'none')
-	call NERDTreeHighlightFile('py\*', 'cyan', 'none')
-	call NERDTreeHighlightFile('sh', 'yellow', 'none')
-	call NERDTreeHighlightFile('sh\*', 'yellow', 'none')
-	call NERDTreeHighlightFile('ini', 'darkyellow', 'none')
-	call NERDTreeHighlightFile('php', 'lightyellow', 'none')
-	call NERDTreeHighlightFile('lua', 'lightblue', 'none')
-	call NERDTreeHighlightFile('moon', 'blue', 'none')
 	"}}}
 
 	Plug 'https://github.com/AndrewRadev/switch.vim'
@@ -225,13 +215,6 @@ try
 	call plug#end()
 catch
 endtry
-"}}}
-
-"{{{ Var
-let g:active_mod = {}
-let mapleader = "\<Space>"
-let g:mapleader = "\<Space>"
-let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 "}}}
 
 "{{{ Basic Setting
@@ -300,6 +283,7 @@ try
 	hi CursorWord1 ctermbg=bg guibg=bg
 	hi CursorWord0 ctermbg=bg guibg=bg
 	hi CursorLineNr ctermbg=bg guibg=bg
+	hi Search guibg=#0f550f guifg=peru
 catch
 endtry
 "}}}
@@ -333,12 +317,13 @@ inoremap <C-j> <Down>
 inoremap <C-h> <Left>
 inoremap <C-l> <Right>
 inoremap hh <C-o>:stopinsert<CR>:echo<CR>
+inoremap jk <C-o>:stopinsert<CR>:echo<CR>
 
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 cnoremap <C-j> <Down>
 cnoremap <C-k> <Up>
-cnoremap hh <Esc>
+cnoremap jk <Esc>
 
 nnoremap <S-k> <C-w><Up>
 nnoremap <S-j> <C-w><Down>
@@ -382,7 +367,7 @@ inoremap <C-s> <Esc>:w<CR><insert><Right>
 nnoremap <silent> <C-s>   :w<CR>
 nnoremap <silent> <C-q>   :q<CR>
 
-nnoremap <C-x><S-s> :w !sudo tee %<CR>L<CR>
+nnoremap <C-x><C-s> :w !sudo tee %<CR>l<CR>
 nnoremap <C-j> <S-j>
 nnoremap <C-l> <S-l>
 nnoremap <C-h> <S-h>
@@ -414,6 +399,10 @@ nnoremap <up> <C-y>
 nnoremap <down> <C-e>
 nnoremap <c-r> yiw:%s/\<"\>/"/gc<left><left><left>
 
+" instantly select the first autocomplet choice
+inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
+			\ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+
 map! <F3> <C-R>=strftime('%c')<CR>
 
 if has('nvim')
@@ -429,7 +418,7 @@ if has('nvim')
 	tnoremap () ()<Left>
 	tnoremap [] []<Left>
 	tnoremap <> <><Left>
-	tnoremap hh <Esc>
+	tnoremap jk <Esc>
 endif
 
 nnoremap <C-x>1 :call Switch_arg(1)<CR>@a
@@ -446,8 +435,8 @@ nnoremap <C-x>7  :call Switch_arg(7)<CR>@a
 autocmd BufEnter * set autochdir
 if has('nvim')
 	autocmd VimEnter * GetTagsList
+	autocmd VimEnter * TimeCheck
 endif
-autocmd VimEnter * TimeCheck
 autocmd StdinReadPre * let s:std_in=1
 autocmd ColorScheme * hi! VertSplit ctermfg=darkgrey ctermbg=bg term=NONE
 autocmd ColorScheme * hi! LineNr ctermfg=darkgrey ctermbg=bg
@@ -457,9 +446,11 @@ autocmd BufLeave, term://* stopinsert
 autocmd BufEnter * if !exists('b:isAnchor') | let b:isAnchor = 1 | endif
 autocmd BufEnter * if !exists('b:isBinary') | let b:isBinary = 0 | endif
 autocmd BufEnter * if !exists('b:isWrap') | let b:isWrap = 1 | endif
+autocmd BufEnter * call CallForMode()
 autocmd CursorMoved * call Anchor()
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
 autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
+autocmd FileType cpp inoremap <buffer> \n  <space><< std::endl;
 autocmd FileType c map! <F4> printf( __func__" line:"__LINE__"\n");
 autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
 autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
@@ -739,20 +730,73 @@ function! OffsetMatch()
 	call matchadd('Search', "\\%>'a.*\\%<'q", 12324)
 endfunction
 
+function! CallForMode()
+	if !exists('g:mod')
+		let g:mod = []
+	endif
+	let g:airline_mode_map['n'] = 'N'
+	for i in g:mod
+		execute("if b:" . i . " == 1\n let g:airline_mode_map['n'] = 'N-" . i . "'\nendif")
+	endfor
+endfunction
+
 command! JsonIndent call JsonIndent()
 function! JsonIndent()
-    execute '%!python -m json.tool'
+	execute '%!python -m json.tool'
 endfunction
+
+function! DoPrettyXML()
+	" save the filetype so we can restore it later
+	let l:origft = &ft
+	set ft=
+	" delete the xml header if it exists. This will
+	" permit us to surround the document with fake tags
+	" without creating invalid xml.
+	1s/<?xml .*?>//e
+	" insert fake tags around the entire document.
+	" This will permit us to pretty-format excerpts of
+	" XML that may contain multiple top-level elements.
+	0put ='<PrettyXML>'
+	$put ='</PrettyXML>'
+	silent %!xmllint --format -
+	" xmllint will insert an <?xml?> header. it's easy enough to delete
+	" if you don't want it.
+	" delete the fake tags
+	2d
+	$d
+	" restore the 'normal' indentation, which is one extra level
+	" too deep due to the extra tags we wrapped around the document.
+	silent %<
+	" back to home
+	1
+	" restore the filetype
+	exe "set ft=" . l:origft
+endfunction
+command! PrettyXML call DoPrettyXML()
+
+function! StartBench()
+	execute "profile start " . $HOME . "/profile.log"
+	:profile func *
+	:profile file *
+endfunction
+
+function! StopBench()
+	:profile pause
+	:noautocmd qall!
+endfunction
+
+"}}}
+
 "let s:base1      = ['#2a2525', 236]
 "let s:base2      = ['#352e2e', 237]
 "let s:base3      = ['#545152', 59]
 "let s:base4      = ['#8a8a8a', 245]
 "let s:base5      = ['#55d05f', 250]
 "let s:red        = ['#f05050', 168]
-"let s:green      = ['#bf87ff', 108]
+"let s:palePurple = ['#bf87ff', 108]
 "let s:yellow     = ['#d5d700', 179]
 "let s:blue       = ['#01A7E5', 74]
-"let s:purple     = ['#8CC63E', 140]
+"let s:paleGreen  = ['#8CC63E', 140]
 "let s:orange     = ['#F89828', 173]
 "let s:pink       = ['#d7afaf', 181]
 "let s:teal       = ['#5fafd7', 73]
