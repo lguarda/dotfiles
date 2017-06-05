@@ -51,6 +51,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
+plugins=(zsh-autosuggestions)
 plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
@@ -86,11 +87,16 @@ source $ZSH/oh-my-zsh.sh
 alias vim="nvim"
 
 alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
+alias vz="nvim $HOME/.zshrc"
+alias v="nvim"
+alias jspp="python -m json.tool"
+alias cm="mkdir -p build;cd build;cmake .. -DCMAKE_BUILD_TYPE=Debug; cd .."
 
 setxkbmap -option caps:escape
+setxkbmap -option escape:caps
 
-           preview-up
-export FZF_DEFAULT_OPTS="--inline-info -m --history=\"$HOME/.local/share/fzf-history\" --bind=ctrl-x:toggle-sort,ctrl-h:previous-history,ctrl-l:next-history,ctrl-f:jump-accept,alt-j:preview-down,alt-k:preview-up --cycle"
+export FZF_DEFAULT_OPTS="--height=35 --inline-info -m --history=\"$HOME/.local/share/fzf-history\" --bind=ctrl-x:toggle-sort,ctrl-h:previous-history,ctrl-l:next-history,ctrl-f:jump-accept,alt-j:preview-down,alt-k:preview-up --cycle"
+export PATH=$HOME/.fzf/bin:$HOME/.opt/bin:$PATH
 
 gcdev () {
     local h
@@ -203,12 +209,23 @@ gddall () {
             cl=$(echo $ha | md5sum | cut -d\  -f1 | head -c 2) 
             cl=$(( 40 + (16#$cl % 80) * 2 )) 
             printf "%-30s \x1b[38;5;%dm%-20s\x1b[0m" "$(basename $rd)" "$cl" "$ha"
-            root="$(git --git-dir=$rd/.git --work-tree=$rd merge-base origin/develop $ha)"
-            last="$(git --git-dir=$rd/.git --work-tree=$rd rev-parse origin/develop)"
-            if [ "$root" = "$last" ]; then
-                printf "\x1b[32m OK\x1b[0m\n"
+            exists="$(git --git-dir=$rd/.git --work-tree=$rd show-ref refs/heads/develop)"
+            if [ -n "$exists" ]; then
+                root="$(git --git-dir=$rd/.git --work-tree=$rd merge-base origin/develop $ha)"
+                last="$(git --git-dir=$rd/.git --work-tree=$rd rev-parse origin/develop)"
+                if [ "$root" = "$last" ]; then
+                    printf "\x1b[32m OK\x1b[0m\n"
+                else
+                    printf "\x1b[31m Rebase from develop\x1b[0m\n"
+                fi
             else
-                printf "\x1b[31m Rebase\x1b[0m\n"
+                root="$(git --git-dir=$rd/.git --work-tree=$rd merge-base origin/master $ha)"
+                last="$(git --git-dir=$rd/.git --work-tree=$rd rev-parse origin/master)"
+                if [ "$root" = "$last" ]; then
+                    printf "\x1b[32m OK\x1b[0m\n"
+                else
+                    printf "\x1b[31m Rebase from master\x1b[0m\n"
+                fi
             fi
         fi
     done
@@ -295,37 +312,37 @@ function down-line-or-search-prefix () # same with down
     CURSOR=$CURSOR_before_search
 }; zle -N down-line-or-search-prefix
 
-function c()                    # simple calculator                                                                    
+function c()                    # simple calculator
 {
     echo $(($@));
 }
 
-function d2h()                  # decimal to hexa                                                                      
+function d2h()                  # decimal to hexa
 {
     echo $(( [#16]$1 ));
 }
 
-function h2d()                  # hexa to decimal                                                                      
+function h2d()                  # hexa to decimal
 {
     echo $(( 16#$1 ));
 }
 
-function d2b()                  # decimal to binary                                                                    
+function d2b()                  # decimal to binary
 {
     echo $(( [#2]$1 ));
 }
 
-function h2b()                  # binary to decimal                                                                    
+function b2d()                  # binary to decimal
 {
     echo $(( 2#$1 ));
 }
 
-function h2b()                  # hexa to binary                                                                       
+function h2b()                  # hexa to binary
 {
     echo $(( [#2]16#$1 ));
 }
 
-function b2h()                  # binary to hexa                                                                       
+function b2h()                  # binary to hexa
 {
     echo $(( [#16]2#$1 ));
 }
@@ -357,8 +374,8 @@ function cif() {
 function cf() {
     local dir
     dir=$(
-        find ${1:-$HOME} \( ! -regex '.*/\..*' \) -type d -print 2> /dev/null |
-        fzf -1 --preview="ls -l --color=always  {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
+        find ${2:-$HOME} \( ! -regex '.*/\..*' \) -type d -print 2> /dev/null |
+        fzf -1 --preview="ls -l --color=always  {-1}" --header-lines=1 --ansi --prompt="${2:-$HOME}" -q "${1:-}"
     ) && cd "$dir"
 }
 
@@ -366,15 +383,15 @@ function vif() {
     local dir
     dir=$(
         find ${1:-$HOME} -type f -print 2> /dev/null |
-        fzf -1 --preview="pygmentize -g {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
+        fzf -1 --preview="cat {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
     ) && nvim "$dir"
 }
 
 function vf() {
     local dir
     dir=$(
-        find ${1:-$HOME} \( ! -regex '.*/\..*' \) -type f -print 2> /dev/null |
-        fzf -1 --preview="pygmentize -g {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
+        find ${2:-$HOME} \( ! -regex '.*/\..*' \) -type f -print 2> /dev/null |
+        fzf -1 --preview="cat {-1}" --header-lines=1 --ansi --prompt="${2:-$HOME}" -q "${1:-}"
     ) && nvim -O $(echo "$dir" | sed ':a;N;$!ba;s/\n/ /g')
 }
 
@@ -391,15 +408,15 @@ function caf() {
     local dir
     dir=$(
         find ${1:-$HOME} -type f -print 2> /dev/null |
-        fzf -1 --preview="pygmentize -g {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
-    ) && pygmentize -g "$dir"
+        fzf -1 --preview="cat {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
+    ) && cat "$dir"
 }
 
 # fbr - checkout git branch
 function fbr() {
   local branches branch
-  branches=$(git branch -vv) &&
-  branch=$(echo "$branches" | fzf +m) &&
+  branches=$(git branch -vv --color=always) &&
+  branch=$(echo "$branches" | fzf --ansi --reverse --height=20 +m) &&
   git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
 }
 # fshow - git commit browser
@@ -410,12 +427,139 @@ function fshow() {
       --bind "ctrl-m:execute:
                 (grep -o '[a-f0-9]\{7\}' | head -1 |
                 xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
-                {}
-FZF-EOF"
+                {} FZF-EOF"
 }
 
-bindkey "^[[1;5A" up-line-or-search-prefix
-bindkey "^[[1;5B" down-line-or-search-prefix
+function vg() {
+	if [[ $# -ge 1 ]];then
+		VAR=$(find ${2:-./} -type f -exec grep -i --color=always -nH $1 {} + | fzf --ansi --preview="LINR=\$(echo {} | cut -d: -f2);MINLIN=\$(echo \"\$LINR - 4\" | bc);MAXLIN=\$(echo \"\$LINR + 4\" | bc);if [[ \$MINLIN < 1 ]];then MINLIN=1;fi;sed -n \"\$MINLIN,\${MAXLIN}p\" < \$(echo {} | cut -d: -f1) | awk '{ if (NR == 5) print \"\\x1b[44m\"\$0\"\\x1b[0m\"; else print \$0}'");
+		if [[ $VAR != "" ]];then
+			LINR=$(echo $VAR | cut -d: -f2);
+			MINLIN=$(echo "$LINR - 4" | bc);
+			MAXLIN=$(echo "$LINR + 4" | bc);
+			if [[ $MINLIN < 1 ]];then
+			MINLIN=1;
+			fi
+			FILE=$(echo $VAR | cut -d: -f1)
+			nvim $FILE +$LINR
+		fi
+	fi
+}
 
+function vd() {
+    nvim -p $(git status --short | grep " M "| cut -d\  -f3)
+}
+
+function gob() {
+    if [[ $(git rev-parse --abbrev-ref HEAD) == "develop" ]];then
+       firefox "https://opsise.atlassian.net/issues/?filter=-1"
+    elif [[ $(git rev-parse --abbrev-ref HEAD) == "master" ]];then
+       firefox "https://opsise.atlassian.net/issues/?filter=-1"
+    else
+       firefox "https://opsise.atlassian.net/browse/$(git rev-parse --abbrev-ref HEAD | cut -d\/ -f 2)?filter=-1"
+    fi
+}
+
+function randpers() {
+    VAR=$(echo $(($(echo $(( 16#$(sha1sum  <(head -c 10 /dev/urandom)  | cut -d\  -f1 | head -c 5) ))) % $#)))
+
+    i=0
+    for name in "$@"
+    do
+        if [[ $i == $VAR ]];then
+            echo "$name"
+        fi
+        let i=i+1
+    done
+}
+
+function gerp() {
+    if [[ $# -lt 1 ]];then
+        echo "Usage: gerp [to_search] [optional:path]"
+        return 1
+    fi
+    str="$(echo -n $1 | grep -o '[A-Z]')"
+    if [[ $str == "" ]];then
+        find ${2:-./} -type f -exec grep -i --line-number --color=always -nH $1 {} +
+    else
+        find ${2:-./} -type f -exec grep --line-number --color=always -nH $1 {} +
+    fi
+}
+
+function ctrlz()
+{
+	if [[ $#BUFFER -ne 0 ]]; then
+		zle push-input
+	fi
+	BUFFER=fg
+	zle accept-line
+}; zle -N ctrlz
+function race()					# race between tokens given in parameters
+{
+	cat /dev/urandom | tr -dc "0-9A-Za-z" | command egrep --line-buffered -ao "$(echo $@ | sed "s/[^A-Za-z0-9]/\|/g")" | nl
+}
+
+function work()					# work simulation
+{
+	clear;
+	text="$(cat $(find ~ -type f -name "*.cpp" 2>/dev/null | head -n25) | sed ':a;$!N;$!ba;s/\/\*[^​*]*\*\([^/*​][^*]*\*\|\*\)*\///g')"
+	arr=($(echo $text))
+	i=0
+	cat /dev/zero | head -c $COLUMNS | tr '\0' '='
+	while true
+	do
+		read -sk;
+		echo -n ${text[$i]};
+		i=$(( i + 1 ))
+	done
+	echo
+}
+
+function hi()
+{
+    read foo
+    echo $foo | sed -r "s/($1)/\x1b[31;1m\1\x1b[0m/g" 
+}
+
+function ma()
+{
+    var=$(find . -maxdepth 1 -type d | grep build)
+    if [[ $var == "./build" ]];then
+        make -C build
+    else
+        make
+    fi
+}
+
+function mad()
+{
+    var=$(find . -maxdepth 1 -type d | grep build)
+    if [[ $var == "./build" ]];then
+        make -C build distclean
+    else
+        make distclean
+    fi
+}
+
+function mai()
+{
+    var=$(find . -maxdepth 1 -type d | grep build)
+    if [[ $var == "./build" ]];then
+        make -C build install
+    else
+        make install
+    fi
+}
+
+unsetopt listambiguous
+bindkey "^Z" ctrlz
+
+#bindkey "^[[1;5A" up-line-or-search-prefix
+#bindkey "^[[1;5B" down-line-or-search-prefix
+bindkey "^K" up-line-or-search-prefix
+bindkey "^J" down-line-or-search-prefix
+
+#ag --nogroup --nocolor --column lol | fzf --preview="./headtail.sh \$(echo {} | cut -d: -f1) \$(echo {} | cut -d: -f2) 10"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f /usr/bin/xcape ] && xcape -e 'Shift_L=Escape;Control_L=Control_L|O'
