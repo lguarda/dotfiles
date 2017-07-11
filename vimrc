@@ -279,7 +279,7 @@ try
 	hi! LineNr ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg
 	hi Folded ctermbg=16 guibg=#000000
 	hi NonText ctermfg=bg guifg=bg
-	hi CursorLine ctermbg=233
+	hi CursorLine ctermbg=233 guibg=#222222
 	hi CursorWord1 ctermbg=bg guibg=bg
 	hi CursorWord0 ctermbg=bg guibg=bg
 	hi CursorLineNr ctermbg=bg guibg=bg
@@ -367,7 +367,7 @@ inoremap <C-s> <Esc>:w<CR><insert><Right>
 nnoremap <silent> <C-s>   :w<CR>
 nnoremap <silent> <C-q>   :q<CR>
 
-nnoremap <C-x><C-s> :w !sudo tee %<CR>l<CR>
+nnoremap <leader>s :w !sudo tee %<CR>l<CR>
 nnoremap <C-j> <S-j>
 nnoremap <C-l> <S-l>
 nnoremap <C-h> <S-h>
@@ -380,17 +380,17 @@ inoremap <M-v> <C-o>"+P
 "}}}
 
 "{{{ open terminal neovim only
-noremap <C-x>k :topleft new<CR>:terminal<CR>
-noremap <C-x>j :botright new<CR>:terminal<CR>
-noremap <C-x>h :leftabove vnew<CR>:terminal<CR>
-noremap <C-x>l :rightbelow vnew<CR>:terminal<CR>
-noremap <C-x><Tab> :tabnew<CR>:terminal<CR>
+noremap <leader>k :topleft new<CR>:terminal<CR>
+noremap <leader>j :botright new<CR>:terminal<CR>
+noremap <leader>h :leftabove vnew<CR>:terminal<CR>
+noremap <leader>l :rightbelow vnew<CR>:terminal<CR>
+noremap <leader><Tab> :tabnew<CR>:terminal<CR>
 "}}}
 
-nnoremap <C-x><C-d> :w !diff % -<CR>
-noremap <C-x><C-w> :execute ToggleLineWrap()<CR>''
-noremap <C-x><C-r> :so $MYVIMRC<CR>:nohlsearch<CR>
-noremap <C-x><C-b> :call ToggleBinaryMode()<CR>
+nnoremap <leader>d :w !diff % -<CR>
+noremap <leader>w :set wrap!<CR>
+noremap <leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
+noremap <leader>b :call ToggleBinaryMode()<CR>
 
 noremap + <C-a>
 noremap - <C-x>
@@ -407,11 +407,6 @@ map! <F3> <C-R>=strftime('%c')<CR>
 
 if has('nvim')
 	tnoremap <Esc> <C-\><C-n>
-	tnoremap <C-x>k <C-\><C-n>:topleft new<CR>:terminal<CR>
-	tnoremap <C-x>j <C-\><C-n>:botright new<CR>:terminal<CR>
-	tnoremap <C-x>h <C-\><C-n>:leftabove vnew<CR>:terminal<CR>
-	tnoremap <C-x>l <C-\><C-n>:rightbelow vnew<CR>:terminal<CR>
-	tnoremap <C-x><Tab>  <C-\><C-n>:tabnew<CR>:terminal<CR>
 	tnoremap <M-v> <Esc>"+p<insert>
 	tnoremap '' ''<Left>
 	tnoremap "" ""<Left>
@@ -421,14 +416,15 @@ if has('nvim')
 	tnoremap jk <Esc>
 endif
 
-nnoremap <C-x>1 :call Switch_arg(1)<CR>@a
-nnoremap <C-x>2  :call Switch_arg(2)<CR>@a
-nnoremap <C-x>3  :call Switch_arg(3)<CR>@a
-nnoremap <C-x>4  :call Switch_arg(4)<CR>@a
-nnoremap <C-x>5  :call Switch_arg(5)<CR>@a
-nnoremap <C-x>6  :call Switch_arg(6)<CR>@a
-nnoremap <C-x>7  :call Switch_arg(7)<CR>@a
-
+nnoremap <leader>1 :call Switch_arg(1)<CR>@a
+nnoremap <leader>2  :call Switch_arg(2)<CR>@a
+nnoremap <leader>3  :call Switch_arg(3)<CR>@a
+nnoremap <leader>4  :call Switch_arg(4)<CR>@a
+nnoremap <leader>5  :call Switch_arg(5)<CR>@a
+nnoremap <leader>6  :call Switch_arg(6)<CR>@a
+nnoremap <leader>7  :call Switch_arg(7)<CR>@a
+cnoremap <C-r>  <CR>:call SearchToReplace()<CR>@a<LEFT><LEFT><LEFT>
+vnoremap /  "ay:let @a = "/" . @a<CR>@a<CR>
 "}}}
 
 "{{{ Autocmd
@@ -441,13 +437,10 @@ autocmd StdinReadPre * let s:std_in=1
 autocmd ColorScheme * hi! VertSplit ctermfg=darkgrey ctermbg=bg term=NONE
 autocmd ColorScheme * hi! LineNr ctermfg=darkgrey ctermbg=bg
 autocmd ColorScheme * hi Folded ctermbg=16
-autocmd BufEnter, term://* startinsert
 autocmd BufLeave, term://* stopinsert
-autocmd BufEnter * if !exists('b:isAnchor') | let b:isAnchor = 1 | endif
 autocmd BufEnter * if !exists('b:isBinary') | let b:isBinary = 0 | endif
-autocmd BufEnter * if !exists('b:isWrap') | let b:isWrap = 1 | endif
 autocmd BufEnter * call CallForMode()
-autocmd CursorMoved * call Anchor()
+autocmd BufEnter * silent! execute "normal! :setlocal scrolloff=" . winheight(0) / 5 . "\r"
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
 autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
 autocmd FileType cpp inoremap <buffer> \n  <space><< std::endl;
@@ -461,22 +454,6 @@ autocmd BufRead,BufNewFile *.conf setfiletype dosini
 "}}}
 
 "{{{ Function
-function! ToggleLineWrap()
-	if b:isWrap == 0
-		setlocal nowrap
-		noremap <buffer> j j
-		noremap <buffer> k k
-		let b:isWrap = 1
-		echo "Toggle wrap off"
-	else
-		setlocal wrap linebreak
-		noremap <buffer> j gj
-		noremap <buffer> k gk
-		let b:isWrap = 0
-		echo "Toggle wrap on"
-	endif
-endfunction
-
 function! ToggleBinaryMode()
 	if b:isBinary == 0
 		:%!xxd
@@ -486,37 +463,6 @@ function! ToggleBinaryMode()
 		let b:isBinary = 0
 	endif
 endfunction
-
-
-command! AnchorToggle call AnchorToggle()
-function! AnchorToggle()
-	if b:isAnchor == 1
-		let b:isAnchor = 0
-		exec "noremap j j"
-		exec "noremap k k"
-	else
-		let b:isAnchor = 1
-	endif
-endfunction
-
-function! Anchor()
-	if !exists("b:isAnchor")
-		let b:isAnchor = 1
-	endif
-	if b:isAnchor == 1
-		if winline() < winheight(0) / 8
-			exec "noremap <buffer> k gk<C-y>"
-		else
-			exec "noremap <buffer> k gk"
-		endif
-		if winline() > (winheight(0) - winheight(0) / 8)
-			exec "noremap <buffer> j gj<C-e>"
-		else
-			exec "noremap <buffer> j gj"
-		endif
-	endif
-endfunction
-
 
 function! CleanEmptyBuffers()
 	let buffers = filter(range(0, bufnr('$')), 'buflisted(v:val) && empty(bufname(v:val)) && bufwinnr(v:val)<0')
@@ -558,6 +504,14 @@ function! Switch_arg(nb)
 	let @a = l:str
 endfunction
 highlight currawong ctermbg=darkred guibg=darkred
+
+function! SearchToReplace()
+    let @a = ":%s/". @/ . "//gc"
+endfunction
+
+function! SelectToSearch()
+    let @a = "\\". @a
+endfunction
 
 if has('nvim')
 	let g:mtags = []
