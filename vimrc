@@ -8,7 +8,11 @@ let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 "{{{ Plugin
 let g:plug_window = "rightbelow new"
 try
+	if has("win32")
+	call plug#begin('~/vimfiles/bundle')
+	else
 	call plug#begin('~/.vim/plugged')
+	endif
 
 	"{{{ Color Scheme
 	Plug 'https://github.com/morhetz/gruvbox'
@@ -168,12 +172,13 @@ try
 	Plug 'https://github.com/scrooloose/nerdtree'
 	"{{{
 	"execute ":NERDTreeToggle " . expand("%:p:h")
-
+	let NERDTreeShowBookmarks=1
 	let g:NERDTreeDirArrows=0
 
 	noremap <C-g>               :NERDTreeToggle<CR>
 	"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 	autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+	nnoremap <leader>n :NERDTreeFind<CR>
 	"}}}
 
 	Plug 'https://github.com/AndrewRadev/switch.vim'
@@ -221,7 +226,7 @@ endtry
 syntax on
 try
 	colorscheme neodark
-	let g:neodark#background = 'black'
+	let g:neodark#background = '#111111'
 catch
 endtry
 
@@ -373,10 +378,16 @@ nnoremap <C-l> <S-l>
 nnoremap <C-h> <S-h>
 
 "{{{ system ClipBoard acces neovim only
-vnoremap <M-c> "+2yy
-vnoremap <M-x> "+dd 
-noremap <M-v> "+P
-inoremap <M-v> <C-o>"+P
+if has("win32")
+	map <silent> <M-c> :w !gocopy<CR><CR>
+	map <silent> <M-v> :r!gopaste -o<CR>
+else
+	vnoremap <M-c> "+2yy
+	vnoremap <M-x> "+dd
+	noremap <M-v> "+P
+	inoremap <M-v> <C-o>"+P
+endif
+
 "}}}
 
 "{{{ open terminal neovim only
