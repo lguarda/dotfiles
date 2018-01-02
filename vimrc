@@ -19,6 +19,7 @@ try
 	Plug 'https://github.com/mhartington/oceanic-next'
 	Plug 'https://github.com/KeitaNakamura/neodark.vim'
 	Plug 'https://github.com/KKPMW/moonshine-vim'
+	Plug 'https://github.com/dracula/vim'
 	"}}}
 
 	"Plug 'https://github.com/itchyny/vim-cursorword'
@@ -37,6 +38,13 @@ try
 	Plug 'https://github.com/kshenoy/vim-signature'
 	"Plug 'https://github.com/lilydjwg/colorizer'
 	Plug 'https://github.com/google/vim-searchindex'
+	Plug 'https://github.com/majutsushi/tagbar'
+	Plug 'https://github.com/vim-scripts/vis'
+	"Plug 'https://github.com/w0rp/ale'
+	Plug 'https://github.com/yegappan/mru'
+	"{{{
+		nnoremap <leader>m :MRU<CR>
+	"}}}
 	Plug 'https://github.com/vimwiki/vimwiki'
 	"{{{
 	autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
@@ -144,10 +152,10 @@ try
 	noremap <C-c> :call ToggleGutterMode()<CR>
 	autocmd BufEnter * if !exists('b:gutterMod') | let b:gutterMod = 0 | endif
 	try
-		hi GitGutterAdd ctermbg=bg
-		hi GitGutterDelete ctermbg=bg
-		hi GitGutterChange ctermbg=bg
-		hi GitGutterChangeDelete ctermbg=bg
+		hi GitGutterAdd ctermbg=NONE guifg=green
+		hi GitGutterDelete ctermbg=NONE guifg=red
+		hi GitGutterChange ctermbg=NONE guifg=yellow
+		hi GitGutterChangeDelete ctermbg=NONE guifg=red
 	catch
 	endtry
 	function! ToggleGutterMode()
@@ -251,8 +259,9 @@ set shiftwidth=4
 set autoindent
 set smartindent
 set whichwrap+=<,>,h,l,[,]                  " warp cusrsor when reache end and begin of line
-set list listchars=tab:>\ ,trail:·",eol:Â¶  " highlight tab space en eol
+set list listchars=tab:>\ ,trail:_,extends:$,precedes:$",eol:Â¶  " highlight tab space en eol
 set foldnestmax=1                           " allow 0 nested fold
+set foldcolumn=0                            " hide fold column
 set noswapfile                              " do not use ~swapfile
 set autoread                                " change file when editing from the outside
 set hlsearch                                " highligth search
@@ -280,15 +289,17 @@ set completeopt=menuone,menu,longest,preview
 
 "{{{ Color Fix
 try
-	hi! VertSplit ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg term=NONE
-	hi! LineNr ctermfg=darkgrey ctermbg=bg guifg=darkgrey guibg=bg
-	hi Folded ctermbg=16 guibg=#000000
-	hi NonText ctermfg=bg guifg=bg
-	hi CursorLine ctermbg=233 guibg=#222222
-	hi CursorWord1 ctermbg=bg guibg=bg
-	hi CursorWord0 ctermbg=bg guibg=bg
-	hi CursorLineNr ctermbg=bg guibg=bg
-	hi Search guibg=#0f550f guifg=peru
+	hi! VertSplit ctermfg=darkgrey ctermbg=NONE guifg=NONE guibg=NONE term=NONE
+	hi! LineNr ctermfg=darkgrey ctermbg=NONE guifg=darkgrey guibg=NONE
+	hi Folded ctermbg=16 guibg=#2d1a35 guifg=#aaaaaa gui=bold
+	hi NonText ctermfg=234 guifg=#545454
+	hi CursorLine ctermbg=233 guibg=#2d1a35
+	hi EndOfBuffer ctermfg=NONE guifg=#282a36
+	hi CursorWord1 ctermbg=NONE guibg=NONE
+	hi CursorWord0 ctermbg=NONE guibg=NONE
+	hi CursorLineNr ctermbg=NONE guibg=NONE
+	hi Search guibg=#0f550f guifg=peru gui=underline,bold
+	hi FoldColumn ctermbg=NONE guibg=NONE
 catch
 endtry
 "}}}
@@ -330,10 +341,10 @@ cnoremap <C-j> <Down>
 cnoremap <C-k> <Up>
 cnoremap jk <Esc>
 
-nnoremap <S-k> <C-w><Up>
-nnoremap <S-j> <C-w><Down>
 nnoremap <S-h> <C-w><Left>
 nnoremap <S-l> <C-w><Right>
+nnoremap <M-h> b
+nnoremap <M-l> w
 
 nnoremap n nzz
 nnoremap N Nzz
@@ -363,7 +374,7 @@ vnoremap <S-Tab> <
 vnoremap <Space> :s/\s\+$//<CR>
 vnoremap p <esc>:let @a = @"<cr>gvd"aP
 vnoremap P "_dP
-vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
+vnoremap <C-r> "hy<ESC>:%s/<C-r>h//gc<left><left><left>
 
 inoremap <C-u> <Esc><C-r>
 noremap <C-u> <C-r>
@@ -377,10 +388,15 @@ nnoremap <C-j> <S-j>
 nnoremap <C-l> <S-l>
 nnoremap <C-h> <S-h>
 
+nnoremap <M-t> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+nnoremap <S-t> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+
 "{{{ system ClipBoard acces neovim only
 if has("win32")
-	map <silent> <M-c> :w !gocopy<CR><CR>
-	map <silent> <M-v> :r!gopaste -o<CR>
+	vnoremap <silent> <M-c> :B !gocopy<CR><CR>
+	nnoremap <silent> <M-v> i<c-r>=substitute(system('gopaste'),'[\r\n]*$','','')<cr><esc>
+	inoremap <silent> <M-v> <C-o>:r!gopaste -o<CR>
+	cnoremap <silent> <M-v> <C-r><C-w>
 else
 	vnoremap <M-c> "+2yy
 	vnoremap <M-x> "+dd
@@ -408,6 +424,8 @@ noremap - <C-x>
 
 nnoremap <up> <C-y>
 nnoremap <down> <C-e>
+nnoremap <S-k> 3<C-y>3k
+nnoremap <S-j> 3<C-e>3j
 nnoremap <c-r> yiw:%s/\<"\>/"/gc<left><left><left>
 
 " instantly select the first autocomplet choice
@@ -434,23 +452,18 @@ nnoremap <leader>4  :call Switch_arg(4)<CR>@a
 nnoremap <leader>5  :call Switch_arg(5)<CR>@a
 nnoremap <leader>6  :call Switch_arg(6)<CR>@a
 nnoremap <leader>7  :call Switch_arg(7)<CR>@a
-cnoremap <C-r>  <CR>:call SearchToReplace()<CR>@a<LEFT><LEFT><LEFT>
+"cnoremap <C-r>  <CR>:call SearchToReplace()<CR>@a<LEFT><LEFT><LEFT>
 vnoremap /  "ay:let @a = "/" . @a<CR>@a<CR>
 "}}}
 
 "{{{ Autocmd
 autocmd BufEnter * set autochdir
-if has('nvim')
-	autocmd VimEnter * GetTagsList
-	autocmd VimEnter * TimeCheck
-endif
 autocmd StdinReadPre * let s:std_in=1
-autocmd ColorScheme * hi! VertSplit ctermfg=darkgrey ctermbg=bg term=NONE
-autocmd ColorScheme * hi! LineNr ctermfg=darkgrey ctermbg=bg
+autocmd ColorScheme * hi! VertSplit ctermfg=darkgrey ctermbg=NONE term=NONE
+autocmd ColorScheme * hi! LineNr ctermfg=darkgrey ctermbg=NONE
 autocmd ColorScheme * hi Folded ctermbg=16
 autocmd BufLeave, term://* stopinsert
 autocmd BufEnter * if !exists('b:isBinary') | let b:isBinary = 0 | endif
-autocmd BufEnter * call CallForMode()
 autocmd BufEnter * silent! execute "normal! :setlocal scrolloff=" . winheight(0) / 5 . "\r"
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
 autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
@@ -460,8 +473,21 @@ autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
 autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
 autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Right>);<Esc>2<Left><insert>
 autocmd FileType vim set fdm=marker
-autocmd FileType vim set fdm=marker
 autocmd BufRead,BufNewFile *.conf setfiletype dosini
+
+" http://vim.wikia.com/wiki/Highlight_unwanted_spaces
+highlight ExtraWhitespace ctermbg=red guibg=#ab4444 gui=bold,undercurl
+highlight ExtraSpaceDwich ctermbg=red guibg=#44ab44 gui=bold,undercurl
+augroup WhitespaceMatch
+  " Remove ALL autocommands for the WhitespaceMatch group.
+  autocmd!
+  autocmd BufWinEnter * let w:whitespace_match_number =
+        \ matchadd('ExtraWhitespace', '\s\+$')
+  autocmd BufWinEnter * let w:spacedwich_match_number =
+        \ matchadd('ExtraSpaceDwich', ' \t\|\t ')
+  autocmd BufWinEnter * let w:CRLF =
+        \ matchadd('ExtraWhitespace', '')
+augroup END
 "}}}
 
 "{{{ Function
@@ -511,6 +537,7 @@ function! Switch_arg(nb)
 		let l:str = join([l:str, ", \\", l:c+1], "")
 		let l:c += 1
 	endwhile
+	"€kl -> left key obtained from pasted macro
 	let l:str = join([l:str, ")/g|:nohlsearch" . repeat("€kl", 16)], "")
 	let @a = l:str
 endfunction
@@ -749,22 +776,4 @@ function! StopBench()
 	:profile pause
 	:noautocmd qall!
 endfunction
-
 "}}}
-
-"let s:base1      = ['#2a2525', 236]
-"let s:base2      = ['#352e2e', 237]
-"let s:base3      = ['#545152', 59]
-"let s:base4      = ['#8a8a8a', 245]
-"let s:base5      = ['#55d05f', 250]
-"let s:red        = ['#f05050', 168]
-"let s:palePurple = ['#bf87ff', 108]
-"let s:yellow     = ['#d5d700', 179]
-"let s:blue       = ['#01A7E5', 74]
-"let s:paleGreen  = ['#8CC63E', 140]
-"let s:orange     = ['#F89828', 173]
-"let s:pink       = ['#d7afaf', 181]
-"let s:teal       = ['#5fafd7', 73]
-"let s:beige      = ['#d7af87', 180]
-"let s:light_blue = ['#5fd7d7', 80]
-"let s:brown      = ['#af8787', 138]
