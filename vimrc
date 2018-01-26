@@ -445,6 +445,7 @@ noremap <leader>j :botright new<CR>:terminal<CR>
 noremap <leader>h :leftabove vnew<CR>:terminal<CR>
 noremap <leader>l :rightbelow vnew<CR>:terminal<CR>
 "noremap <leader><Tab> :tabnew<CR>:terminal<CR>
+noremap <leader>o :call OpenExplorer()<CR>
 "}}}
 
 noremap <S-z> :set fdm=syntax<CR>zR
@@ -833,5 +834,25 @@ endfunction
 function! StopBench()
 	:profile pause
 	:noautocmd qall!
+endfunction
+
+function! GetExplorer()
+   if executable('nautilus')
+      return 'nautilus'
+   elseif executable('dolfin')
+      return 'dolfin'
+   elseif has("win32")
+      return 'start'
+   endif
+   return 'none'
+endfunction
+
+function! OpenExplorer()
+   let l:open = GetExplorer()
+   if l:open != 'none'
+      execute "!". l:open . " ."
+   else
+      echomsg "No Explorer Provided"
+   endif
 endfunction
 "}}}
