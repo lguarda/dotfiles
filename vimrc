@@ -24,10 +24,8 @@ try
 
 	"Plug 'https://github.com/itchyny/vim-cursorword'
 	Plug 'https://github.com/will133/vim-dirdiff'
-	Plug 'https://github.com/vim-scripts/a.vim'
 	Plug 'https://github.com/tpope/vim-fugitive'
 	Plug 'https://github.com/godlygeek/tabular'
-	Plug 'https://github.com/matze/vim-move'
 	Plug 'https://github.com/kana/vim-textobj-user'
 	Plug 'https://github.com/kana/vim-textobj-function'
 	Plug 'https://github.com/rhysd/vim-textobj-anyblock'
@@ -38,24 +36,35 @@ try
 	Plug 'https://github.com/kshenoy/vim-signature'
 	"Plug 'https://github.com/lilydjwg/colorizer'
 	Plug 'https://github.com/google/vim-searchindex'
-	Plug 'https://github.com/majutsushi/tagbar'
+	Plug 'https://github.com/mhinz/vim-signify'
 	Plug 'https://github.com/vim-scripts/vis'
 	"Plug 'https://github.com/w0rp/ale'
+	Plug 'https://github.com/vim-scripts/a.vim'
+	"{{{
+		let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../Src,sfr:../include,sfr:../inc,sfr:../Inc'
+	"}}}
+
+	Plug 'https://github.com/majutsushi/tagbar'
+	"{{{
+		nnoremap <leader>t :TagbarToggle<CR>
+	"}}}
+
 	Plug 'https://github.com/yegappan/mru'
 	"{{{
 		nnoremap <leader>m :MRU<CR>
 	"}}}
+
 	Plug 'https://github.com/vimwiki/vimwiki'
 	"{{{
 	autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
 	autocmd BufEnter *.wiki :nmap <Leader>wh <Plug>Vimwiki2HTMLBrowse
-	let @b = "i€üvdwjji€kb€kb q€kbi* [ ] [[lvwww€kl€klyihttps://opsise.al€kbtlasia€kb€kbsian.net/browse/pli|wwwwi€kl]] -i [[plinote|note]]"
 	let g:vimwiki_list_ignore_newline=0
 	let wiki = {}
 	let wiki.path = '~/vimwiki/'
 	let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp', 'js' : 'javascript'}
 	let g:vimwiki_list = [wiki]
 	"}}}
+
 	Plug 'https://github.com/chrisbra/NrrwRgn'
 	"{{{
 	let g:nrrw_rgn_vert = 1
@@ -137,18 +146,24 @@ try
 	let g:airline#extensions#hunks#enabled=1
 	let g:airline#extensions#branch#enabled=1
 	let g:airline#extensions#whitespace#enabled=0
-	let g:airline_powerline_fonts = 1
+	let g:airline_powerline_fonts = 0
 	let g:airline_theme='oceanicnext'
 	let g:airline_mode_map = {'c': 'C', '^S': 'S-B', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
 	"}}}
 
-	Plug 'https://github.com/airblade/vim-gitgutteR'
+	Plug 'https://github.com/mhinz/vim-signify'
+	"Plug 'https://github.com/airblade/vim-gitgutteR'
 	"{{{
-	call add(g:mod, 'gutterMod')
+	"call add(g:mod, 'gutterMod')
 	let g:gitgutter_sign_removed="-"
-	let g:gitgutter_sign_modified_removed="\u22cd"
+	let g:gitgutter_sign_modified_removed="\u22c"
 	let g:gitgutter_realtime = 0
 	let g:gitgutter_eager = 0
+	let g:signify_sign_add					= '+'
+	let g:signify_sign_delete				= '-'
+	let g:signify_sign_delete_first_line	= '-'
+	let g:signify_sign_change				= '~'
+	let g:signify_sign_changedelete			= g:signify_sign_change
 	noremap <C-c> :call ToggleGutterMode()<CR>
 	autocmd BufEnter * if !exists('b:gutterMod') | let b:gutterMod = 0 | endif
 	try
@@ -160,21 +175,20 @@ try
 	endtry
 	function! ToggleGutterMode()
 		if b:gutterMod == 0
-			noremap <buffer> <S-j>              :GitGutterNextHunk<CR>zz
-			noremap <buffer> <S-k>              :GitGutterPrevHunk<CR>zz
-			noremap <buffer> <S-h>              :GitGutterUndoHunk<CR>
-			noremap <buffer> <S-l>              :GitGutterPreviewHunk<CR>
+			noremap <buffer> <S-j> :GitGutterNextHunk<CR>zz
+			noremap <buffer> <S-k> :GitGutterPrevHunk<CR>zz
+			noremap <buffer> <S-h> :GitGutterUndoHunk<CR>
+			noremap <buffer> <S-l> :GitGutterPreviewHunk<CR>
 			let b:gutterMod = 1
 		else
-			noremap <buffer> <S-k>              <C-w><Up>
-			noremap <buffer> <S-j>              <C-w><Down>
-			noremap <buffer> <S-h>              <C-w><left>
-			noremap <buffer> <S-l>              <C-w><right>
+			noremap <buffer> <S-k> <C-w><Up>
+			noremap <buffer> <S-j> <C-w><Down>
+			noremap <buffer> <S-h> <C-w><left>
+			noremap <buffer> <S-l> <C-w><right>
 			let b:gutterMod = 0
 		endif
 		call CallForMode()
 	endfunction
-
 	"}}}
 
 	Plug 'https://github.com/scrooloose/nerdtree'
@@ -195,7 +209,12 @@ try
 	let g:switch_reverse_mapping = ']'
 	let g:switch_custom_definitions = [
 				\   ['--', '++'],
-				\   ['yes', 'no']
+				\   ['yes', 'no'],
+				\   ['.', '->'],
+				\   ['true', 'false'],
+				\   ['TRUE', 'FALSE'],
+				\   ['break', 'continue'],
+				\   ['<=', '==', '>=']
 				\ ]
 	"}}}
 
@@ -250,7 +269,7 @@ set showtabline=1                           " enable tabline
 set noshowmode                              " disable --[mode]-- in cmd line
 set number                                  " display line number
 set numberwidth=1                           " minimum number column size
-"set cc=80                                  " display column layout
+"set colorcolumn=80                          " display column layout
 set tabstop=4                               " redifine tab display as n space
 set t_Co=256                                " change nubmer of term color
 set cursorline                              " hightlight current line
@@ -259,19 +278,20 @@ set shiftwidth=4
 set autoindent
 set smartindent
 set whichwrap+=<,>,h,l,[,]                  " warp cusrsor when reache end and begin of line
-set list listchars=tab:>\ ,trail:_,extends:$,precedes:$",eol:Â¶  " highlight tab space en eol
+set list listchars=tab:>\ ,trail:_,extends:$,precedes:$",eol:ÃƒÂ‚Ã‚Â¶  " highlight tab space en eol
 set foldnestmax=1                           " allow 0 nested fold
 set foldcolumn=0                            " hide fold column
 set noswapfile                              " do not use ~swapfile
 set autoread                                " change file when editing from the outside
 set hlsearch                                " highligth search
-set ic                                      " case insensitive
+set ignorecase                              " case insensitive
 set smartcase                               " Override the 'ignorecase' option if the search pattern contains upper case characters
 set laststatus=2                            " alway show status line
 set wildmenu                                " pop menu when autocomplete command
 set wildmode=longest:full,full              " widlmenu option
 set autochdir                               " auto change directories of file
 set nowrap                                  " dont warp long line
+set linebreak                               " break at a word boundary
 set virtualedit=onemore                     " allow normal mode to go one more charater at the end
 set timeoutlen=400                          " delay of key combinations ms
 set updatetime=250
@@ -280,10 +300,12 @@ set lazyredraw                              " redraw only when we need to.
 set incsearch                               " While typing a search command, show where the pattern is
 set undofile                                " use undofile
 set undodir=/tmp                            " undofile location
-set fillchars=""vert:"â”‚                     " use pipe as split character
+set fillchars="" "vert:'|'                  " use pipe as split character
 set pastetoggle=<F2>                        " toggle paste mode vi legacy
 set notagbsearch                            " disable the error E432 see :h E432
 set completeopt=menuone,menu,longest,preview
+set cmdheight=1
+set mouse=a
 "set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
 "}}}
 
@@ -300,12 +322,49 @@ try
 	hi CursorLineNr ctermbg=NONE guibg=NONE
 	hi Search guibg=#0f550f guifg=peru gui=underline,bold
 	hi FoldColumn ctermbg=NONE guibg=NONE
+	hi Normal guifg=#eeeeee
+	hi Comment guifg=#878787
 catch
 endtry
 "}}}
 
 "{{{ ReMap
 
+"{{{ WORK
+"}}}
+
+"{{{ Comfort remap
+nnoremap Q q
+nnoremap <silent> x "_x
+nnoremap <silent> <S-x> "_<S-x>
+nnoremap <silent> <C-t> :let @3=@"<CR>xlP:let@"=@3<CR>
+nnoremap ; :
+nnoremap <space><space> :tabedit $MYVIMRC<CR>
+nnoremap <S-Tab> :tabprevious<CR>
+nnoremap <Tab> :tabnext<CR>
+" Incremente or decrement indentation
+vnoremap <Tab> >gv
+vnoremap <S-Tab> <gv
+inoremap <C-u> <Esc><C-r>
+noremap <C-u> <C-r>
+inoremap <C-s> <Esc>:w<CR><insert><Right>
+nnoremap <silent> <C-s>   :w<CR>
+nnoremap <silent> <C-q>   :q<CR>
+nnoremap <C-j> <S-j>
+nnoremap <C-l> <S-l>
+nnoremap <C-h> <S-h>
+"nnoremap <C-[> <C-t>
+nnoremap <M-t> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
+nnoremap <S-t> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+noremap + <C-a>
+noremap - <C-x>
+nnoremap <up> <C-y>
+nnoremap <down> <C-e>
+nnoremap <S-k> <PageUp>
+"3<C-y>3k
+nnoremap <S-j> <PageDown>
+"3<C-e>3j
+"}}}
 
 "{{{ Pair characters change
 inoremap {<CR>  {}<Left><cr><cr><up><tab>
@@ -334,12 +393,15 @@ inoremap <C-h> <Left>
 inoremap <C-l> <Right>
 inoremap hh <C-o>:stopinsert<CR>:echo<CR>
 inoremap jk <C-o>:stopinsert<CR>:echo<CR>
-
+inoremap qq <C-o>:stopinsert<CR>:echo<CR>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 cnoremap <C-j> <Down>
 cnoremap <C-k> <Up>
 cnoremap jk <Esc>
+cnoremap qq <Esc>
+cnoremap hh <Esc>
+vnoremap qq <Esc>
 
 nnoremap <S-h> <C-w><Left>
 nnoremap <S-l> <C-w><Right>
@@ -350,60 +412,31 @@ nnoremap n nzz
 nnoremap N Nzz
 "}}}
 
-nnoremap <silent> x "_x
-nnoremap <silent> <S-x> "_<S-x>
-nnoremap <silent> <C-t> :let @3=@"<CR>xp:let@"=@3<CR>
-noremap ;     :
-"noremap <leader>k  :m--<CR>
-"noremap <leader>j  :m+<CR>
-
-
-nnoremap <Space><Space> :tabedit ~/.vimrc<CR>
-nnoremap <S-Tab> :tabprevious<CR>
-nnoremap <Tab> :tabnext<CR>
-noremap <S-z> :set fdm=syntax<CR>zR
-nnoremap <space> :nohlsearch<CR>
-
-noremap <S-right> :vertical resize +5<CR>
-noremap <S-left> :vertical resize -5<CR>
-noremap <S-up> 5<C-w>+
-noremap <S-down> 5<C-w>-
-
-vnoremap <Tab> >
-vnoremap <S-Tab> <
-vnoremap <Space> :s/\s\+$//<CR>
-vnoremap p <esc>:let @a = @"<cr>gvd"aP
-vnoremap P "_dP
-vnoremap <C-r> "hy<ESC>:%s/<C-r>h//gc<left><left><left>
-
-inoremap <C-u> <Esc><C-r>
-noremap <C-u> <C-r>
-
-inoremap <C-s> <Esc>:w<CR><insert><Right>
-nnoremap <silent> <C-s>   :w<CR>
-nnoremap <silent> <C-q>   :q<CR>
-
-nnoremap <leader>s :w !sudo tee %<CR>l<CR>
-nnoremap <C-j> <S-j>
-nnoremap <C-l> <S-l>
-nnoremap <C-h> <S-h>
-
-nnoremap <M-t> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
-nnoremap <S-t> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
-
-"{{{ system ClipBoard acces neovim only
-if has("win32")
-	vnoremap <silent> <M-c> :B !gocopy<CR><CR>
-	nnoremap <silent> <M-v> i<c-r>=substitute(system('gopaste'),'[\r\n]*$','','')<cr><esc>
-	inoremap <silent> <M-v> <C-o>:r!gopaste -o<CR>
-	cnoremap <silent> <M-v> <C-r><C-w>
-else
-	vnoremap <M-c> "+2yy
-	vnoremap <M-x> "+dd
-	noremap <M-v> "+P
-	inoremap <M-v> <C-o>"+P
+"{{{ Move line
+if has('nvim')
+   nnoremap <M-k> :m--<CR>
+   nnoremap <M-j> :m+<CR>
+   vnoremap <M-k> :m '<-2<CR>gv=gv
+   vnoremap <M-j> :m '>+1<CR>gv=gv
+   vnoremap <S-k> <PageUp>
+   vnoremap <S-j> <PageDown>
+else " Vim does not support Meta
+   vnoremap <S-k> :m '<-2<CR>gv=gv
+   vnoremap <S-j> :m '>+1<CR>gv=gv
 endif
+"}}}
 
+"{{{ system ClipBoard
+ vnoremap <M-c> "+2yy
+ vnoremap <M-x> "+dd
+ nnoremap <M-v> "+P
+ nnoremap <C-x><C-v> "+P
+ inoremap <M-v> <C-o>"+P
+ cnoremap <M-v> <c-r>+
+ " Copy fileName to clipboard
+ nnoremap <silent> <M-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
+ nnoremap <silent> <C-x><C-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
+ nnoremap <silent> <M-y><M-y> :let @" = expand("%:p") . ":" . line(".")<CR>: let @+ = @"<CR>
 "}}}
 
 "{{{ open terminal neovim only
@@ -411,22 +444,41 @@ noremap <leader>k :topleft new<CR>:terminal<CR>
 noremap <leader>j :botright new<CR>:terminal<CR>
 noremap <leader>h :leftabove vnew<CR>:terminal<CR>
 noremap <leader>l :rightbelow vnew<CR>:terminal<CR>
-noremap <leader><Tab> :tabnew<CR>:terminal<CR>
+"noremap <leader><Tab> :tabnew<CR>:terminal<CR>
 "}}}
 
-nnoremap <leader>d :w !diff % -<CR>
-noremap <leader>w :set wrap!<CR>
-noremap <leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
-noremap <leader>b :call ToggleBinaryMode()<CR>
+noremap <S-z> :set fdm=syntax<CR>zR
 
-noremap + <C-a>
-noremap - <C-x>
+"{{{ Resize Pane
+noremap <S-right> :vertical resize +5<CR>
+noremap <S-left> :vertical resize -5<CR>
+noremap <S-up> 5<C-w>+
+noremap <S-down> 5<C-w>-
+"}}}
 
-nnoremap <up> <C-y>
-nnoremap <down> <C-e>
-nnoremap <S-k> 3<C-y>3k
-nnoremap <S-j> 3<C-e>3j
+"{{{ Search and Replace
+" Delete Extra white sapce from selection
+vnoremap <Space> :s/\s\+$//<CR>
+" Replace selection by last yank and keep previous yank
+vnoremap P <esc>:let @a = @"<cr>gvd"aP
+" Yank selection and replace it by previous yank
+vnoremap p "_dP
+" Replace all selection
+vnoremap <C-r> "hy<ESC>:%s/<C-r>h/<C-r>h/gc<left><left><left>
+" Replace all selection by last yank
+vnoremap <S-r> "hy<ESC>:%s/<C-r>h/<C-r>0/gc<left><left><left>
+nnoremap <space> :nohlsearch<CR>
 nnoremap <c-r> yiw:%s/\<"\>/"/gc<left><left><left>
+"}}}
+
+"{{{ Leader Command
+nnoremap <leader>s :w !sudo tee %<CR>l<CR>
+nnoremap <leader><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<CR>
+nnoremap <leader>d :w !diff % -<CR>
+nnoremap <leader>w :set wrap!<CR>
+nnoremap <leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
+nnoremap <leader>b :call ToggleBinaryMode()<CR>
+"}}}
 
 " instantly select the first autocomplet choice
 inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
@@ -434,6 +486,7 @@ inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
 
 map! <F3> <C-R>=strftime('%c')<CR>
 
+"{{{ Embeded terminal remap
 if has('nvim')
 	tnoremap <Esc> <C-\><C-n>
 	tnoremap <M-v> <Esc>"+p<insert>
@@ -444,7 +497,9 @@ if has('nvim')
 	tnoremap <> <><Left>
 	tnoremap jk <Esc>
 endif
+"}}}
 
+"{{{ C function argument switcher
 nnoremap <leader>1 :call Switch_arg(1)<CR>@a
 nnoremap <leader>2  :call Switch_arg(2)<CR>@a
 nnoremap <leader>3  :call Switch_arg(3)<CR>@a
@@ -453,7 +508,10 @@ nnoremap <leader>5  :call Switch_arg(5)<CR>@a
 nnoremap <leader>6  :call Switch_arg(6)<CR>@a
 nnoremap <leader>7  :call Switch_arg(7)<CR>@a
 "cnoremap <C-r>  <CR>:call SearchToReplace()<CR>@a<LEFT><LEFT><LEFT>
+cnoremap <C-r><C-r> <CR>:%s/<C-R>/
 vnoremap /  "ay:let @a = "/" . @a<CR>@a<CR>
+"}}}
+
 "}}}
 
 "{{{ Autocmd
@@ -475,9 +533,9 @@ autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Ri
 autocmd FileType vim set fdm=marker
 autocmd BufRead,BufNewFile *.conf setfiletype dosini
 
-" http://vim.wikia.com/wiki/Highlight_unwanted_spaces
-highlight ExtraWhitespace ctermbg=red guibg=#ab4444 gui=bold,undercurl
-highlight ExtraSpaceDwich ctermbg=red guibg=#44ab44 gui=bold,undercurl
+highlight ExtraCarriageReturn ctermbg=red gui=bold,undercurl guifg=#ababcc "guibg=#000000
+highlight ExtraWhitespace ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
+highlight ExtraSpaceDwich ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
 augroup WhitespaceMatch
   " Remove ALL autocommands for the WhitespaceMatch group.
   autocmd!
@@ -486,7 +544,7 @@ augroup WhitespaceMatch
   autocmd BufWinEnter * let w:spacedwich_match_number =
         \ matchadd('ExtraSpaceDwich', ' \t\|\t ')
   autocmd BufWinEnter * let w:CRLF =
-        \ matchadd('ExtraWhitespace', '')
+        \ matchadd('ExtraCarriageReturn', '\r')
 augroup END
 "}}}
 
