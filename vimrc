@@ -38,7 +38,21 @@ try
 	Plug 'https://github.com/google/vim-searchindex'
 	Plug 'https://github.com/mhinz/vim-signify'
 	Plug 'https://github.com/vim-scripts/vis'
-	"Plug 'https://github.com/w0rp/ale'
+	Plug 'https://github.com/w0rp/ale'
+	Plug 'https://github.com/zandrmartin/vim-textobj-blanklines'
+	Plug 'https://github.com/vim-ctrlspace/vim-ctrlspace'
+	"{{{
+		if executable("ag")
+			let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
+		endif
+		if has("gui_running")
+			" Settings for MacVim and Inconsolata font
+			let g:CtrlSpaceSymbols = { "File": "◯", "CTab": "▣", "Tabs": "▢" }
+		endif
+		let g:CtrlSpaceLoadLastWorkspaceOnStart = 1
+		let g:CtrlSpaceSaveWorkspaceOnSwitch = 1
+		let g:CtrlSpaceSaveWorkspaceOnExit = 1
+	"}}}
 	Plug 'https://github.com/vim-scripts/a.vim'
 	"{{{
 		let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../Src,sfr:../include,sfr:../inc,sfr:../Inc'
@@ -115,7 +129,7 @@ try
 				\ 'ctrl-v': 'vsplit' }
 
 	let g:fzf_colors =
-				\ { 'fg':      ['fg', 'Normal'],
+				\ { 'fg':    ['fg', 'Normal'],
 				\ 'bg':      ['bg', 'Normal'],
 				\ 'hl':      ['fg', 'Comment'],
 				\ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
@@ -214,7 +228,7 @@ try
 				\   ['true', 'false'],
 				\   ['TRUE', 'FALSE'],
 				\   ['break', 'continue'],
-				\   ['<=', '==', '>=']
+				\   ['<=', '==', '!=', '>=']
 				\ ]
 	"}}}
 
@@ -306,6 +320,7 @@ set notagbsearch                            " disable the error E432 see :h E432
 set completeopt=menuone,menu,longest,preview
 set cmdheight=1
 set mouse=a
+set display+=uhex
 "set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
 "}}}
 
@@ -402,6 +417,8 @@ cnoremap jk <Esc>
 cnoremap qq <Esc>
 cnoremap hh <Esc>
 vnoremap qq <Esc>
+cnoremap qq <Esc>
+nnoremap qq <Esc>
 
 nnoremap <S-h> <C-w><Left>
 nnoremap <S-l> <C-w><Right>
@@ -571,11 +588,10 @@ command! Ifndef call Insert_ifndef()
 
 function! Insert_ifndef()
 	let l:filename = substitute(toupper(expand("%:t")), "\\.", "_", "g")
-	execute "normal! gg"
-	execute "normal! i#ifndef " . l:filename . "\r"
-	execute "normal! i# define " . l:filename . "\r\r"
-	execute "normal! Go\r#endif /* " . l:filename . " */"
-	normal! kk
+    0put = '#ifndef ' . l:filename
+    1put = '# define ' . l:filename
+    2put = ''
+    $put = '#endif /* ' . l:filename . ' */'
 endfunction
 
 "s/(\(.*\),\s*\(.*\))/(\2, \1)
@@ -836,11 +852,25 @@ function! StopBench()
 	:noautocmd qall!
 endfunction
 
+function! IsMac()
+   if has("unix")
+      let s:uname = system("uname")
+      if s:uname == "Darwin\n"
+         return 1
+      endif
+      return 0
+   endif
+endfunction
+
 function! GetExplorer()
    if executable('nautilus')
       return 'nautilus'
    elseif executable('dolfin')
-      return 'dolfin'
+      return 'dolphin'
+   elseif executable('thunar')
+      return 'thunar'
+   elseif IsMac()
+      return 'open'
    elseif has("win32")
       return 'start'
    endif
@@ -852,7 +882,8 @@ function! OpenExplorer()
    if l:open != 'none'
       execute "!". l:open . " ."
    else
-      echomsg "No Explorer Provided"
+      echomsg "/!\\ No Explorer Provided /!\\"
    endif
 endfunction
+
 "}}}
