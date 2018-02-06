@@ -50,6 +50,18 @@ set mouse=a
 set display+=uhex
 "}}} Basic Settings
 
+"{{{ Pair characters change
+inoremap {<CR>  {}<Left><cr><cr><up><tab>
+inoremap {} {}<Left>
+inoremap {};    {};<Left><Left><cr><cr><up><tab>
+inoremap {}<CR> {}<Left><cr><cr><up><tab>
+inoremap '' ''<Left>
+inoremap "" ""<Left>
+inoremap () ()<Left>
+inoremap [] []<Left>
+inoremap <> <><Left>
+"}}}
+
 "{{{ Comfort remap
 nnoremap Q q
 nnoremap <silent> x "_x
@@ -141,13 +153,155 @@ vnoremap <C-r> "hy<ESC>:%s/<C-r>h/<C-r>h/gc<left><left><left>
 vnoremap <S-r> "hy<ESC>:%s/<C-r>h/<C-r>0/gc<left><left><left>
 nnoremap <space> :nohlsearch<CR>
 nnoremap <c-r> yiw:%s/\<"\>/"/gc<left><left><left>
+cnoremap <C-r><C-r> <CR>:%s/<C-R>/
+vnoremap /  "ay:let @a = "/" . @a<CR>@a<CR>
 "}}}
 "
 "{{{ Leader Command
 nnoremap <leader><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<CR>
 nnoremap <leader>d :w !diff % -<CR>
+nnoremap <leader>w :set wrap!<CR>
+nnoremap <leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
+nnoremap <leader>b :call ToggleBinaryMode()<CR>
 "}}}
-
 " instantly select the first autocomplet choice
 inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
    \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+
+"{{{ C function argument switcher
+nnoremap <leader>1 :call Switch_arg(1)<CR>@a
+nnoremap <leader>2  :call Switch_arg(2)<CR>@a
+nnoremap <leader>3  :call Switch_arg(3)<CR>@a
+nnoremap <leader>4  :call Switch_arg(4)<CR>@a
+nnoremap <leader>5  :call Switch_arg(5)<CR>@a
+nnoremap <leader>6  :call Switch_arg(6)<CR>@a
+nnoremap <leader>7  :call Switch_arg(7)<CR>@a
+"}}} C function argument switcher
+
+"{{{ Autocmd
+autocmd BufEnter * set autochdir
+autocmd StdinReadPre * let s:std_in=1
+autocmd BufEnter * if !exists('b:isBinary') | let b:isBinary = 0 | endif
+autocmd BufEnter * silent! execute "normal! :setlocal scrolloff=" . winheight(0) / 5 . "\r"
+autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
+autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
+autocmd FileType cpp inoremap <buffer> \n  <space><< std::endl;
+autocmd FileType c map! <F4> printf( __func__" line:"__LINE__"\n");
+autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
+autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
+autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Right>);<Esc>2<Left><insert>
+autocmd FileType vim set fdm=marker
+autocmd BufRead,BufNewFile *.conf setfiletype dosini
+
+highlight ExtraCarriageReturn ctermbg=red gui=bold,undercurl guifg=#ababcc "guibg=#000000
+highlight ExtraWhitespace ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
+highlight ExtraSpaceDwich ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
+augroup WhitespaceMatch
+  " Remove ALL autocommands for the WhitespaceMatch group.
+  autocmd!
+  autocmd BufWinEnter * let w:whitespace_match_number =
+        \ matchadd('ExtraWhitespace', '\s\+$')
+  autocmd BufWinEnter * let w:spacedwich_match_number =
+        \ matchadd('ExtraSpaceDwich', ' \t\|\t ')
+  autocmd BufWinEnter * let w:CRLF =
+        \ matchadd('ExtraCarriageReturn', '\r')
+augroup END
+"}}}
+
+"{{{ Function
+function! ToggleBinaryMode()
+	if b:isBinary == 0
+		:%!xxd
+		let b:isBinary = 1
+	else
+		:%!xxd -r
+		let b:isBinary = 0
+	endif
+endfunction
+
+command! Ifndef call Insert_ifndef()
+
+function! Insert_ifndef()
+	let l:filename = substitute(toupper(expand("%:t")), "\\.", "_", "g")
+    0put = '#ifndef ' . l:filename
+    1put = '# define ' . l:filename
+    2put = ''
+    $put = '#endif /* ' . l:filename . ' */'
+endfunction
+
+function! Switch_arg(nb)
+	let l:c = 1
+	let l:str = ":s/(\\(.*\\)"
+
+	while l:c < a:nb
+		let l:str = join([l:str, ",\\s*\\(.*\\)"], "")
+		let l:c += 1
+	endwhile
+	let l:str = join([l:str, ")"], "")
+	let l:c = 1
+	let l:str = join([l:str, "/(\\1"], "")
+	while l:c < a:nb
+		let l:str = join([l:str, ", \\", l:c+1], "")
+		let l:c += 1
+	endwhile
+	"kl -> left key obtained from pasted macro
+	let l:str = join([l:str, ")/g|:nohlsearch"], "")
+	let @a = l:str
+endfunction
+
+highlight currawong ctermbg=darkred guibg=darkred
+
+command! JsonIndent call JsonIndent()
+function! JsonIndent()
+	execute '%!python -m json.tool'
+endfunction
+
+function! DoPrettyXML()
+	let l:origft = &ft
+	set ft=
+	1s/<?xml .*?>//e
+	0put ='<PrettyXML>'
+	$put ='</PrettyXML>'
+	silent %!xmllint --format -
+	2d
+	$d
+	silent %<
+	1
+	exe "set ft=" . l:origft
+endfunction
+command! PrettyXML call DoPrettyXML()
+
+function! IsMac()
+   if has("unix")
+      let s:uname = system("uname")
+      if s:uname == "Darwin\n"
+         return 1
+      endif
+      return 0
+   endif
+endfunction
+
+function! GetExplorer()
+   if executable('nautilus')
+      return 'nautilus'
+   elseif executable('dolfin')
+      return 'dolphin'
+   elseif executable('thunar')
+      return 'thunar'
+   elseif IsMac()
+      return 'open'
+   elseif has("win32")
+      return 'start'
+   endif
+   return 'none'
+endfunction
+
+function! OpenExplorer()
+   let l:open = GetExplorer()
+   if l:open != 'none'
+      execute "!". l:open . " ."
+   else
+      echomsg "/!\\ No Explorer Provided /!\\"
+   endif
+endfunction
+"}}}
