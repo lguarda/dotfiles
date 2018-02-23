@@ -1,119 +1,124 @@
 "{{{ Var
 let g:mod = []
-let mapleader = "\<Space>"
-let g:mapleader = "\<Space>"
+let mapleader = ","
+let g:mapleader = ","
 let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 "}}}
 "{{{ Plugin
 let g:plug_window = "rightbelow new"
 try
-    if has("win32")
-    call plug#begin('~/vimfiles/bundle')
-    else
-    call plug#begin('~/.vim/plugged')
-    endif
+   if has("win32")
+      let g:HOME = $HOMEPATH
+      call plug#begin('~/vimfiles/bundle')
+   else
+      let g:HOME = $HOME
+      call plug#begin('~/.vim/plugged')
+   endif
 
-    "{{{ Color Scheme
-    Plug 'https://github.com/morhetz/gruvbox'
-    Plug 'https://github.com/mhartington/oceanic-next'
-    Plug 'https://github.com/KeitaNakamura/neodark.vim'
-    Plug 'https://github.com/KKPMW/moonshine-vim'
-    Plug 'https://github.com/dracula/vim'
-    "}}}
+   "{{{ Color Scheme
+   Plug 'https://github.com/morhetz/gruvbox'
+   Plug 'https://github.com/mhartington/oceanic-next'
+   Plug 'https://github.com/KeitaNakamura/neodark.vim'
+   Plug 'https://github.com/KKPMW/moonshine-vim'
+   Plug 'https://github.com/dracula/vim'
+   "}}}
 
-    "Plug 'https://github.com/itchyny/vim-cursorword'
-    Plug 'https://github.com/will133/vim-dirdiff'
-    Plug 'https://github.com/tpope/vim-fugitive'
-    Plug 'https://github.com/godlygeek/tabular'
-    Plug 'https://github.com/kana/vim-textobj-user'
-    Plug 'https://github.com/kana/vim-textobj-function'
-    Plug 'https://github.com/rhysd/vim-textobj-anyblock'
-    Plug 'https://github.com/sgur/vim-textobj-parameter'
-    Plug 'https://github.com/terryma/vim-multiple-cursors'
-    Plug 'https://github.com/justinmk/vim-syntax-extra'
-    Plug 'https://github.com/elzr/vim-json'
-    Plug 'https://github.com/kshenoy/vim-signature'
-    "Plug 'https://github.com/lilydjwg/colorizer'
-    Plug 'https://github.com/google/vim-searchindex'
-    Plug 'https://github.com/mhinz/vim-signify'
-    Plug 'https://github.com/vim-scripts/vis'
-    "Plug 'https://github.com/w0rp/ale'
-    Plug 'https://github.com/zandrmartin/vim-textobj-blanklines'
-    Plug 'https://github.com/kien/ctrlp.vim'
-    Plug 'https://github.com/pseewald/vim-anyfold'
-    "{{{
-    let g:anyfold_activate=1
-    let g:anyfold_identify_comments = 1
-    "}}}
-    Plug 'https://github.com/vim-ctrlspace/vim-ctrlspace'
-    "{{{
-        if executable("ag")
-            let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
-        endif
-        if has("gui_running")
-            " Settings for MacVim and Inconsolata font
-            let g:CtrlSpaceSymbols = { "File": "◯", "CTab": "▣", "Tabs": "▢" }
-        endif
-        let g:CtrlSpaceLoadLastWorkspaceOnStart = 1
-        let g:CtrlSpaceSaveWorkspaceOnSwitch = 1
-        let g:CtrlSpaceSaveWorkspaceOnExit = 1
-    "}}}
-    Plug 'https://github.com/vim-scripts/a.vim'
-    "{{{
-        let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../Src,sfr:../include,sfr:../inc,sfr:../Inc'
-    "}}}
+   "Plug 'https://github.com/itchyny/vim-cursorword'
+   Plug 'https://github.com/will133/vim-dirdiff'
+   Plug 'https://github.com/tpope/vim-fugitive'
+   Plug 'https://github.com/godlygeek/tabular'
+   Plug 'https://github.com/kana/vim-textobj-user'
+   Plug 'https://github.com/kana/vim-textobj-function'
+   Plug 'https://github.com/rhysd/vim-textobj-anyblock'
+   Plug 'https://github.com/sgur/vim-textobj-parameter'
+   Plug 'https://github.com/terryma/vim-multiple-cursors'
+   Plug 'https://github.com/justinmk/vim-syntax-extra'
+   Plug 'https://github.com/elzr/vim-json'
+   Plug 'https://github.com/kshenoy/vim-signature'
+   "Plug 'https://github.com/lilydjwg/colorizer'
+   Plug 'https://github.com/google/vim-searchindex'
+   Plug 'https://github.com/mhinz/vim-signify'
+   Plug 'https://github.com/vim-scripts/vis'
+   "Plug 'https://github.com/w0rp/ale'
+   Plug 'https://github.com/zandrmartin/vim-textobj-blanklines'
+   Plug 'https://github.com/kien/ctrlp.vim'
+   "{{{
+   let g:ctrlp_extensions = ['tag', 'buffertag', 'quickfix', 'dir',
+            \ 'undo', 'line', 'changes', 'mixed', 'bookmarkdir']
+   "}}}
+   Plug 'https://github.com/vim-ctrlspace/vim-ctrlspace'
+   "{{{
+   if executable("ag")
+      let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
+   endif
+   if has("gui_running")
+      " Settings for MacVim and Inconsolata font
+      let g:CtrlSpaceSymbols = { "File": "◯", "CTab": "▣", "Tabs": "▢" }
+   endif
+   let g:CtrlSpaceLoadLastWorkspaceOnStart = 1
+   let g:CtrlSpaceSaveWorkspaceOnSwitch = 1
+   let g:CtrlSpaceSaveWorkspaceOnExit = 1
+   "}}}
+   Plug 'https://github.com/vim-scripts/a.vim'
+   "{{{
+   let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../Src,sfr:../include,sfr:../inc,sfr:../Inc'
+   "}}}
 
-    Plug 'https://github.com/majutsushi/tagbar'
-    "{{{
-        nnoremap <leader>t :TagbarToggle<CR>
-    "}}}
+   Plug 'https://github.com/majutsushi/tagbar'
+   "{{{
+   nnoremap <space>t :TagbarToggle<CR>
+   "}}}
 
-    Plug 'https://github.com/yegappan/mru'
-    "{{{
-        nnoremap <leader>m :MRU<CR>
-    "}}}
+   Plug 'https://github.com/yegappan/mru'
+   "{{{
+   nnoremap <space>m :MRU<CR>
+   "}}}
 
-    Plug 'https://github.com/vimwiki/vimwiki'
-    "{{{
-    autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
-    autocmd BufEnter *.wiki :nmap <Leader>wh <Plug>Vimwiki2HTMLBrowse
-    let g:vimwiki_list_ignore_newline=0
-    let wiki = {}
-    let wiki.path = '~/vimwiki/'
-    let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp', 'js' : 'javascript'}
-    let g:vimwiki_list = [wiki]
-    "}}}
+   Plug 'https://github.com/vimwiki/vimwiki'
+   "{{{
+   autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
+   autocmd BufEnter *.wiki :nmap <space>wh <Plug>Vimwiki2HTMLBrowse
+   let g:vimwiki_list_ignore_newline=0
+   let wiki = {}
+   let wiki.path = '~/vimwiki/'
+   let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp', 'js' : 'javascript'}
+   let wiki.template_path = '~/vimwiki/'
+   let wiki.template_default = 'baseTemplate'
+   let wiki.template_ext = '.tpl'
+   let wiki.html_template = '~/vimwiki/baseTemplate.tpl'
+   let g:vimwiki_list = [wiki]
+   "}}}
 
-    Plug 'https://github.com/chrisbra/NrrwRgn'
-    "{{{
-    let g:nrrw_rgn_vert = 1
-    let g:nrrw_rgn_resize_window = 'column'
-    vnoremap n     :NR<CR>
-    "}}}
+   Plug 'https://github.com/chrisbra/NrrwRgn'
+   "{{{
+   let g:nrrw_rgn_vert = 1
+   let g:nrrw_rgn_resize_window = 'column'
+   vnoremap n :NR<CR>
+   "}}}
 
-    Plug 'https://github.com/mbbill/undotree'
-    "{{{
-    noremap <C-b>               :UndotreeToggle<CR>
-    let g:undotree_SetFocusWhenToggle=1
-    let g:undotree_WindowLayout=4
-    "}}}
+   Plug 'https://github.com/mbbill/undotree'
+   "{{{
+   noremap <C-b> :UndotreeToggle<CR>
+   let g:undotree_SetFocusWhenToggle=1
+   let g:undotree_WindowLayout=4
+   "}}}
 
-    Plug 'https://github.com/easymotion/vim-easymotion'
-    "{{{
-    let g:EasyMotion_do_mapping = 0 " Disable default mappings
-    nmap f <Plug>(easymotion-sl)
-    nmap F <Plug>(easymotion-overwin-f2)
-    let g:EasyMotion_keys = 'alskjdhfwiuegnv'
-    let g:EasyMotion_do_shade = 0
-    nmap W <Plug>(easymotion-bd-w)
-    vmap W <Plug>(easymotion-bd-w)
-    vmap f <Plug>(easymotion-sl)
-    let g:EasyMotion_smartcase = 1
+   Plug 'https://github.com/easymotion/vim-easymotion'
+   "{{{
+   let g:EasyMotion_do_mapping = 0 " Disable default mappings
+   nmap f <Plug>(easymotion-sl)
+   nmap F <Plug>(easymotion-overwin-f2)
+   let g:EasyMotion_keys = 'alskjdhfwiuegnv'
+   let g:EasyMotion_do_shade = 0
+   nmap W <Plug>(easymotion-bd-w)
+   vmap W <Plug>(easymotion-bd-w)
+   vmap f <Plug>(easymotion-sl)
+   let g:EasyMotion_smartcase = 1
     "}}}
 
     Plug 'https://github.com/luochen1990/rainbow'
     "{{{
-    nnoremap <M-r>              :RainbowToggle<CR>
+    nnoremap <M-r> :RainbowToggle<CR>
     "}}}
 
     Plug 'https://github.com/junegunn/goyo.vim'
@@ -127,7 +132,7 @@ try
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
     "{{{
-    nnoremap <silent> <C-f> :set noautochdir<CR>:call fzf#run(fzf#wrap({'dir': '$HOME', 'down': '30%', 'options':'--prompt "~/" --preview="pygmentize -g {-1}" --ansi'}))<CR>
+    nnoremap <silent> <C-f> :set noautochdir<CR>:call fzf#run(fzf#wrap({'dir': g:HOME, 'down': '30%', 'options':'--prompt "~/" --preview="cat {-1}" --ansi'}))<CR>
     let g:fzf_action = {
                 \ 'ctrl-t': 'tab split',
                 \ 'ctrl-x': 'split',
@@ -173,15 +178,15 @@ try
     "Plug 'https://github.com/airblade/vim-gitgutteR'
     "{{{
     "call add(g:mod, 'gutterMod')
-    let g:gitgutter_sign_removed="-"
+    let g:gitgutter_sign_removed         ="-"
     let g:gitgutter_sign_modified_removed="\u22c"
-    let g:gitgutter_realtime = 0
-    let g:gitgutter_eager = 0
-    let g:signify_sign_add                    = '+'
-    let g:signify_sign_delete                = '-'
-    let g:signify_sign_delete_first_line    = '¯'
-    let g:signify_sign_change                = '~'
-    let g:signify_sign_changedelete            = g:signify_sign_change
+    let g:gitgutter_realtime             = 0
+    let g:gitgutter_eager                = 0
+    let g:signify_sign_add               = '+'
+    let g:signify_sign_delete            = '-'
+    let g:signify_sign_delete_first_line = '¯'
+    let g:signify_sign_change            = '~'
+    let g:signify_sign_changedelete      = g:signify_sign_change
     noremap <C-c> :call ToggleGutterMode()<CR>
     autocmd BufEnter * if !exists('b:gutterMod') | let b:gutterMod = 0 | endif
     try
@@ -218,7 +223,7 @@ try
     noremap <C-g>               :NERDTreeToggle<CR>
     "autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
     "autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-    nnoremap <leader><S-N> :NERDTreeFind<CR>
+    nnoremap <space><S-N> :NERDTreeFind<CR>
     "}}}
 
     Plug 'https://github.com/AndrewRadev/switch.vim'
@@ -275,56 +280,62 @@ catch
 endtry
 
 if has('nvim')
-    set nofixeol                            " dont add automaticaly a newline in file
     set termguicolors
 endif
-set noeol
-set background=dark
-set nocompatible                            " vi legacy
-set hidden
-set showtabline=1                           " enable tabline
-set noshowmode                              " disable --[mode]-- in cmd line
-set number                                  " display line number
-set numberwidth=1                           " minimum number column size
-"set colorcolumn=80                          " display column layout
-set tabstop=4                               " redifine tab display as n space
-set t_Co=256                                " change nubmer of term color
-set cursorline                              " hightlight current line
-set shiftwidth=3
-set expandtab                              " use muliple space instead of tab
-set autoindent
-set smartindent
-set whichwrap+=<,>,h,l,[,]                  " warp cusrsor when reache end and begin of line
-set list listchars=tab:>\ ,trail:_,extends:$,precedes:$",eol:ÃÂ¶  " highlight tab space en eol
-set foldnestmax=1                           " allow 0 nested fold
-set foldcolumn=0                            " hide fold column
-set noswapfile                              " do not use ~swapfile
-set autoread                                " change file when editing from the outside
-set hlsearch                                " highligth search
-set ignorecase                              " case insensitive
-set smartcase                               " Override the 'ignorecase' option if the search pattern contains upper case characters
-set laststatus=2                            " alway show status line
-set wildmenu                                " pop menu when autocomplete command
-set wildmode=longest:full,full              " widlmenu option
-set autochdir                               " auto change directories of file
-set nowrap                                  " dont warp long line
-set linebreak                               " break at a word boundary
-set virtualedit=onemore                     " allow normal mode to go one more charater at the end
-set timeoutlen=400                          " delay of key combinations ms
-set updatetime=250
-set matchpairs=(:),[:],{:},<:>              " hl pairs and jump with %
-set lazyredraw                              " redraw only when we need to.
-set incsearch                               " While typing a search command, show where the pattern is
-set undofile                                " use undofile
-set undodir=/tmp                            " undofile location
-set fillchars="" "vert:'|'                  " use pipe as split character
-set pastetoggle=<F2>                        " toggle paste mode vi legacy
-set notagbsearch                            " disable the error E432 see :h E432
+
+" More infomation :h '{option}'
+set fixendofline                 " <EOL> at the end of file will be not restored if missing
+set noendofline                  " No <EOL> will be written for the last line in the file
+set background=dark              " Set background color in dark mode
+set nocompatible                 " Vi legacy
+set hidden                       " When off a buffer is unloaded when it is abandoned
+set showtabline=1                " Enable tabline
+set noshowmode                   " Disable --[mode]-- in cmd line
+set number                       " Display line number
+set numberwidth=1                " Minimum number column size
+set tabstop=4                    " Redifine tab display as n space
+set t_Co=256                     " Change nubmer of term color
+set cursorline                   " Hightlight current line
+set shiftwidth=3                 " Number of spaces to use for each step of (auto)indent
+set expandtab                    " Use muliple space instead of tab
+set autoindent                   " Copy indent from current line when starting a new line
+set smartindent                  " Do smart autoindenting when starting a new line
+set whichwrap+=<,>,h,l,[,]       " Warp cusrsor when reache end and begin of line
+set foldnestmax=1                " Allow 0 nested fold
+set foldcolumn=0                 " Hide fold column
+set noswapfile                   " Do not use ~swapfile
+set autoread                     " Change file when editing from the outside
+set hlsearch                     " Highligth search
+set ignorecase                   " Case insensitive
+set smartcase                    " Override the 'ignorecase' option if the search pattern contains upper case characters
+set laststatus=2                 " Alway show status line
+set wildmenu                     " Pop menu when autocomplete command
+set wildmode=longest:full,full   " Widlmenu option
+set autochdir                    " Auto change directories of file
+set nowrap                       " Dont warp long line
+set linebreak                    " Break at a word boundary
+set virtualedit=onemore          " Allow normal mode to go one more charater at the end
+set timeoutlen=400               " Delay of key combinations ms
+set updatetime=250               " If this many milliseconds nothing is typed the swap file will be written to disk
+set matchpairs=(:),[:],{:},<:>   " Hl pairs and jump with %
+set lazyredraw                   " Redraw only when we need to.
+set incsearch                    " While typing a search command, show where the pattern is
+set undofile                     " Use undofile
+set undodir=/tmp                 " Undofile location
+set noswapfile                   " Don't use swapfile for the buffer
+set fillchars="" "vert:'|'       " Use pipe as split character
+set pastetoggle=<F2>             " Toggle paste mode vi legacy
+set notagbsearch                 " Disable the error E432 see :h E432
+set cmdheight=1                  " Number of screen lines to use for the command-line
+set mouse=a                      " Set mouse for all mode
+set display+=uhex,lastline       " Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
+set history=10000                " A history of ":" commands, and a history of previous search patterns is remembered
+set sidescroll=1                 " The minimal number of columns to scroll horizontally
+set ruler                        " Show the line and column number of the cursor position
 set completeopt=menuone,menu,longest,preview
-set cmdheight=1
-set mouse=a
-set display+=uhex
+set listchars=tab:>\ ,trail:_,extends:$,precedes:$,eol:�  " highlight tab space en eol
 "set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
+"set colorcolumn=80              " display column layout
 "}}}
 "{{{ Color Fix
 try
@@ -378,9 +389,7 @@ noremap - <C-x>
 nnoremap <up> <C-y>
 nnoremap <down> <C-e>
 nnoremap <S-k> <PageUp>
-"3<C-y>3k
 nnoremap <S-j> <PageDown>
-"3<C-e>3j
 "}}}
 
 "{{{ Pair characters change
@@ -403,7 +412,6 @@ nnoremap <C-a> 0
 nnoremap <C-e> $<right>
 vnoremap <C-a> ^
 vnoremap <C-e> $
-
 inoremap <C-k> <Up>
 inoremap <C-j> <Down>
 inoremap <C-h> <Left>
@@ -421,51 +429,49 @@ cnoremap hh <Esc>
 vnoremap qq <Esc>
 cnoremap qq <Esc>
 nnoremap qq <Esc>
-
 nnoremap <S-h> <C-w><Left>
 nnoremap <S-l> <C-w><Right>
 nnoremap <M-h> b
 nnoremap <M-l> w
-
 nnoremap n nzz
 nnoremap N Nzz
 "}}}
 
 "{{{ Move line
 if has('nvim')
-   nnoremap <M-k> :m--<CR>
-   nnoremap <M-j> :m+<CR>
-   vnoremap <M-k> :m '<-2<CR>gv=gv
-   vnoremap <M-j> :m '>+1<CR>gv=gv
-   vnoremap <S-k> <PageUp>
-   vnoremap <S-j> <PageDown>
+    nnoremap <M-k> :m--<CR>
+    nnoremap <M-j> :m+<CR>
+    vnoremap <M-k> :m '<-2<CR>gv=gv
+    vnoremap <M-j> :m '>+1<CR>gv=gv
+    vnoremap <S-k> <PageUp>
+    vnoremap <S-j> <PageDown>
 else " Vim does not support Meta
-   vnoremap <S-k> :m '<-2<CR>gv=gv
-   vnoremap <S-j> :m '>+1<CR>gv=gv
+    vnoremap <S-k> :m '<-2<CR>gv=gv
+    vnoremap <S-j> :m '>+1<CR>gv=gv
 endif
 "}}}
 
 "{{{ system ClipBoard
- vnoremap <M-c> "+2yy
- vnoremap <M-x> "+dd
- nnoremap <M-v> "+P
- vnoremap <C-x><C-c> "+2yy
- nnoremap <C-x><C-v> "+P
- inoremap <M-v> <C-o>"+P
- cnoremap <M-v> <c-r>+
- " Copy fileName to clipboard
- nnoremap <silent> <M-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
- nnoremap <silent> <C-x><C-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
- nnoremap <silent> <M-y><M-y> :let @" = expand("%:p") . ":" . line(".")<CR>: let @+ = @"<CR>
+vnoremap <M-c> "+2yy
+vnoremap <M-x> "+dd
+nnoremap <M-v> "+P
+vnoremap <C-x><C-c> "+2yy
+nnoremap <C-x><C-v> "+P
+inoremap <M-v> <C-o>"+P
+cnoremap <M-v> <c-r>+
+" Copy fileName to clipboard
+nnoremap <silent> <M-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
+nnoremap <silent> <C-x><C-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
+nnoremap <silent> <M-y><M-y> :let @" = expand("%:p") . ":" . line(".")<CR>: let @+ = @"<CR>
 "}}}
 
 "{{{ open terminal neovim only
-nnoremap <leader>k :topleft new<CR>:terminal<CR>
-nnoremap <leader>j :botright new<CR>:terminal<CR>
-nnoremap <leader>h :leftabove vnew<CR>:terminal<CR>
-nnoremap <leader>l :rightbelow vnew<CR>:terminal<CR>
-"noremap <leader><Tab> :tabnew<CR>:terminal<CR>
-nnoremap <leader>o :call OpenExplorer()<CR>
+nnoremap <space>k :topleft new<CR>:terminal<CR>
+nnoremap <space>j :botright new<CR>:terminal<CR>
+nnoremap <space>h :leftabove vnew<CR>:terminal<CR>
+nnoremap <space>l :rightbelow vnew<CR>:terminal<CR>
+"noremap <space><Tab> :tabnew<CR>:terminal<CR>
+nnoremap <space>o :call OpenExplorer()<CR>
 "}}}
 
 noremap <S-z> :set fdm=syntax<CR>zR
@@ -490,18 +496,20 @@ vnoremap <C-r> "hy<ESC>:%s/<C-r>h/<C-r>h/gc<left><left><left>
 vnoremap <S-r> "hy<ESC>:%s/<C-r>h/<C-r>0/gc<left><left><left>
 nnoremap <space> :nohlsearch<CR>
 nnoremap <c-r> yiw:%s/\<"\>/"/gc<left><left><left>
+" Relplace word in yank buffer on all file
 cnoremap <C-r><C-r> <CR>:%s/<C-R>/
+" Relplace word in yank buffer on selected zone
 vnoremap <C-r><C-r> :s/<C-R>//<C-R>//g<left><left>
 vnoremap / "ay:let @a = "/" . @a<CR>@a<CR>
 "}}}
 
 "{{{ Leader Command
-nnoremap <leader>s :w !sudo tee %<CR>l<CR>
-nnoremap <leader><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<CR>
-nnoremap <leader>d :w !diff % -<CR>
-nnoremap <leader>w :set wrap!<CR>
-nnoremap <leader>r :so $MYVIMRC<CR>:nohlsearch<CR>
-nnoremap <leader>b :call ToggleBinaryMode()<CR>
+nnoremap <space>s :w !sudo tee %<CR>l<CR>
+nnoremap <space><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<CR>
+nnoremap <space>d :w !diff % -<CR>
+nnoremap <space>w :set wrap!<CR>
+nnoremap <space>r :so $MYVIMRC<CR>:nohlsearch<CR>
+nnoremap <space>b :call ToggleBinaryMode()<CR>
 "}}}
 
 " instantly select the first autocomplet choice
@@ -525,13 +533,13 @@ endif
 "}}}
 
 "{{{ C function argument switcher
-nnoremap <leader>1 :call Switch_arg(1)<CR>@a
-nnoremap <leader>2  :call Switch_arg(2)<CR>@a
-nnoremap <leader>3  :call Switch_arg(3)<CR>@a
-nnoremap <leader>4  :call Switch_arg(4)<CR>@a
-nnoremap <leader>5  :call Switch_arg(5)<CR>@a
-nnoremap <leader>6  :call Switch_arg(6)<CR>@a
-nnoremap <leader>7  :call Switch_arg(7)<CR>@a
+nnoremap <space>1 :call Switch_arg(1)<CR>@a
+nnoremap <space>2 :call Switch_arg(2)<CR>@a
+nnoremap <space>3 :call Switch_arg(3)<CR>@a
+nnoremap <space>4 :call Switch_arg(4)<CR>@a
+nnoremap <space>5 :call Switch_arg(5)<CR>@a
+nnoremap <space>6 :call Switch_arg(6)<CR>@a
+nnoremap <space>7 :call Switch_arg(7)<CR>@a
 "}}}
 
 "}}}
@@ -544,6 +552,7 @@ autocmd ColorScheme * hi Folded ctermbg=16
 autocmd BufLeave, term://* stopinsert
 autocmd BufEnter * if !exists('b:isBinary') | let b:isBinary = 0 | endif
 autocmd BufEnter * silent! execute "normal! :setlocal scrolloff=" . winheight(0) / 5 . "\r"
+autocmd BufEnter * silent! execute "normal! :setlocal sidescrolloff=" . winwidth(0) / 3 . "\r"
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
 autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
 autocmd FileType cpp inoremap <buffer> \n  <space><< std::endl;
@@ -551,23 +560,29 @@ autocmd FileType c map! <F4> printf( __func__" line:"__LINE__"\n");
 autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
 autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
 autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Right>);<Esc>2<Left><insert>
-autocmd FileType vim set fdm=marker shiftwidth=4
-autocmd FileType cpp set fdm=indent
-autocmd FileType c set fdm=indent
+autocmd FileType vim set fdm=marker
+autocmd! BufRead,BufNewFile *.markdown set filetype=mkd
+autocmd! BufRead,BufNewFile *.md       set filetype=mkd
+"autocmd FileType cpp set fdm=indent
+"autocmd FileType c set fdm=indent
 autocmd BufRead,BufNewFile *.conf setfiletype dosini
 
 highlight ExtraCarriageReturn ctermbg=red gui=bold,undercurl guifg=#ababcc "guibg=#000000
 highlight ExtraWhitespace ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
 highlight ExtraSpaceDwich ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
 augroup WhitespaceMatch
-  " Remove ALL autocommands for the WhitespaceMatch group.
-  autocmd!
-  autocmd BufWinEnter * let w:whitespace_match_number =
-        \ matchadd('ExtraWhitespace', '\s\+$')
-  autocmd BufWinEnter * let w:spacedwich_match_number =
-        \ matchadd('ExtraSpaceDwich', ' \t\|\t ')
-  autocmd BufWinEnter * let w:CRLF =
-        \ matchadd('ExtraCarriageReturn', '\r')
+    " Remove ALL autocommands for the WhitespaceMatch group.
+    autocmd!
+    autocmd BufWinEnter * let w:whitespace_match_number =
+                \ matchadd('ExtraWhitespace', '\s\+$')
+    autocmd BufWinEnter * let w:spacedwich_match_number =
+                \ matchadd('ExtraSpaceDwich', ' \t\|\t ')
+    autocmd BufWinEnter * let w:CRLF =
+                \ matchadd('ExtraCarriageReturn', '\r')
+augroup END
+augroup XML
+    autocmd!
+    autocmd FileType xml setlocal foldmethod=indent foldnestmax=100
 augroup END
 "}}}
 "{{{ Function
@@ -616,8 +631,7 @@ function! Switch_arg(nb)
         let l:str = join([l:str, ", \\", l:c+1], "")
         let l:c += 1
     endwhile
-    "kl -> left key obtained from pasted macro
-    let l:str = join([l:str, ")/g|:nohlsearch"], "")
+    let l:str = join([l:str, ")/g|:nohlsearch��T�kr�kr"], "")
     let @a = l:str
 endfunction
 
@@ -664,7 +678,7 @@ if has('nvim')
             :call remove(g:mtags, b:num)
             execute "normal! ^R[ ]"
         endif
-        :call writefile(msgpackdump(g:mtags), $HOME . '/fname.mpack', 'b')
+        :call writefile(msgpackdump(g:mtags), g:HOME . '/fname.mpack', 'b')
         :call uniq(sort(g:mtags))
         :set nomodifiable
         :SetTags
@@ -673,19 +687,19 @@ if has('nvim')
 
     command! GetTagsList call GetTagsList()
     function! GetTagsList()
-        let fname = expand($HOME . '/fname.mpack')
+        let fname = expand(g:HOME . '/fname.mpack')
         let mpack = readfile(fname, 'b')
         let g:mtags = msgpackparse(mpack)
-        let g:tlist = expand($HOME . '/.vim/tags/tlist')
+        let g:tlist = expand(g:HOME . '/.vim/tags/tlist')
         :SetTags
     endfunction
 
     command! Test call Test()
     function! Test()
-        let fname = expand($HOME . '/fname.mpack')
+        let fname = expand(g:HOME . '/fname.mpack')
         let mpack = readfile(fname, 'b')
         let g:mtags = msgpackparse(mpack)
-        let g:tlist = expand($HOME . '/.vim/tags/tlist')
+        let g:tlist = expand(g:HOME . '/.vim/tags/tlist')
         :execute 'vne' g:tlist
         :vertical resize 35
         :set modifiable
@@ -839,7 +853,7 @@ endfunction
 command! PrettyXML call DoPrettyXML()
 
 function! StartBench()
-    execute "profile start " . $HOME . "/profile.log"
+    execute "profile start " . g:HOME . "/profile.log"
     :profile func *
     :profile file *
 endfunction
@@ -850,36 +864,37 @@ function! StopBench()
 endfunction
 
 function! IsMac()
-   if has("unix")
-      let s:uname = system("uname")
-      if s:uname == "Darwin\n"
-         return 1
-      endif
-      return 0
-   endif
+    if has("unix")
+        let s:uname = system("uname")
+        if s:uname == "Darwin\n"
+            return 1
+        endif
+        return 0
+    endif
 endfunction
 
 function! GetExplorer()
-   if executable('nautilus')
-      return 'nautilus'
-   elseif executable('dolfin')
-      return 'dolphin'
-   elseif executable('thunar')
-      return 'thunar'
-   elseif IsMac()
-      return 'open'
-   elseif has("win32")
-      return 'start'
-   endif
-   return 'none'
+    if executable('nautilus')
+        return 'nautilus'
+    elseif executable('dolfin')
+        return 'dolphin'
+    elseif executable('thunar')
+        return 'thunar'
+    elseif IsMac()
+        return 'open'
+    elseif has("win32")
+        return 'start'
+    endif
+    return 'none'
 endfunction
 
 function! OpenExplorer()
-   let l:open = GetExplorer()
-   if l:open != 'none'
-      execute "!". l:open . " ."
-   else
-      echomsg "/!\\ No Explorer Provided /!\\"
-   endif
+    let l:open = GetExplorer()
+    if l:open != 'none'
+        execute "!". l:open . " ."
+    else
+        echomsg "/!\\ No Explorer Provided /!\\"
+    endif
 endfunction
+
 "}}}
