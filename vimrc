@@ -7,113 +7,120 @@ let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 "{{{ Plugin
 let g:plug_window = "rightbelow new"
 try
-   if has("win32")
-      let g:HOME = $HOMEPATH
-      call plug#begin('~/vimfiles/bundle')
-   else
-      let g:HOME = $HOME
-      call plug#begin('~/.vim/plugged')
-   endif
+    if has("win32")
+        call plug#begin('~/vimfiles/bundle')
+    else
+        call plug#begin('~/.vim/plugged')
+    endif
 
-   "{{{ Color Scheme
-   Plug 'https://github.com/morhetz/gruvbox'
-   Plug 'https://github.com/mhartington/oceanic-next'
-   Plug 'https://github.com/KeitaNakamura/neodark.vim'
-   Plug 'https://github.com/KKPMW/moonshine-vim'
-   Plug 'https://github.com/dracula/vim'
-   "}}}
+    "{{{ Color Scheme
+    Plug 'https://github.com/morhetz/gruvbox'
+    Plug 'https://github.com/mhartington/oceanic-next'
+    Plug 'https://github.com/KeitaNakamura/neodark.vim'
+    Plug 'https://github.com/KKPMW/moonshine-vim'
+    Plug 'https://github.com/dracula/vim'
+    "}}}
 
-   "Plug 'https://github.com/itchyny/vim-cursorword'
-   Plug 'https://github.com/will133/vim-dirdiff'
-   Plug 'https://github.com/tpope/vim-fugitive'
-   Plug 'https://github.com/godlygeek/tabular'
-   Plug 'https://github.com/kana/vim-textobj-user'
-   Plug 'https://github.com/kana/vim-textobj-function'
-   Plug 'https://github.com/rhysd/vim-textobj-anyblock'
-   Plug 'https://github.com/sgur/vim-textobj-parameter'
-   Plug 'https://github.com/terryma/vim-multiple-cursors'
-   Plug 'https://github.com/justinmk/vim-syntax-extra'
-   Plug 'https://github.com/elzr/vim-json'
-   Plug 'https://github.com/kshenoy/vim-signature'
-   "Plug 'https://github.com/lilydjwg/colorizer'
-   Plug 'https://github.com/google/vim-searchindex'
-   Plug 'https://github.com/mhinz/vim-signify'
-   Plug 'https://github.com/vim-scripts/vis'
-   "Plug 'https://github.com/w0rp/ale'
-   Plug 'https://github.com/zandrmartin/vim-textobj-blanklines'
-   Plug 'https://github.com/kien/ctrlp.vim'
-   "{{{
-   let g:ctrlp_extensions = ['tag', 'buffertag', 'quickfix', 'dir',
-            \ 'undo', 'line', 'changes', 'mixed', 'bookmarkdir']
-   "}}}
-   Plug 'https://github.com/vim-ctrlspace/vim-ctrlspace'
-   "{{{
-   if executable("ag")
-      let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
-   endif
-   if has("gui_running")
-      " Settings for MacVim and Inconsolata font
-      let g:CtrlSpaceSymbols = { "File": "◯", "CTab": "▣", "Tabs": "▢" }
-   endif
-   let g:CtrlSpaceLoadLastWorkspaceOnStart = 1
-   let g:CtrlSpaceSaveWorkspaceOnSwitch = 1
-   let g:CtrlSpaceSaveWorkspaceOnExit = 1
-   "}}}
-   Plug 'https://github.com/vim-scripts/a.vim'
-   "{{{
-   let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../Src,sfr:../include,sfr:../inc,sfr:../Inc'
-   "}}}
+    "Plug 'https://github.com/itchyny/vim-cursorword'
+    Plug 'https://github.com/will133/vim-dirdiff'
+    Plug 'https://github.com/tpope/vim-fugitive'
+    Plug 'https://github.com/godlygeek/tabular'
+    Plug 'https://github.com/kana/vim-textobj-user'
+    Plug 'https://github.com/kana/vim-textobj-function'
+    Plug 'https://github.com/rhysd/vim-textobj-anyblock'
+    Plug 'https://github.com/sgur/vim-textobj-parameter'
+    Plug 'https://github.com/terryma/vim-multiple-cursors'
+    Plug 'https://github.com/justinmk/vim-syntax-extra'
+    Plug 'https://github.com/elzr/vim-json'
+    Plug 'https://github.com/kshenoy/vim-signature'
+    "Plug 'https://github.com/lilydjwg/colorizer'
+    Plug 'https://github.com/google/vim-searchindex'
+    Plug 'https://github.com/mhinz/vim-signify'
+    Plug 'https://github.com/w0rp/ale'
+    Plug 'https://github.com/yuttie/comfortable-motion.vim'
+    "{{{
+    let g:languagetool_jar='D:\Users\lguarda\AppData\Local\LanguageTool-4.1\languagetool-commandline.jar'
+    "}}}
+    "{{{
+    let g:comfortable_motion_no_default_key_mappings = 1
+    noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(80)<CR>
+    noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-80)<CR>
+    "}}}
+    Plug 'https://github.com/kien/ctrlp.vim'
+    "{{{
+    let g:ctrlp_extensions = ['tag', 'buffertag', 'quickfix', 'dir',
+                \ 'undo', 'line', 'changes', 'mixed', 'bookmarkdir']
+    let g:ctrlp_mruf_max = 1000
+    let g:ctrlp_prompt_mappings = { 'ToggleMRURelative()': ['<F2>'] }
+    nnoremap <space>m :CtrlPMRU<CR>
+    let g:ctrlp_custom_ignore = {
+                \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+                \ 'file': '\v\.(exe|so|dll)$',
+                \ }
+    "}}}
+    Plug 'https://github.com/vim-ctrlspace/vim-ctrlspace'
+    "{{{
+    if executable("ag")
+        let g:CtrlSpaceGlobCommand = 'ag -l --nocolor -g ""'
+    endif
+    if has("gui_running")
+        " Settings for MacVim and Inconsolata font
+        let g:CtrlSpaceSymbols = { "File": "◯", "CTab": "▣", "Tabs": "▢" }
+    endif
+    let g:CtrlSpaceLoadLastWorkspaceOnStart = 1
+    let g:CtrlSpaceSaveWorkspaceOnSwitch = 1
+    let g:CtrlSpaceSaveWorkspaceOnExit = 1
+    "}}}
+    Plug 'https://github.com/vim-scripts/a.vim'
+    "{{{
+    let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../Src,sfr:../include,sfr:../inc,sfr:../Inc'
+    "}}}
 
-   Plug 'https://github.com/majutsushi/tagbar'
-   "{{{
-   nnoremap <space>t :TagbarToggle<CR>
-   "}}}
+    Plug 'https://github.com/majutsushi/tagbar'
+    "{{{
+    nnoremap <space>t :TagbarToggle<CR>
+    "}}}
 
-   Plug 'https://github.com/yegappan/mru'
-   "{{{
-   nnoremap <space>m :MRU<CR>
-   "}}}
+    Plug 'https://github.com/vimwiki/vimwiki'
+    "{{{
+    autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
+    autocmd BufEnter *.wiki :nmap <space>wh <Plug>Vimwiki2HTMLBrowse
+    let g:vimwiki_list_ignore_newline=0
+    let wiki = {}
+    let wiki.path = '~/vimwiki/'
+    let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp', 'js' : 'javascript'}
+    "let wiki.template_path = '~/vimwiki/'
+    "let wiki.template_default = 'baseTemplate'
+    "let wiki.template_ext = '.tpl'
+    "let wiki.html_template = '~/vimwiki/baseTemplate.tpl'
+    let g:vimwiki_list = [wiki]
+    "}}}
 
-   Plug 'https://github.com/vimwiki/vimwiki'
-   "{{{
-   autocmd BufWrite *.wiki :execute "normal \<Plug>Vimwiki2HTML"
-   autocmd BufEnter *.wiki :nmap <space>wh <Plug>Vimwiki2HTMLBrowse
-   let g:vimwiki_list_ignore_newline=0
-   let wiki = {}
-   let wiki.path = '~/vimwiki/'
-   let wiki.nested_syntaxes = {'python': 'python', 'c++': 'cpp', 'js' : 'javascript'}
-   let wiki.template_path = '~/vimwiki/'
-   let wiki.template_default = 'baseTemplate'
-   let wiki.template_ext = '.tpl'
-   let wiki.html_template = '~/vimwiki/baseTemplate.tpl'
-   let g:vimwiki_list = [wiki]
-   "}}}
+    Plug 'https://github.com/chrisbra/NrrwRgn'
+    "{{{
+    let g:nrrw_rgn_vert = 1
+    let g:nrrw_rgn_resize_window = 'column'
+    vnoremap n :NR<CR>
+    "}}}
 
-   Plug 'https://github.com/chrisbra/NrrwRgn'
-   "{{{
-   let g:nrrw_rgn_vert = 1
-   let g:nrrw_rgn_resize_window = 'column'
-   vnoremap n :NR<CR>
-   "}}}
+    Plug 'https://github.com/mbbill/undotree'
+    "{{{
+    noremap <C-b> :UndotreeToggle<CR>
+    let g:undotree_SetFocusWhenToggle=1
+    let g:undotree_WindowLayout=4
+    "}}}
 
-   Plug 'https://github.com/mbbill/undotree'
-   "{{{
-   noremap <C-b> :UndotreeToggle<CR>
-   let g:undotree_SetFocusWhenToggle=1
-   let g:undotree_WindowLayout=4
-   "}}}
-
-   Plug 'https://github.com/easymotion/vim-easymotion'
-   "{{{
-   let g:EasyMotion_do_mapping = 0 " Disable default mappings
-   nmap f <Plug>(easymotion-sl)
-   nmap F <Plug>(easymotion-overwin-f2)
-   let g:EasyMotion_keys = 'alskjdhfwiuegnv'
-   let g:EasyMotion_do_shade = 0
-   nmap W <Plug>(easymotion-bd-w)
-   vmap W <Plug>(easymotion-bd-w)
-   vmap f <Plug>(easymotion-sl)
-   let g:EasyMotion_smartcase = 1
+    Plug 'https://github.com/easymotion/vim-easymotion'
+    "{{{
+    let g:EasyMotion_do_mapping = 0 " Disable default mappings
+    nmap f <Plug>(easymotion-sl)
+    nmap F <Plug>(easymotion-overwin-f2)
+    let g:EasyMotion_keys = 'alskjdhfwiuegnv'
+    let g:EasyMotion_do_shade = 0
+    nmap W <Plug>(easymotion-bd-w)
+    vmap W <Plug>(easymotion-bd-w)
+    vmap f <Plug>(easymotion-sl)
+    let g:EasyMotion_smartcase = 1
     "}}}
 
     Plug 'https://github.com/luochen1990/rainbow'
@@ -132,7 +139,7 @@ try
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
     "{{{
-    nnoremap <silent> <C-f> :set noautochdir<CR>:call fzf#run(fzf#wrap({'dir': g:HOME, 'down': '30%', 'options':'--prompt "~/" --preview="cat {-1}" --ansi'}))<CR>
+    nnoremap <silent> <C-f> :set noautochdir<CR>:call fzf#run(fzf#wrap({'dir': $HOME, 'down': '30%', 'options':'--prompt "~/" --preview="cat {-1}" --ansi'}))<CR>
     let g:fzf_action = {
                 \ 'ctrl-t': 'tab split',
                 \ 'ctrl-x': 'split',
@@ -177,7 +184,7 @@ try
     Plug 'https://github.com/mhinz/vim-signify'
     "Plug 'https://github.com/airblade/vim-gitgutteR'
     "{{{
-    "call add(g:mod, 'gutterMod')
+    call add(g:mod, 'gutterMod')
     let g:gitgutter_sign_removed         ="-"
     let g:gitgutter_sign_modified_removed="\u22c"
     let g:gitgutter_realtime             = 0
@@ -237,7 +244,8 @@ try
                 \   ['true', 'false'],
                 \   ['TRUE', 'FALSE'],
                 \   ['break', 'continue'],
-                \   ['<=', '==', '!=', '>=']
+                \   ['<=', '==', '!=', '>='],
+                \   ['package', 'import']
                 \ ]
     "}}}
 
@@ -365,8 +373,14 @@ nnoremap <space>c :tabedit C:\Program Files\Ingenico\C3Driver\bin\c3config<CR>
 "{{{ Comfort remap
 nnoremap Q q
 nnoremap <silent> x "_x
+nnoremap <M-BS> db
+nnoremap <M-Del> de
+nnoremap <S-BS> db
+nnoremap <S-Del> de
+nnoremap <M-x> de
+nnoremap <M-S-x> db
 nnoremap <silent> <S-x> "_<S-x>
-nnoremap <silent> <C-t> :let @3=@"<CR>xlP:let@"=@3<CR>
+"nnoremap <silent> <C-t> :let @3=@"<CR>xlP:let@"=@3<CR>
 nnoremap ; :
 nnoremap <space><space> :tabedit $MYVIMRC<CR>
 nnoremap <S-Tab> :tabprevious<CR>
@@ -390,6 +404,7 @@ nnoremap <up> <C-y>
 nnoremap <down> <C-e>
 nnoremap <S-k> <PageUp>
 nnoremap <S-j> <PageDown>
+nnoremap gp `[v`]
 "}}}
 
 "{{{ Pair characters change
@@ -416,25 +431,24 @@ inoremap <C-k> <Up>
 inoremap <C-j> <Down>
 inoremap <C-h> <Left>
 inoremap <C-l> <Right>
-inoremap hh <C-o>:stopinsert<CR>:echo<CR>
-inoremap jk <C-o>:stopinsert<CR>:echo<CR>
-inoremap qq <C-o>:stopinsert<CR>:echo<CR>
+inoremap <silent> hh <C-o>:stopinsert<CR>:s/\s\+$//e<CR>
+inoremap <silent> qq <C-o>:stopinsert<CR>:s/\s\+$//e<CR>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 cnoremap <C-j> <Down>
 cnoremap <C-k> <Up>
-cnoremap jk <Esc>
-cnoremap qq <Esc>
-cnoremap hh <Esc>
-vnoremap qq <Esc>
-cnoremap qq <Esc>
-nnoremap qq <Esc>
+cnoremap <silent> qq <Esc>
+cnoremap <silent> hh <Esc>
+vnoremap <silent> qq <Esc>
+cnoremap <silent> qq <Esc>
+nnoremap <silent> qq <Esc>
 nnoremap <S-h> <C-w><Left>
 nnoremap <S-l> <C-w><Right>
 nnoremap <M-h> b
 nnoremap <M-l> w
-nnoremap n nzz
-nnoremap N Nzz
+nnoremap * *N
+"nnoremap n nzz
+"nnoremap N Nzz
 "}}}
 
 "{{{ Move line
@@ -452,6 +466,7 @@ endif
 "}}}
 
 "{{{ system ClipBoard
+nnoremap Y y$
 vnoremap <M-c> "+2yy
 vnoremap <M-x> "+dd
 nnoremap <M-v> "+P
@@ -471,7 +486,7 @@ nnoremap <space>j :botright new<CR>:terminal<CR>
 nnoremap <space>h :leftabove vnew<CR>:terminal<CR>
 nnoremap <space>l :rightbelow vnew<CR>:terminal<CR>
 "noremap <space><Tab> :tabnew<CR>:terminal<CR>
-nnoremap <space>o :call OpenExplorer()<CR>
+nnoremap <silent> <space>o :call OpenExplorer()<CR><CR>
 "}}}
 
 noremap <S-z> :set fdm=syntax<CR>zR
@@ -485,7 +500,7 @@ noremap <S-down> 5<C-w>-
 
 "{{{ Search and Replace
 " Delete Extra white sapce from selection
-vnoremap <Space> :s/\s\+$//<CR>
+vnoremap <Space> :s/\s\+$//e<CR>
 " Replace selection by last yank and keep previous yank
 vnoremap P <esc>:let @a = @"<cr>gvd"aP
 " Yank selection and replace it by previous yank
@@ -504,12 +519,15 @@ vnoremap / "ay:let @a = "/" . @a<CR>@a<CR>
 "}}}
 
 "{{{ Leader Command
-nnoremap <space>s :w !sudo tee %<CR>l<CR>
+nnoremap <space>s :b#<CR>
 nnoremap <space><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<CR>
 nnoremap <space>d :w !diff % -<CR>
 nnoremap <space>w :set wrap!<CR>
 nnoremap <space>r :so $MYVIMRC<CR>:nohlsearch<CR>
 nnoremap <space>b :call ToggleBinaryMode()<CR>
+nnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/ \1 /ge<CR>:noh<CR>
+vnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/ \1 /ge<CR>:noh<CR>
+nnoremap <space>c <ESC>o/**<CR><CR>/<ESC><Up>A<space>
 "}}}
 
 " instantly select the first autocomplet choice
@@ -518,6 +536,15 @@ inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
 
 map! <F3> <C-R>=strftime('%c')<CR>
 map! <F5> :bufdo checktime<CR>
+"{{{ GUI
+nnoremap <silent> <space>- :call GuiZoom(-1)<CR>
+nnoremap <silent> <space>= :call GuiZoom(1)<CR>
+nnoremap <silent> <C--> :call GuiZoom(-1)<CR>
+nnoremap <silent> <C-=> :call GuiZoom(0)<CR>
+nnoremap <silent> <C-+> :call GuiZoom(1)<CR>
+nnoremap <silent> <C-ScrollWheelDown> :call GuiZoom(-1)<CR>
+nnoremap <silent> <C-ScrollWheelUp> :call GuiZoom(1)<CR>
+"}}}
 
 "{{{ Embeded terminal remap
 if has('nvim')
@@ -635,6 +662,23 @@ function! Switch_arg(nb)
     let @a = l:str
 endfunction
 
+function! SwitchWordCamel(nb)
+    let l:c = 1
+    let l:str = ":s/\\(\\u*\\l\\+\\)"
+    while l:c < a:nb
+        let l:str = join([l:str, "\\(\\u\\l\\+\\)"], "")
+        let l:c += 1
+    endwhile
+    let l:c = 1
+    let l:str = join([l:str, "/\\l\\1"], "")
+    while l:c < a:nb
+        let l:str = join([l:str, "\\u\\", l:c+1], "")
+        let l:c += 1
+    endwhile
+    let l:str = join([l:str, "/g|:nohlsearch" . repeat("kl", 14)], "")
+    let @a = l:str
+endfunction
+
 highlight currawong ctermbg=darkred guibg=darkred
 
 if has('nvim')
@@ -678,7 +722,7 @@ if has('nvim')
             :call remove(g:mtags, b:num)
             execute "normal! ^R[ ]"
         endif
-        :call writefile(msgpackdump(g:mtags), g:HOME . '/fname.mpack', 'b')
+        :call writefile(msgpackdump(g:mtags), $HOME . '/fname.mpack', 'b')
         :call uniq(sort(g:mtags))
         :set nomodifiable
         :SetTags
@@ -687,19 +731,19 @@ if has('nvim')
 
     command! GetTagsList call GetTagsList()
     function! GetTagsList()
-        let fname = expand(g:HOME . '/fname.mpack')
+        let fname = expand($HOME . '/fname.mpack')
         let mpack = readfile(fname, 'b')
         let g:mtags = msgpackparse(mpack)
-        let g:tlist = expand(g:HOME . '/.vim/tags/tlist')
+        let g:tlist = expand($HOME . '/.vim/tags/tlist')
         :SetTags
     endfunction
 
     command! Test call Test()
     function! Test()
-        let fname = expand(g:HOME . '/fname.mpack')
+        let fname = expand($HOME . '/fname.mpack')
         let mpack = readfile(fname, 'b')
         let g:mtags = msgpackparse(mpack)
-        let g:tlist = expand(g:HOME . '/.vim/tags/tlist')
+        let g:tlist = expand($HOME . '/.vim/tags/tlist')
         :execute 'vne' g:tlist
         :vertical resize 35
         :set modifiable
@@ -853,7 +897,7 @@ endfunction
 command! PrettyXML call DoPrettyXML()
 
 function! StartBench()
-    execute "profile start " . g:HOME . "/profile.log"
+    execute "profile start " . $HOME . "/profile.log"
     :profile func *
     :profile file *
 endfunction
@@ -883,9 +927,16 @@ function! GetExplorer()
     elseif IsMac()
         return 'open'
     elseif has("win32")
-        return 'start'
+        return 'explorer'
     endif
     return 'none'
+endfunction
+
+function! GuiZoom(indice)
+    let l:split = split(g:GuiFont, ':')
+    let l:font = l:split[0]
+    let l:size = split(l:split[1], 'h')[0]
+    execute "GuiFont! " . l:font . ":h" . (l:size + a:indice)
 endfunction
 
 function! OpenExplorer()
@@ -895,6 +946,13 @@ function! OpenExplorer()
     else
         echomsg "/!\\ No Explorer Provided /!\\"
     endif
+endfunction
+
+function! BreakHabits()
+    noremap h <NOP>
+    noremap j <NOP>
+    noremap k <NOP>
+    noremap l <NOP>
 endfunction
 
 "}}}
