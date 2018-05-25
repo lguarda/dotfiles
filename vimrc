@@ -301,10 +301,11 @@ set showtabline=1                " Enable tabline
 set noshowmode                   " Disable --[mode]-- in cmd line
 set number                       " Display line number
 set numberwidth=1                " Minimum number column size
-set tabstop=4                    " Redifine tab display as n space
 set t_Co=256                     " Change nubmer of term color
 set cursorline                   " Hightlight current line
-set shiftwidth=3                 " Number of spaces to use for each step of (auto)indent
+set tabstop=8                    " Redifine tab display as n space
+set softtabstop=4
+set shiftwidth=4                 " Number of spaces to use for each step of (auto)indent
 set expandtab                    " Use muliple space instead of tab
 set autoindent                   " Copy indent from current line when starting a new line
 set smartindent                  " Do smart autoindenting when starting a new line
@@ -329,7 +330,7 @@ set matchpairs=(:),[:],{:},<:>   " Hl pairs and jump with %
 set lazyredraw                   " Redraw only when we need to.
 set incsearch                    " While typing a search command, show where the pattern is
 set undofile                     " Use undofile
-set undodir=/tmp                 " Undofile location
+set undodir=$HOME/.vim/undo      " Undofile location
 set noswapfile                   " Don't use swapfile for the buffer
 set fillchars="" "vert:'|'       " Use pipe as split character
 set pastetoggle=<F2>             " Toggle paste mode vi legacy
@@ -340,41 +341,43 @@ set display+=uhex,lastline       " Change the way text is displayed. uhex: Show 
 set history=10000                " A history of ":" commands, and a history of previous search patterns is remembered
 set sidescroll=1                 " The minimal number of columns to scroll horizontally
 set ruler                        " Show the line and column number of the cursor position
+set nobackup                     " Disable BackupFile(~)
 set completeopt=menuone,menu,longest,preview
-set listchars=tab:>\ ,trail:_,extends:$,precedes:$,eol:¶  " highlight tab space en eol
+set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$,eol:Â¶  " highlight tab space en eol
 "set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
 "set colorcolumn=80              " display column layout
 "}}}
 "{{{ Color Fix
 try
-    hi! VertSplit ctermfg=darkgrey ctermbg=NONE guifg=NONE guibg=NONE term=NONE
-    hi! LineNr ctermfg=darkgrey ctermbg=NONE guifg=darkgrey guibg=NONE
-    hi Folded ctermbg=16 guibg=#2d1a35 guifg=#aaaaaa gui=bold
-    hi NonText ctermfg=234 guifg=#545454
-    hi CursorLine ctermbg=233 guibg=#2d1a35
-    hi EndOfBuffer ctermfg=NONE guifg=#282a36
-    hi CursorWord1 ctermbg=NONE guibg=NONE
-    hi CursorWord0 ctermbg=NONE guibg=NONE
-    hi CursorLineNr ctermbg=NONE guibg=NONE
-    hi Search guibg=#0f550f guifg=peru gui=underline,bold
-    hi FoldColumn ctermbg=NONE guibg=NONE
-    hi Normal guifg=#eeeeee
-    hi Comment guifg=#878787
+   hi! VertSplit ctermfg=darkgrey ctermbg=NONE guifg=bg guibg=NONE term=NONE
+   hi! LineNr ctermfg=darkgrey ctermbg=NONE guifg=darkgrey guibg=NONE
+   hi Folded ctermbg=16 guibg=#2d1a35 guifg=#aaaaaa gui=bold
+   hi NonText ctermfg=234 guifg=#545454
+   hi CursorLine ctermbg=233 guibg=#2d1a35
+   hi EndOfBuffer ctermfg=NONE guifg=bg
+   hi CursorWord1 ctermbg=NONE guibg=NONE
+   hi CursorWord0 ctermbg=NONE guibg=NONE
+   hi CursorLineNr ctermbg=NONE guibg=NONE
+   hi Search guibg=#0f550f guifg=peru gui=underline,bold
+   hi FoldColumn ctermbg=NONE guibg=NONE
+   hi Normal guifg=#bfbfbf
+   hi Comment guifg=#878787
 catch
 endtry
 "}}}
 "{{{ ReMap
-
 "{{{ WORK
-nnoremap <space>n :tabedit $HOME\NOTE<CR>
+nnoremap <space>n :execute ":tabedit " . $HOME . "/NOTE"<CR>
 nnoremap <space>c :tabedit C:\Program Files\Ingenico\C3Driver\bin\c3config<CR>
+nnoremap <space>C :tabedit C:\Program Files\Ingenico\C3Driver - Copie\bin\c3config<CR>
 "}}}
-
 "{{{ Comfort remap
 nnoremap Q q
 nnoremap <silent> x "_x
 nnoremap <M-BS> db
+inoremap <M-BS> <ESC>lcb
 nnoremap <M-Del> de
+inoremap <M-Del> <ESC>lce
 nnoremap <S-BS> db
 nnoremap <S-Del> de
 nnoremap <M-x> de
@@ -386,7 +389,7 @@ nnoremap <space><space> :tabedit $MYVIMRC<CR>
 nnoremap <S-Tab> :tabprevious<CR>
 nnoremap <Tab> :tabnext<CR>
 " Incremente or decrement indentation
-vnoremap <Tab> >gv
+vnoremap <Tab> >gv| " Indent
 vnoremap <S-Tab> <gv
 inoremap <C-u> <Esc><C-r>
 noremap <C-u> <C-r>
@@ -406,7 +409,6 @@ nnoremap <S-k> <PageUp>
 nnoremap <S-j> <PageDown>
 nnoremap gp `[v`]
 "}}}
-
 "{{{ Pair characters change
 inoremap {<CR>  {}<Left><cr><cr><up><tab>
 inoremap {} {}<Left>
@@ -418,7 +420,6 @@ inoremap () ()<Left>
 inoremap [] []<Left>
 inoremap <> <><Left>
 "}}}
-
 "{{{ Basic Move Modif
 inoremap <C-a> <Esc><S-i>
 inoremap <C-e> <Esc><S-a>
@@ -450,21 +451,23 @@ nnoremap * *N
 "nnoremap n nzz
 "nnoremap N Nzz
 "}}}
-
 "{{{ Move line
 if has('nvim')
-    nnoremap <M-k> :m--<CR>
-    nnoremap <M-j> :m+<CR>
-    vnoremap <M-k> :m '<-2<CR>gv=gv
-    vnoremap <M-j> :m '>+1<CR>gv=gv
-    vnoremap <S-k> <PageUp>
-    vnoremap <S-j> <PageDown>
+   nnoremap <M-k> :m--<CR>
+   nnoremap <M-j> :m+<CR>
+   vnoremap <M-k> :m '<-2<CR>gv=gv
+   vnoremap <M-j> :m '>+1<CR>gv=gv
+   vnoremap <M-h> <gv
+   vnoremap <M-l> >gv
+   vnoremap <S-k> <PageUp>
+   vnoremap <S-j> <PageDown>
 else " Vim does not support Meta
-    vnoremap <S-k> :m '<-2<CR>gv=gv
-    vnoremap <S-j> :m '>+1<CR>gv=gv
+   vnoremap <S-k> :m '<-2<CR>gv=gv
+   vnoremap <S-j> :m '>+1<CR>gv=gv
+   vnoremap <S-h> <gv
+   vnoremap <S-l> >gv
 endif
 "}}}
-
 "{{{ system ClipBoard
 nnoremap Y y$
 vnoremap <M-c> "+2yy
@@ -479,7 +482,6 @@ nnoremap <silent> <M-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
 nnoremap <silent> <C-x><C-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
 nnoremap <silent> <M-y><M-y> :let @" = expand("%:p") . ":" . line(".")<CR>: let @+ = @"<CR>
 "}}}
-
 "{{{ open terminal neovim only
 nnoremap <space>k :topleft new<CR>:terminal<CR>
 nnoremap <space>j :botright new<CR>:terminal<CR>
@@ -487,88 +489,72 @@ nnoremap <space>h :leftabove vnew<CR>:terminal<CR>
 nnoremap <space>l :rightbelow vnew<CR>:terminal<CR>
 "noremap <space><Tab> :tabnew<CR>:terminal<CR>
 nnoremap <silent> <space>o :call OpenExplorer()<CR><CR>
+nnoremap <space>n :execute "vsp $HOME/.vim/note/" .expand("%") . ".note"<CR>
 "}}}
-
 noremap <S-z> :set fdm=syntax<CR>zR
-
 "{{{ Resize Pane
 noremap <S-right> :vertical resize +5<CR>
 noremap <S-left> :vertical resize -5<CR>
 noremap <S-up> 5<C-w>+
 noremap <S-down> 5<C-w>-
 "}}}
-
 "{{{ Search and Replace
-" Delete Extra white sapce from selection
-vnoremap <Space> :s/\s\+$//e<CR>
-" Replace selection by last yank and keep previous yank
-vnoremap P <esc>:let @a = @"<cr>gvd"aP
-" Yank selection and replace it by previous yank
-vnoremap p "_dP
-" Replace all selection
-vnoremap <C-r> "hy<ESC>:%s/<C-r>h/<C-r>h/gc<left><left><left>
-" Replace all selection by last yank
-vnoremap <S-r> "hy<ESC>:%s/<C-r>h/<C-r>0/gc<left><left><left>
-nnoremap <space> :nohlsearch<CR>
-nnoremap <c-r> yiw:%s/\<"\>/"/gc<left><left><left>
-" Relplace word in yank buffer on all file
-cnoremap <C-r><C-r> <CR>:%s/<C-R>/
-" Relplace word in yank buffer on selected zone
-vnoremap <C-r><C-r> :s/<C-R>//<C-R>//g<left><left>
-vnoremap / "ay:let @a = "/" . @a<CR>@a<CR>
+vnoremap <Space> :s/\s\+$//e<CR>|                               "Delete Extra white sapce from selection
+vnoremap P <esc>:let @a = @"<cr>gvd"aP|                         "Yank selection and replace it by previous yank
+vnoremap p "_dP|                                                "Replace selection by last yank and keep previous yank
+vnoremap <C-r> "hy<ESC>:%s/<C-r>h/<C-r>h/gc<left><left><left>|  "Replace all selection
+vnoremap <S-r> "hy<ESC>:%s/<C-r>h/<C-r>0/gc<left><left><left>|  "Replace all selection by last yank
+nnoremap <space> :nohlsearch<CR>|                               "Stop hightliting search
+nnoremap <c-r> yiw:%s/\<<C-R>"\>/<C-R>"/gc<left><left><left>|   "Replace word on cursor
+cnoremap <C-r><C-r> <CR>:%s/<C-R>"/g<left><left>|               "Relplace word in yank buffer on all file
+vnoremap <C-r><C-r> :s/<C-R>"/<C-R>"/g<left><left>|             "Relplace word in yank buffer on selected zone
+vnoremap / "ay:let @a = "/" . @a<CR>@a<CR>|                     "Search selected Text
 "}}}
-
 "{{{ Leader Command
 nnoremap <space>s :b#<CR>
 nnoremap <space><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<CR>
-nnoremap <space>d :w !diff % -<CR>
-nnoremap <space>w :set wrap!<CR>
+nnoremap <space>d :w !diff -u % -<CR>
+nnoremap <space>D :DiffWithSaved<CR>
+nnoremap <space>w :set wrap! wrap?<CR>
 nnoremap <space>r :so $MYVIMRC<CR>:nohlsearch<CR>
 nnoremap <space>b :call ToggleBinaryMode()<CR>
-nnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/ \1 /ge<CR>:noh<CR>
 vnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/ \1 /ge<CR>:noh<CR>
 nnoremap <space>c <ESC>o/**<CR><CR>/<ESC><Up>A<space>
+nnoremap <space>1 :call SwitchNargs(function('Switch_arg'))<CR>@a| "function argument switcher
+nnoremap <space>2 :call SwitchNargs(function('Switch_argBack'))<CR>@a| "function argument switcher
 "}}}
-
+nnoremap <c-k> p^f"l<c-a>yy
 " instantly select the first autocomplet choice
 inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
-            \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+         \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 
 map! <F3> <C-R>=strftime('%c')<CR>
-map! <F5> :bufdo checktime<CR>
+nnoremap <F5> :checktime<CR>
+augroup Refresh
+   autocmd FocusGained * checktime
+   autocmd BufEnter * checktime
+augroup END
 "{{{ GUI
 nnoremap <silent> <space>- :call GuiZoom(-1)<CR>
 nnoremap <silent> <space>= :call GuiZoom(1)<CR>
 nnoremap <silent> <C--> :call GuiZoom(-1)<CR>
-nnoremap <silent> <C-=> :call GuiZoom(0)<CR>
+nnoremap <silent> <C-=> :call GuiZoom(1)<CR>
 nnoremap <silent> <C-+> :call GuiZoom(1)<CR>
 nnoremap <silent> <C-ScrollWheelDown> :call GuiZoom(-1)<CR>
 nnoremap <silent> <C-ScrollWheelUp> :call GuiZoom(1)<CR>
 "}}}
-
 "{{{ Embeded terminal remap
 if has('nvim')
-    tnoremap <Esc> <C-\><C-n>
-    tnoremap <M-v> <Esc>"+p<insert>
-    tnoremap '' ''<Left>
-    tnoremap "" ""<Left>
-    tnoremap () ()<Left>
-    tnoremap [] []<Left>
-    tnoremap <> <><Left>
-    tnoremap jk <Esc>
+   tnoremap <Esc> <C-\><C-n>
+   tnoremap <M-v> <Esc>"+p<insert>
+   tnoremap '' ''<Left>
+   tnoremap "" ""<Left>
+   tnoremap () ()<Left>
+   tnoremap [] []<Left>
+   tnoremap <> <><Left>
+   tnoremap jk <Esc>
 endif
 "}}}
-
-"{{{ C function argument switcher
-nnoremap <space>1 :call Switch_arg(1)<CR>@a
-nnoremap <space>2 :call Switch_arg(2)<CR>@a
-nnoremap <space>3 :call Switch_arg(3)<CR>@a
-nnoremap <space>4 :call Switch_arg(4)<CR>@a
-nnoremap <space>5 :call Switch_arg(5)<CR>@a
-nnoremap <space>6 :call Switch_arg(6)<CR>@a
-nnoremap <space>7 :call Switch_arg(7)<CR>@a
-"}}}
-
 "}}}
 "{{{ Autocmd
 autocmd BufEnter * set autochdir
@@ -579,7 +565,7 @@ autocmd ColorScheme * hi Folded ctermbg=16
 autocmd BufLeave, term://* stopinsert
 autocmd BufEnter * if !exists('b:isBinary') | let b:isBinary = 0 | endif
 autocmd BufEnter * silent! execute "normal! :setlocal scrolloff=" . winheight(0) / 5 . "\r"
-autocmd BufEnter * silent! execute "normal! :setlocal sidescrolloff=" . winwidth(0) / 3 . "\r"
+autocmd BufEnter * silent! execute "normal! :setlocal sidescrolloff=" . winwidth(0) / 8 . "\r"
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
 autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
 autocmd FileType cpp inoremap <buffer> \n  <space><< std::endl;
@@ -597,6 +583,7 @@ autocmd BufRead,BufNewFile *.conf setfiletype dosini
 highlight ExtraCarriageReturn ctermbg=red gui=bold,undercurl guifg=#ababcc "guibg=#000000
 highlight ExtraWhitespace ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
 highlight ExtraSpaceDwich ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
+highlight NonBreakSpace gui=bold,undercurl guifg=#ff0000 ctermfg=red
 augroup WhitespaceMatch
     " Remove ALL autocommands for the WhitespaceMatch group.
     autocmd!
@@ -606,6 +593,8 @@ augroup WhitespaceMatch
                 \ matchadd('ExtraSpaceDwich', ' \t\|\t ')
     autocmd BufWinEnter * let w:CRLF =
                 \ matchadd('ExtraCarriageReturn', '\r')
+    autocmd BufWinEnter * let w:NonBreakSpace =
+                \ matchadd('NonBreakSpace', ' ')
 augroup END
 augroup XML
     autocmd!
@@ -644,22 +633,50 @@ endfunction
 "s/(\(.*\),\s*\(.*/))/(\1, \2)/gc
 
 function! Switch_arg(nb)
-    let l:c = 1
-    let l:str = ":s/(\\(.*\\)"
+   let l:c = 1
+   let l:str = ":s/(\\s*\\(.*\\)"
 
-    while l:c < a:nb
-        let l:str = join([l:str, ",\\s*\\(.*\\)"], "")
-        let l:c += 1
-    endwhile
-    let l:str = join([l:str, ")"], "")
-    let l:c = 1
-    let l:str = join([l:str, "/(\\1"], "")
-    while l:c < a:nb
-        let l:str = join([l:str, ", \\", l:c+1], "")
-        let l:c += 1
-    endwhile
-    let l:str = join([l:str, ")/g|:nohlsearch€ýT€kr€kr"], "")
-    let @a = l:str
+   while l:c <= a:nb
+      let l:str = join([l:str, ",\\s*\\(.*\\)"], "")
+      let l:c += 1
+   endwhile
+   let l:str = join([l:str, "\\s*)"], "")
+   let l:c = 1
+   let l:str = join([l:str, "/(\\1"], "")
+   while l:c <= a:nb
+      let l:str = join([l:str, ", \\", l:c+1], "")
+      let l:c += 1
+   endwhile
+   let l:str = join([l:str, ")/g|:nohlsearch" . repeat("€kl", 15)], "")
+   let @a = l:str
+endfunction
+
+function! Switch_argBack(nb)
+   let l:c = 1
+   let l:str = ":s/(\\s*\\(.*\\)"
+
+   while l:c <= a:nb
+      let l:str = join([l:str, ",\\s*\\(.*\\)"], "")
+      let l:c += 1
+   endwhile
+   let l:str = join([l:str, "\\s*)"], "")
+   let l:c = a:nb + 1
+   let l:str = join([l:str, "/(\\" . l:c], "")
+   while l:c > 1
+      let l:str = join([l:str, ", \\", l:c-1], "")
+      let l:c -= 1
+   endwhile
+   let l:str = join([l:str, ")/g|:nohlsearch" . repeat("€kl", 15)], "")
+   let @a = l:str
+endfunction
+
+function! SwitchNargs(fun)
+   let l:str = matchstr(getline('.'), '\w\+\s*(.*)')
+   if empty(l:str)
+      echomsg "No Function found"
+   else
+      call a:fun(CountChar(l:str, ','))
+   endif
 endfunction
 
 function! SwitchWordCamel(nb)
@@ -949,10 +966,87 @@ function! OpenExplorer()
 endfunction
 
 function! BreakHabits()
-    noremap h <NOP>
-    noremap j <NOP>
-    noremap k <NOP>
-    noremap l <NOP>
+   nnoremap hh <NOP>
+   nnoremap jj <NOP>
+   nnoremap kk <NOP>
+   nnoremap ll <NOP>
+   inoremap <ESC> <NOP>
 endfunction
+
+function! MgetTime()
+   return strftime("%y%m%d-%H%M%S")
+endfunction
+nnoremap <space>S :execute "vsp " . g:vimfiles . MgetTime() . ".txt"<CR>
+
+function! SaveSess()
+    execute 'mksession! ' . $HOME . '/.vim/session.vim'
+endfunction
+
+function! RestoreSess()
+execute 'so ' . $HOME . '/.vim/session.vim'
+if bufexists(1)
+    for l in range(1, bufnr('$'))
+        if bufwinnr(l) == -1
+            exec 'sbuffer ' . l
+        endif
+    endfor
+endif
+endfunction
+
+function! SaveSessQuit()
+   call SaveSess()
+   :qa!
+endfunction
+command! Leave call SaveSessQuit()
+command! Back call RestoreSess()
+
+function! CountChar(string, char)
+   let l:i = 0
+   let l:count = 0
+   while (i < len(a:string))
+      if a:string[i] == a:char
+         let l:count += 1
+      endif
+      let l:i += 1
+   endwhile
+   return l:count
+endfunction
+
+function! s:DiffWithSaved()
+  let filetype=&ft
+  diffthis
+  vnew | r # | normal! 1Gdd
+  diffthis
+  exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . filetype
+endfunction
+com! DiffSaved call s:DiffWithSaved()
+
+function! s:MoveBlockMapping()
+   if b:visualMove == 0
+      vnoremap <buffer> k koko
+      vnoremap <buffer> j jojo
+      vnoremap <buffer> h hoho
+      vnoremap <buffer> l lolo
+      let b:visualMove = 1
+   else
+      vnoremap <buffer> k k
+      vnoremap <buffer> j j
+      vnoremap <buffer> h h
+      vnoremap <buffer> l l
+      let b:visualMove = 0
+   endif
+endfunction
+com! ToggleMoveVisual call s:MoveBlockMapping()
+vnoremap <silent> v <ESC>:ToggleMoveVisual<CR>gv
+let g:useFullRegex = {'Make upper case letter after get and set': ':/\(\(g\|s\)et\)\(\w\)/\1\u\3/gc','New line on coma':'/,/\r/g'}
+function! GetRegex(key)
+   let @a= ":s" . get(g:useFullRegex, a:key, 'NOPE')
+endfunction
+com! Regex call GetRegex()
+function! SelectRegex()
+   :call fzf#run({'source': keys(g:useFullRegex), 'sink': function('GetRegex')})
+endfunction
+com! SelectRegex call SelectRegex()
+nnoremap <C-f> :SelectRegex<CR>
 
 "}}}
