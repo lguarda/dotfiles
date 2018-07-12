@@ -3,15 +3,22 @@ let g:mod = []
 let mapleader = ","
 let g:mapleader = ","
 let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+let g:vimfiles = fnamemodify(expand("$MYVIMRC"), ":p:h")
 "}}}
 "{{{ Plugin
+"{{{ Vim-PLUG
+if filereadable(g:vimfiles . "/autoload/plug.vim") == 0 && executable('curl')
+    execute ":!mkdir -p " . g:vimfiles . "/autoload"
+    execute ":!curl -fLo " . g:vimfiles . "/autoload/plug.vim --create-dirs " .
+    \ "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+endif
 let g:plug_window = "rightbelow new"
+"}}}
 try
     if has("win32")
         let g:vimfiles='~/vimfiles/'
         call plug#begin('~/vimfiles/bundle')
     else
-        let g:vimfiles='~/.vim/'
         call plug#begin('~/.vim/plugged')
     endif
     "{{{ Color Scheme
@@ -42,10 +49,13 @@ try
     Plug 'https://github.com/google/vim-maktaba'
     Plug 'https://github.com/google/vim-syncopate'
     Plug 'https://github.com/iamcco/markdown-preview.vim'
+    Plug 'https://github.com/plasticboy/vim-markdown'
     Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/Shougo/unite.vim'
     Plug 'https://github.com/Shougo/vimfiler.vim'
     Plug 'https://github.com/anschnapp/move-less'
+    Plug 'https://github.com/PotatoesMaster/i3-vim-syntax'
+    Plug 'https://github.com/tpope/vim-surround'
     Plug 'https://github.com/pbogut/fzf-mru.vim' "{{{
     let fzf_mru_max=1000
     "}}}
@@ -203,7 +213,7 @@ try
     "execute ":NERDTreeToggle " . expand("%:p:h")
     let NERDTreeShowBookmarks=1
     let g:NERDTreeDirArrows=0
-    let NERDTreeIgnore=['\c^ntuser\..*']
+    let NERDTreeIgnore = ['\~$','\.pyc$','\*NTUSER*','\*ntuser*','\NTUSER.DAT','\ntuser.ini']
     noremap <C-g>               :NERDTreeToggle<CR>
     "autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
     "autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
@@ -215,6 +225,7 @@ try
     let g:switch_custom_definitions = [
                 \   ['--', '++'],
                 \   ['yes', 'no'],
+                \   ['YES', 'NO'],
                 \   ['.', '->'],
                 \   ['true', 'false'],
                 \   ['TRUE', 'FALSE'],
@@ -251,6 +262,7 @@ try
     "}}}
     call plug#end()
 catch
+    echoerr "This script just failed!"
 endtry
 "}}}
 "{{{ Basic Setting
@@ -346,6 +358,7 @@ nnoremap <space>c :tabedit C:\Program Files\Ingenico\C3Driver\bin\c3config<CR>
 nnoremap <space>C :tabedit C:\Program Files\Ingenico\C3Driver - Copie\bin\c3config<CR>
 "}}}
 "{{{ Comfort remap
+nnoremap ss z=1<cr><cr>
 nnoremap Q q
 nnoremap <silent> x "_x
 nnoremap <M-BS> db
@@ -451,6 +464,7 @@ vnoremap <C-x><C-c> "+2yy
 nnoremap <C-x><C-v> "+P
 inoremap <M-v> <C-o>"+P
 cnoremap <M-v> <c-r>+
+vnoremap <M-v> d"+P | "Replace selection by last yank and keep previous yank
 " Copy fileName to clipboard
 nnoremap <silent> <M-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
 nnoremap <silent> <C-x><C-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
@@ -482,7 +496,7 @@ nnoremap <space> :nohlsearch<CR>|                               "Stop hightlitin
 nnoremap <c-r> yiw:%s/\<<C-R>"\>/<C-R>"/gc<left><left><left>|   "Replace word on cursor
 cnoremap <C-r><C-r> <CR>:%s/<C-R>"/g<left><left>|               "Relplace word in yank buffer on all file
 vnoremap <C-r><C-r> :s/<C-R>"/<C-R>"/g<left><left>|             "Relplace word in yank buffer on selected zone
-vnoremap / "ay:let @a = "/" . @a<CR>@a<CR>|                     "Search selected Text
+vnoremap / "ay:let @a = "/" . escape(@a, '/')<CR>@a<CR>|        "Search selected Text
 "}}}
 "{{{ Leader Command
 nnoremap <space>s :b#<CR>
@@ -519,14 +533,17 @@ nnoremap <silent> <C-ScrollWheelUp> :call GuiZoom(1)<CR>
 "}}}
 "{{{ Embeded terminal remap
 if has('nvim')
-    tnoremap <Esc> <C-\><C-n>
+    tmap <Esc> <Plug>EditCommand
     tnoremap <M-v> <Esc>"+p<insert>
     tnoremap '' ''<Left>
     tnoremap "" ""<Left>
     tnoremap () ()<Left>
     tnoremap [] []<Left>
     tnoremap <> <><Left>
-    tnoremap jk <Esc>
+    tnoremap qq <C-\><C-n>
+    augroup TermGroup
+       au TermOpen * setlocal nonumber
+    augroup END
 endif
 "}}}
 "}}}
@@ -949,11 +966,11 @@ function! BreakHabits()
     inoremap <ESC> <NOP>
 endfunction
 
-function! MgetTime()
+function! MgetTime() "{{{ Open Scratch Buffer <space>S
     return strftime("%y%m%d-%H%M%S")
 endfunction
 nnoremap <space>S :execute "vsp " . g:vimfiles . MgetTime() . ".txt"<CR>
-
+"}}}
 function! SaveSess()
     execute 'mksession! ' . $HOME . '/.vim/session.vim'
 endfunction
@@ -998,26 +1015,33 @@ endfunction
 com! DiffSaved call s:DiffWithSaved()
 
 function! s:MoveBlockMapping(...)
+    if !exists('b:visualMove') | let b:visualMove = 0 | endif
     if b:visualMove == 0 && a:0 == 0
         vnoremap <buffer> k koko
         vnoremap <buffer> j jojo
         vnoremap <buffer> h hoho
         vnoremap <buffer> l lolo
+        vnoremap <buffer> gk gkogko
+        vnoremap <buffer> gj gjogjo
         let b:visualMove = 1
     else
         vnoremap <buffer> k k
         vnoremap <buffer> j j
         vnoremap <buffer> h h
         vnoremap <buffer> l l
+        vnoremap <buffer> gk gk
+        vnoremap <buffer> gj gj
         let b:visualMove = 0
     endif
 endfunction
 com! -nargs=? ToggleMoveVisual call s:MoveBlockMapping(<f-args>)
 nnoremap <silent> v :ToggleMoveVisual 1<CR>v
+nnoremap <silent> gv :ToggleMoveVisual 1<CR>gv
+nnoremap <silent> gn :ToggleMoveVisual 1<CR>gn
 vnoremap <silent> v <ESC>:ToggleMoveVisual<CR>gv
 let g:useFullRegex = { 'Make upper case letter after get and set':'/\(\(g\|s\)et\)\(\w\)/\1\u\3/gc',
-            \ 'New line on coma':'/,/,\r/g',
-            \ 'Remove space':'/ /\r/g'
+            \ 'New line on coma':'/,/,\r/gc',
+            \ 'Remove space':'/ //gc'
             \ }
 function! GetRegex(key)
     let @a=get(g:useFullRegex, a:key, 'NOPE')
@@ -1028,7 +1052,7 @@ function! SelectRegex()
     :call fzf#run({'down': '30%', 'source': keys(g:useFullRegex), 'sink': function('GetRegex')})
 endfunction
 com! SelectRegex call SelectRegex()
-nnoremap <C-f> :SelectRegex<CR>
+nnoremap <space>f :SelectRegex<CR>
 
 function! MoveToPrevTab()
     "there is only one window
