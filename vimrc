@@ -5,6 +5,65 @@ let g:mapleader = ","
 let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 let g:vimfiles = fnamemodify(expand("$MYVIMRC"), ":p:h")
 "}}}
+"{{{ Basic Setting
+" More infomation :h '{option}'
+syntax on
+set fixendofline                 " <EOL> at the end of file will be not restored if missing
+set noendofline                  " No <EOL> will be written for the last line in the file
+set background=dark              " Set background color in dark mode
+set nocompatible                 " Vi legacy
+set hidden                       " When off a buffer is unloaded when it is abandoned
+set showtabline=1                " Enable tabline
+set noshowmode                   " Disable --[mode]-- in cmd line
+set number                       " Display line number
+set numberwidth=1                " Minimum number column size
+set t_Co=256                     " Change nubmer of term color
+set cursorline                   " Hightlight current line
+set tabstop=4                    " Redifine tab display as n space
+set softtabstop=4
+set shiftwidth=4                 " Number of spaces to use for each step of (auto)indent
+set expandtab                    " Use muliple space instead of tab
+set autoindent                   " Copy indent from current line when starting a new line
+set smartindent                  " Do smart autoindenting when starting a new line
+set whichwrap+=<,>,h,l,[,]       " Warp cusrsor when reache end and begin of line
+set foldnestmax=1                " Allow 0 nested fold
+set foldcolumn=0                 " Hide fold column
+set noswapfile                   " Do not use ~swapfile
+set autoread                     " Change file when editing from the outside
+set hlsearch                     " Highligth search
+set ignorecase                   " Case insensitive
+set smartcase                    " Override the 'ignorecase' option if the search pattern contains upper case characters
+set laststatus=2                 " Alway show status line
+set wildmenu                     " Pop menu when autocomplete command
+set wildmode=longest:full,full   " Widlmenu option
+set autochdir                    " Auto change directories of file
+set nowrap                       " Dont warp long line
+set linebreak                    " Break at a word boundary
+set virtualedit=onemore          " Allow normal mode to go one more charater at the end
+set timeoutlen=400               " Delay of key combinations ms
+set updatetime=250               " If this many milliseconds nothing is typed the swap file will be written to disk
+set matchpairs=(:),[:],{:},<:>   " Hl pairs and jump with %
+set lazyredraw                   " Redraw only when we need to.
+set incsearch                    " While typing a search command, show where the pattern is
+set undofile                     " Use undofile
+set undodir=$HOME/.vim/undo      " Undofile location
+set noswapfile                   " Don't use swapfile for the buffer
+set fillchars="" "vert:'|'       " Use pipe as split character
+set pastetoggle=<F2>             " Toggle paste mode vi legacy
+set notagbsearch                 " Disable the error E432 see :h E432
+set cmdheight=1                  " Number of screen lines to use for the command-line
+set mouse=a                      " Set mouse for all mode
+set display+=uhex,lastline       " Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
+set history=10000                " A history of ":" commands, and a history of previous search patterns is remembered
+set sidescroll=1                 " The minimal number of columns to scroll horizontally
+set ruler                        " Show the line and column number of the cursor position
+set nobackup                     " Disable BackupFile(~)
+set completeopt=menuone,menu,longest,preview
+set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$ ",eol:¶  " highlight tab space en eol
+set list
+"set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
+"set colorcolumn=80              " display column layout
+"}}}
 "{{{ Plugin
 "{{{ Vim-PLUG
 if filereadable(g:vimfiles . "/autoload/plug.vim") == 0 && executable('curl')
@@ -43,7 +102,6 @@ try
     "Plug 'https://github.com/lilydjwg/colorizer'
     Plug 'https://github.com/google/vim-searchindex'
     Plug 'https://github.com/mhinz/vim-signify'
-    Plug 'https://gthub.com/vim-scripts/vis'
     "Plug 'https://github.com/w0rp/ale'
     Plug 'https://github.com/dpelle/vim-LanguageTool'
     Plug 'https://github.com/google/vim-maktaba'
@@ -56,6 +114,7 @@ try
     Plug 'https://github.com/anschnapp/move-less'
     Plug 'https://github.com/PotatoesMaster/i3-vim-syntax'
     Plug 'https://github.com/tpope/vim-surround'
+    Plug 'https://github.com/tbastos/vim-lua'
     Plug 'https://github.com/pbogut/fzf-mru.vim' "{{{
     let fzf_mru_max=1000
     "}}}
@@ -265,11 +324,10 @@ catch
     echoerr "This script just failed!"
 endtry
 "}}}
-"{{{ Basic Setting
-syntax on
+"{{{ Color scheme
 try
-    colorscheme neodark
     let g:neodark#background = '#111111'
+    colorscheme neodark
 catch
 endtry
 
@@ -277,63 +335,6 @@ if has('nvim')
     set termguicolors
 endif
 
-" More infomation :h '{option}'
-set fixendofline                 " <EOL> at the end of file will be not restored if missing
-set noendofline                  " No <EOL> will be written for the last line in the file
-set background=dark              " Set background color in dark mode
-set nocompatible                 " Vi legacy
-set hidden                       " When off a buffer is unloaded when it is abandoned
-set showtabline=1                " Enable tabline
-set noshowmode                   " Disable --[mode]-- in cmd line
-set number                       " Display line number
-set numberwidth=1                " Minimum number column size
-set t_Co=256                     " Change nubmer of term color
-set cursorline                   " Hightlight current line
-set tabstop=8                    " Redifine tab display as n space
-set softtabstop=4
-set shiftwidth=4                 " Number of spaces to use for each step of (auto)indent
-set expandtab                    " Use muliple space instead of tab
-set autoindent                   " Copy indent from current line when starting a new line
-set smartindent                  " Do smart autoindenting when starting a new line
-set whichwrap+=<,>,h,l,[,]       " Warp cusrsor when reache end and begin of line
-set foldnestmax=1                " Allow 0 nested fold
-set foldcolumn=0                 " Hide fold column
-set noswapfile                   " Do not use ~swapfile
-set autoread                     " Change file when editing from the outside
-set hlsearch                     " Highligth search
-set ignorecase                   " Case insensitive
-set smartcase                    " Override the 'ignorecase' option if the search pattern contains upper case characters
-set laststatus=2                 " Alway show status line
-set wildmenu                     " Pop menu when autocomplete command
-set wildmode=longest:full,full   " Widlmenu option
-set autochdir                    " Auto change directories of file
-set nowrap                       " Dont warp long line
-set linebreak                    " Break at a word boundary
-set virtualedit=onemore          " Allow normal mode to go one more charater at the end
-set timeoutlen=400               " Delay of key combinations ms
-set updatetime=250               " If this many milliseconds nothing is typed the swap file will be written to disk
-set matchpairs=(:),[:],{:},<:>   " Hl pairs and jump with %
-set lazyredraw                   " Redraw only when we need to.
-set incsearch                    " While typing a search command, show where the pattern is
-set undofile                     " Use undofile
-set undodir=$HOME/.vim/undo      " Undofile location
-set noswapfile                   " Don't use swapfile for the buffer
-set fillchars="" "vert:'|'       " Use pipe as split character
-set pastetoggle=<F2>             " Toggle paste mode vi legacy
-set notagbsearch                 " Disable the error E432 see :h E432
-set cmdheight=1                  " Number of screen lines to use for the command-line
-set mouse=a                      " Set mouse for all mode
-set display+=uhex,lastline       " Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
-set history=10000                " A history of ":" commands, and a history of previous search patterns is remembered
-set sidescroll=1                 " The minimal number of columns to scroll horizontally
-set ruler                        " Show the line and column number of the cursor position
-set nobackup                     " Disable BackupFile(~)
-set completeopt=menuone,menu,longest,preview
-set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$,eol:Â¶  " highlight tab space en eol
-"set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
-"set colorcolumn=80              " display column layout
-"}}}
-"{{{ Color Fix
 try
     hi! VertSplit ctermfg=darkgrey ctermbg=NONE guifg=bg guibg=NONE term=NONE
     hi! LineNr ctermfg=darkgrey ctermbg=NONE guifg=darkgrey guibg=NONE
@@ -635,7 +636,7 @@ function! Switch_arg(nb)
         let l:str = join([l:str, ", \\", l:c+1], "")
         let l:c += 1
     endwhile
-    let l:str = join([l:str, ")/g|:nohlsearch" . repeat("kl", 15)], "")
+    let l:str = join([l:str, "/g|:nohlsearch" . repeat("\x80kl", 14)], "")
     let @a = l:str
 endfunction
 
@@ -654,7 +655,7 @@ function! Switch_argBack(nb)
         let l:str = join([l:str, ", \\", l:c-1], "")
         let l:c -= 1
     endwhile
-    let l:str = join([l:str, ")/g|:nohlsearch" . repeat("kl", 15)], "")
+    let l:str = join([l:str, "/g|:nohlsearch" . repeat("\x80kl", 14)], "")
     let @a = l:str
 endfunction
 
@@ -680,7 +681,7 @@ function! SwitchWordCamel(nb)
         let l:str = join([l:str, "\\u\\", l:c+1], "")
         let l:c += 1
     endwhile
-    let l:str = join([l:str, "/g|:nohlsearch" . repeat("kl", 14)], "")
+    let l:str = join([l:str, "/g|:nohlsearch" . repeat("\x80kl", 14)], "")
     let @a = l:str
 endfunction
 "{{{TODO: CLEAN
