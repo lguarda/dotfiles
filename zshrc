@@ -9,6 +9,9 @@ alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
 alias vz="nvim $HOME/.zshrc"
 
 if [[ -x $(command -v setxkbmap ) ]] ;then setxkbmap  -option caps:escape ; fi
+if [[ -n "$(dmesg |grep -i hypervisor)" ]];then
+    PS1="[%{$fg[red]%}VM%{$reset_color%}] $PS1"
+fi
 
 export FZF_DEFAULT_OPTS="--height=35 --inline-info -m --history=\"$HOME/.local/share/fzf-history\" --bind=ctrl-x:toggle-sort,ctrl-h:previous-history,ctrl-l:next-history,ctrl-f:jump-accept,alt-j:preview-down,alt-k:preview-up --cycle"
 export PATH=$HOME/.fzf/bin:$HOME/.opt/bin:$PATH
@@ -260,11 +263,6 @@ function h2b()                  # hexa to binary
 function b2h()                  # binary to hexa
 {
     echo $(( [#16]2#$1 ));
-}
-
-function push_plugin()
-{
-    cp /home/frederic/merge2/build/opsise-pos-plugin* ~/shared/demo/PLUGIN_FR
 }
 
 function winshared()
