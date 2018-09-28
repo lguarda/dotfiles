@@ -1,6 +1,8 @@
-plugins=(zsh-autosuggestions)
-plugins=(git)
+export ZSH="/home/ptm/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
 
+plugins=(zsh-autosuggestions)
+plugins=(git autojump)
 source $ZSH/oh-my-zsh.sh
 
 alias v="nvim"
