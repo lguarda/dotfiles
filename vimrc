@@ -8,7 +8,6 @@ let g:vimfiles = fnamemodify(expand("$MYVIMRC"), ":p:h")
 "{{{ Basic Setting
 " More infomation :h '{option}'
 syntax on
-set fixendofline                 " <EOL> at the end of file will be not restored if missing
 set noendofline                  " No <EOL> will be written for the last line in the file
 set background=dark              " Set background color in dark mode
 set nocompatible                 " Vi legacy
@@ -63,6 +62,10 @@ set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$ ",eol:¶  " highlight
 set list
 "set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
 "set colorcolumn=80              " display column layout
+if has('nvim')
+    set termguicolors
+    set fixendofline                 " <EOL> at the end of file will be not restored if missing
+endif
 "}}}
 "{{{ Plugin
 "{{{ Vim-PLUG
@@ -330,10 +333,6 @@ try
     colorscheme neodark
 catch
 endtry
-
-if has('nvim')
-    set termguicolors
-endif
 
 try
     hi! VertSplit ctermfg=darkgrey ctermbg=NONE guifg=bg guibg=NONE term=NONE
