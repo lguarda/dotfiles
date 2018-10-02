@@ -70,9 +70,10 @@ endif
 "{{{ Plugin
 "{{{ Vim-PLUG
 if filereadable(g:vimfiles . "/autoload/plug.vim") == 0 && executable('curl')
-    execute ":!mkdir -p " . g:vimfiles . "/autoload"
-    execute ":!curl -fLo " . g:vimfiles . "/autoload/plug.vim --create-dirs " .
+    silent execute ":!mkdir -p " . g:vimfiles . "/autoload"
+    silent execute ":!curl -fLo " . g:vimfiles . "/autoload/plug.vim --create-dirs " .
     \ "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+    autocmd VimEnter * :PlugInstall
 endif
 let g:plug_window = "rightbelow new"
 "}}}
@@ -90,7 +91,16 @@ try
     Plug 'https://github.com/KKPMW/moonshine-vim'
     Plug 'https://github.com/dracula/vim'
     "}}}
-    "Plug 'https://github.com/itchyny/vim-cursorword'
+    "{{{ Syntax plugin
+    Plug 'https://github.com/plasticboy/vim-markdown'
+    Plug 'https://github.com/elzr/vim-json'
+    Plug 'https://github.com/PotatoesMaster/i3-vim-syntax'
+    Plug 'https://github.com/tbastos/vim-lua'
+    Plug 'https://github.com/dag/vim-fish'
+    Plug 'https://github.com/octol/vim-cpp-enhanced-highlight' "{{{
+    let g:cpp_class_scope_highlight = 1
+    "}}}
+    "}}}
     Plug 'https://github.com/will133/vim-dirdiff'
     Plug 'https://github.com/tpope/vim-fugitive'
     Plug 'https://github.com/godlygeek/tabular'
@@ -100,24 +110,18 @@ try
     Plug 'https://github.com/sgur/vim-textobj-parameter'
     Plug 'https://github.com/terryma/vim-multiple-cursors'
     Plug 'https://github.com/justinmk/vim-syntax-extra'
-    Plug 'https://github.com/elzr/vim-json'
     Plug 'https://github.com/kshenoy/vim-signature'
-    "Plug 'https://github.com/lilydjwg/colorizer'
     Plug 'https://github.com/google/vim-searchindex'
     Plug 'https://github.com/mhinz/vim-signify'
-    "Plug 'https://github.com/w0rp/ale'
     Plug 'https://github.com/dpelle/vim-LanguageTool'
     Plug 'https://github.com/google/vim-maktaba'
     Plug 'https://github.com/google/vim-syncopate'
     Plug 'https://github.com/iamcco/markdown-preview.vim'
-    Plug 'https://github.com/plasticboy/vim-markdown'
     Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/Shougo/unite.vim'
     Plug 'https://github.com/Shougo/vimfiler.vim'
     Plug 'https://github.com/anschnapp/move-less'
-    Plug 'https://github.com/PotatoesMaster/i3-vim-syntax'
     Plug 'https://github.com/tpope/vim-surround'
-    Plug 'https://github.com/tbastos/vim-lua'
     Plug 'https://github.com/pbogut/fzf-mru.vim' "{{{
     let fzf_mru_max=1000
     "}}}
@@ -318,9 +322,6 @@ try
     function! ComSearch()
         let @a = ":g//exe \"norm \\<plug>NERDCommenterToggle\"". repeat("kl", 38)
     endfunction
-    "}}}
-    Plug 'https://github.com/octol/vim-cpp-enhanced-highlight' "{{{
-    let g:cpp_class_scope_highlight = 1
     "}}}
     call plug#end()
 catch
