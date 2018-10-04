@@ -1,0 +1,6 @@
+[alias]
+	lg = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr'
+	l  = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr'
+	lc = log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr'
+	co = checkout
+	su = status -s

@@ -26,6 +26,9 @@ while [ -n "$1" ]; do
         -R|--reverse)
             REVERSE="1"
             ;;
+        -f|--reverse)
+            FISH="1"
+            ;;
         -h|--help)
             _usage
             exit 0
@@ -53,6 +56,9 @@ else
     git clone https://github.com/lguard/dotfiles $DOTFILES
     git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
 
+    # git config
+    cat $DOTFILES/gitconfig >> $HOME/.gitconfig
+
     # Vim/Nvim
     mkdir -p $NVIM_CONFIG
     ln -s $DOTFILES/vimrc $NVIM_CONFIG/init.vim
@@ -67,4 +73,10 @@ else
     # Zsh/OhMyZsh
     ln -s $DOTFILES/zshrc $HOME/.zshrc #TEMP
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" #TEMP
+
+    if [[ $FISH -eq "1" ]];then
+        # fish
+        curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
+        fish -c fisher install z fzf pure
+    fi
 fi

@@ -258,12 +258,20 @@ try
         hi GitGutterChangeDelete ctermbg=NONE guifg=red
     catch
     endtry
+    function! ToggleGutterWhiteSpace()
+        if g:gitgutter_diff_args == '-w'
+            let g:gitgutter_diff_args = ''
+        else
+            let g:gitgutter_diff_args = '-w'
+        endif
+    endfunction
     function! ToggleGutterMode()
         if b:gutterMod == 0
             noremap <buffer> <S-j> :GitGutterNextHunk<CR>zz
             noremap <buffer> <S-k> :GitGutterPrevHunk<CR>zz
             noremap <buffer> <S-h> :GitGutterUndoHunk<CR>
             noremap <buffer> <S-l> :GitGutterPreviewHunk<CR>
+            nnoremap w :call ToggleGutterWhiteSpace()<CR>:GitGutter<CR>
             let b:gutterMod = 1
         else
             noremap <buffer> <S-k> <C-w><Up>
@@ -636,7 +644,7 @@ function! Switch_arg(nb)
         let l:str = join([l:str, ", \\", l:c+1], "")
         let l:c += 1
     endwhile
-    let l:str = join([l:str, "/g|:nohlsearch" . repeat("\x80kl", 14)], "")
+    let l:str = join([l:str, ")/g|:nohlsearch" . repeat("\x80kl", 15)], "")
     let @a = l:str
 endfunction
 
