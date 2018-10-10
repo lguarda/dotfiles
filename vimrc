@@ -513,6 +513,7 @@ nnoremap <space><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<
 nnoremap <space>d :w !diff -u % -<CR>
 nnoremap <space>D :DiffWithSaved<CR>
 nnoremap <space>w :set wrap! wrap?<CR>
+nnoremap <space>e :set expandtab! expandtab?<CR>
 nnoremap <space>r :so $MYVIMRC<CR>:nohlsearch<CR>
 nnoremap <space>b :call ToggleBinaryMode()<CR>
 vnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/ \1 /ge<CR>:noh<CR>

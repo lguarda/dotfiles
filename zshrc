@@ -1,10 +1,10 @@
 export ZSH="/home/ptm/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
-plugins=(zsh-autosuggestions)
-plugins=(git autojump)
+plugins=(zsh-autosuggestions git autojump)
 source $ZSH/oh-my-zsh.sh
 
+export EDITOR='nvim'
 alias v="nvim"
 alias vim="nvim"
 alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
@@ -327,6 +327,16 @@ function caf() {
     ) && cat "$dir"
 }
 
+function astash() {
+	stash=$(git --no-pager stash list | fzf --preview "git --no-pager stash show -p --color \$(echo {} | cut -d: -f1)");
+	if [ "$stash" != "" ];then
+		if read -q "?Do you realy want to apply: $stash
+y/n ?";then
+			git stash apply "$(echo $stash | cut -d: -f1)";
+		fi;
+	fi
+}
+
 # fbr - checkout git branch
 function fbr() {
   local branches branch
@@ -336,9 +346,9 @@ function fbr() {
 }
 # fshow - git commit browser
 function fshow() {
-  git log --graph --color=always \
+  git log --all --graph --color=always \
       --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
-  fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+  fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
       --bind "ctrl-m:execute:
                 (grep -o '[a-f0-9]\{7\}' | head -1 |
                 xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
@@ -482,6 +492,12 @@ bindkey "^[[1;5A" up-line-or-search-prefix
 bindkey "^[[1;5B" down-line-or-search-prefix
 bindkey "^K" up-line-or-search-prefix
 bindkey "^J" down-line-or-search-prefix
+
+alias zz="source $HOME/.zshrc"
+
+typeset -ga precmd_functions
+rehash-last-install() { fc -l -1 |grep -q install && { echo "rehash-ing"; rehash } }
+precmd_functions+=rehash-last-install
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f /usr/bin/xcape ] && xcape -e 'Shift_L=Escape;Control_L=Control_L|O'
