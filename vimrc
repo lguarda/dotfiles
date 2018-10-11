@@ -465,19 +465,33 @@ else " Vim does not support Meta
 endif
 "}}}
 "{{{ system ClipBoard
-nnoremap Y y$
-vnoremap <M-c> "+2yy
-vnoremap <M-x> "+dd
-nnoremap <M-v> "+P
-vnoremap <C-x><C-c> "+2yy
-nnoremap <C-x><C-v> "+P
-inoremap <M-v> <C-o>"+P
-cnoremap <M-v> <c-r>+
-vnoremap <M-v> d"+P | "Replace selection by last yank and keep previous yank
-" Copy fileName to clipboard
-nnoremap <silent> <M-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
-nnoremap <silent> <C-x><C-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
-nnoremap <silent> <M-y><M-y> :let @" = expand("%:p") . ":" . line(".")<CR>: let @+ = @"<CR>
+if empty($DISPLAY)
+    "TODO
+    "vnoremap <C-x><C-c> y: call system("> /tmp/theClipboardWithoutX", getreg("\""))<CR>
+    "nnoremap <C-x><C-v> :call setreg("\"", system("< /tmp/theClipboardWithoutX"))<CR>p
+else
+    if has('nvim')
+        vnoremap <M-c> "+2yy
+        vnoremap <M-x> "+dd
+        nnoremap <M-v> "+P
+        vnoremap <C-x><C-c> "+2yy
+        nnoremap <C-x><C-v> "+P
+        inoremap <M-v> <C-o>"+P
+        cnoremap <M-v> <c-r>+
+        vnoremap <M-v> d"+P | "Replace selection by last yank and keep previous yank
+        " Copy fileName to clipboard
+        nnoremap <silent> <M-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
+        nnoremap <silent> <C-x><C-y> :let @" = expand("%:p")<CR>: let @+ = @"<CR>
+        nnoremap <silent> <M-y><M-y> :let @" = expand("%:p") . ":" . line(".")<CR>: let @+ = @"<CR>
+    else
+        "TODO: THIS DONT WORK and '<,'> is shitty on '<,'>:xclip....
+        vnoremap <C-x><C-c> y: call system("xclip -i -selection clipboard", getreg("\""))<CR>
+        nnoremap <C-x><C-v> :call setreg("\"",system("xclip -o -selection clipboard"))<CR>p
+    endif
+endif
+
+nnoremap YY y$
+nnoremap Yy y^
 "}}}
 "{{{ open terminal neovim only
 nnoremap <space>k :topleft new<CR>:terminal<CR>

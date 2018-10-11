@@ -17,6 +17,7 @@ cat << _END_OF_USAGE_
     Options:
     -h, --help      Display this help and exit
     -R, --reverse   Undo everything (carefull rm -rf)
+    -f, --fish      Install fish shell
 
 _END_OF_USAGE_
 }
@@ -26,7 +27,7 @@ while [ -n "$1" ]; do
         -R|--reverse)
             REVERSE="1"
             ;;
-        -f|--reverse)
+        -f|--fish)
             FISH="1"
             ;;
         -h|--help)
@@ -51,6 +52,12 @@ if [[ $REVERSE -eq "1" ]];then
     rm -rf $HOME/.oh-my-zsh #TEMP
 else
 
+    #install dependency
+    if [ -f installDependency.sh ]; then
+        bash -e installDependency.sh
+    fi
+
+
     # Clone repo
     mkdir -p $HOME/clone/
     git clone https://github.com/lguard/dotfiles $DOTFILES
@@ -71,8 +78,11 @@ else
     vim +PlugInstall +qall > /dev/null
 
     # Zsh/OhMyZsh
-    ln -s $DOTFILES/zshrc $HOME/.zshrc #TEMP
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" #TEMP
+    if [ -f ohmyzshInstall.sh ]; then
+        bash -e ohmyzshInstall.sh
+        rm ~/.zshrc
+        ln -s $DOTFILES/zshrc $HOME/.zshrc #TEMP
+    fi
 
     if [[ $FISH -eq "1" ]];then
         # fish
