@@ -121,6 +121,8 @@ try
     Plug 'https://github.com/Shougo/unite.vim'
     Plug 'https://github.com/Shougo/vimfiler.vim'
     Plug 'https://github.com/anschnapp/move-less'
+    Plug 'https://github.com/vim-scripts/vis'
+    Plug 'https://github.com/mhinz/vim-startify'
     Plug 'https://github.com/tpope/vim-surround'
     Plug 'https://github.com/pbogut/fzf-mru.vim' "{{{
     let fzf_mru_max=1000
