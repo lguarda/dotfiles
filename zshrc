@@ -11,8 +11,10 @@ alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
 alias vz="nvim $HOME/.zshrc"
 
 if [[ -x $(command -v setxkbmap ) ]] ;then setxkbmap  -option caps:escape ; fi
-if [[ -n "$(dmesg |grep -i hypervisor)" ]];then
-    PS1="[%{$fg[red]%}VM%{$reset_color%}] $PS1"
+
+if [[ ! -z $SSH_CONNECTION ]];then
+ SSH_IP=$(echo $SSH_CONNECTION | cut -d\  -f3)
+ PS1="[%{$fg[red]%}$SSH_IP%{$reset_color%}] $PS1"
 fi
 
 export FZF_DEFAULT_OPTS="--height=35 --inline-info -m --history=\"$HOME/.local/share/fzf-history\" --bind=ctrl-x:toggle-sort,ctrl-h:previous-history,ctrl-l:next-history,ctrl-f:jump-accept,alt-j:preview-down,alt-k:preview-up --cycle"
