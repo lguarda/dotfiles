@@ -501,5 +501,14 @@ typeset -ga precmd_functions
 rehash-last-install() { fc -l -1 |grep -q install && { echo "rehash-ing"; rehash } }
 precmd_functions+=rehash-last-install
 
+# 0 -- vanilla completion (abc => abc)
+# 1 -- smart case completion (abc => Abc)
+# 2 -- word flex completion (abc => A-big-Car)
+# 3 -- full flex completion (abc => ABraCadabra)
+zstyle ':completion:*' matcher-list \
+  'm:{a-zA-Z}={A-Za-z}' \
+  'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+  'r:|?=** m:{a-z\-}={A-Z\_}'
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f /usr/bin/xcape ] && xcape -e 'Shift_L=Escape;Control_L=Control_L|O'
