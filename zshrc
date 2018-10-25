@@ -406,10 +406,18 @@ function gerp() {
         return 1
     fi
     str="$(echo -n $1 | grep -o '[A-Z]')"
-    if [[ $str == "" ]];then
-        find ${2:-./} -type f -exec grep -i --line-number --color=always -nH $1 {} +
+    if [[ -x $(command -v parallel ) ]] ;then
+        if [[ $str == "" ]];then
+            find ${2:-./} -type f | parallel --no-notice -k -j150% -n 1000 -m grep --line-number --color=always -niH $1 {}
+        else
+            find ${2:-./} -type f | parallel --no-notice -k -j150% -n 1000 -m grep --line-number --color=always -nH $1 {}
+        fi
     else
-        find ${2:-./} -type f -exec grep --line-number --color=always -nH $1 {} +
+        if [[ $str == "" ]];then
+            find ${2:-./} -type f -exec grep -i --line-number --color=always -nH $1 {} +
+        else
+            find ${2:-./} -type f -exec grep --line-number --color=always -nH $1 {} +
+        fi
     fi
 }
 
