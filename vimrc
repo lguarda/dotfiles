@@ -406,6 +406,7 @@ nnoremap <down> <C-e>
 nnoremap <S-k> <PageUp>
 nnoremap <S-j> <PageDown>
 nnoremap gp `[v`]
+nnoremap <c-x><c-s> :w !sudo tee %
 "}}}
 "{{{ Pair characters change
 inoremap {<CR>  {}<Left><cr><cr><up><tab>
