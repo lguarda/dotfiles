@@ -513,10 +513,15 @@ precmd_functions+=rehash-last-install
 # 1 -- smart case completion (abc => Abc)
 # 2 -- word flex completion (abc => A-big-Car)
 # 3 -- full flex completion (abc => ABraCadabra)
-zstyle ':completion:*' matcher-list \
-  'm:{a-zA-Z}={A-Za-z}' \
-  'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
-  'r:|?=** m:{a-z\-}={A-Z\_}'
+#zstyle ':completion:*' matcher-list \
+  #'m:{a-zA-Z}={A-Za-z}' \
+  #'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+  #'r:|?=** m:{a-z\-}={A-Z\_}'
+
+zstyle ':completion:*' completer _complete
+zstyle ':completion:*' matcher-list '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' '+l:|=* r:|=*'
+autoload -Uz compinit
+compinit
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f /usr/bin/xcape ] && xcape -e 'Shift_L=Escape;Control_L=Control_L|O'
