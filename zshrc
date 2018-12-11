@@ -502,6 +502,10 @@ bindkey "^[[1;5A" up-line-or-search-prefix
 bindkey "^[[1;5B" down-line-or-search-prefix
 bindkey "^K" up-line-or-search-prefix
 bindkey "^J" down-line-or-search-prefix
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
 
 alias zz="source $HOME/.zshrc"
 

@@ -100,6 +100,7 @@ try
     Plug 'https://github.com/octol/vim-cpp-enhanced-highlight' "{{{
     let g:cpp_class_scope_highlight = 1
     "}}}
+    Plug 'https://github.com/vim-scripts/gnuplot.vim/'
     "}}}
     Plug 'https://github.com/will133/vim-dirdiff'
     Plug 'https://github.com/tpope/vim-fugitive'
@@ -406,7 +407,7 @@ nnoremap <down> <C-e>
 nnoremap <S-k> <PageUp>
 nnoremap <S-j> <PageDown>
 nnoremap gp `[v`]
-nnoremap <c-x><c-s> :w !sudo tee %
+nnoremap <c-x><c-s> :w !sudo tee %<CR>
 "}}}
 "{{{ Pair characters change
 inoremap {<CR>  {}<Left><cr><cr><up><tab>
@@ -1127,5 +1128,22 @@ endfunc
 
 nnoremap <A-.> :call MoveToNextTab()<CR>
 nnoremap <A-,> :call MoveToPrevTab()<CR>
+
+nnoremap <F3> :call ChangeSpell()<CR>
+function! ChangeSpell(...)
+    if !exists('b:spell') | let b:spell = 0 | endif
+    if b:spell == 0
+        setlocal spell spelllang=en
+        echomsg "spell en"
+    elseif b:spell == 1
+        setlocal spell spelllang=fr
+        echomsg "spell fr"
+    else
+        setlocal nospell
+        echomsg "nospell"
+    endif
+    let b:spell +=1
+    let b:spell = b:spell % 3
+endfunction
 
 "}}}
