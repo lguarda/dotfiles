@@ -1,8 +1,9 @@
-export ZSH="/home/ptm/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
 plugins=(zsh-autosuggestions git autojump)
 source $ZSH/oh-my-zsh.sh
+source /etc/zsh_command_not_found
 
 export EDITOR='nvim'
 alias v="nvim"
@@ -17,8 +18,15 @@ if [[ ! -z $SSH_CONNECTION ]];then
  PS1="[%{$fg[red]%}$SSH_IP%{$reset_color%}] $PS1"
 fi
 
+alias s="customSsh"
+
+customSsh () {
+	ssh -t $1 'bash  --rcfile <(cat ~/.bashrc && echo "PS1=\"[$(echo $SSH_CONNECTION | cut -d\  -f3)] \[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ \"") -i'
+}
+
+
 export FZF_DEFAULT_OPTS="--height=35 --inline-info -m --history=\"$HOME/.local/share/fzf-history\" --bind=ctrl-x:toggle-sort,ctrl-h:previous-history,ctrl-l:next-history,ctrl-f:jump-accept,alt-j:preview-down,alt-k:preview-up --cycle"
-export PATH=$HOME/.fzf/bin:$HOME/.opt/bin:$PATH
+export PATH=$HOME/.fzf/bin:$HOME/.local/bin:$PATH
 
 gcdev () {
     local h
@@ -405,14 +413,10 @@ function gerp() {
         echo "Usage: gerp [to_search] [optional:path]"
         return 1
     fi
-    str="$(echo -n $1 | grep -o '[A-Z]')"
-    if [[ -x $(command -v parallel ) ]] ;then
-        if [[ $str == "" ]];then
-            find ${2:-./} -type f | parallel -k -j150% -n 1000 -m grep --line-number --color=always -niH \'$1\' {}
-        else
-            find ${2:-./} -type f | parallel -k -j150% -n 1000 -m grep --line-number --color=always -nH \'$1\' {}
-        fi
+    if [[ -x $(command -v rg ) ]] ;then
+            rg --vimgrep --color=always -S -M $(tput cols) -- $1 ${2:-./}
     else
+        str="$(echo -n $1 | grep -o '[A-Z]')"
         if [[ $str == "" ]];then
             find ${2:-./} -type f -exec grep -i --line-number --color=always -nH $1 {} +
         else

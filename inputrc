@@ -3,4 +3,7 @@
 "\e[B": history-search-forward
 set completion-ignore-case On
 set show-all-if-ambiguous on
+set show-all-if-unmodified on
 TAB:menu-complete
+# Shift + Tab - backward completion
+"\e[Z": "\e-1\C-i"

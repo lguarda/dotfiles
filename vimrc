@@ -539,6 +539,18 @@ nnoremap <space>c <ESC>o/**<CR><CR>/<ESC><Up>A<space>
 nnoremap <space>1 :call SwitchNargs(function('Switch_arg'))<CR>@a| "function argument switcher
 nnoremap <space>2 :call SwitchNargs(function('Switch_argBack'))<CR>@a| "function argument switcher
 "}}}
+"{{{ Calcuation
+    inoremap <C-q> <C-O>yiW<End><Esc>S<C-R>=<C-R>0<CR>|" delete line and replace it with arithmetic result
+    nnoremap gbc <C-O>yiW<End><Esc>S<C-R>=<C-R>0<CR>|" delete line and replace it with arithmetic result
+    nnoremap gbs <C-O>yiW<End>=<C-R>=<C-R>0<CR>|" Add arithmetic result of the line at the end with an = sign
+"}}}
+"
+vmap <C-Right> xpgvlolo
+vmap <C-left> xhPgvhoho
+vmap <C-Down> xjPgvjojo
+vmap <C-Up> xkPgvkoko
+
+
 nnoremap <c-k> p^f"l<c-a>yy
 " instantly select the first autocomplet choice
 inoremap <expr> <C-n> pumvisible() ? '<C-n>' :

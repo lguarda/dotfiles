@@ -74,7 +74,8 @@ else
     curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
     chmod u+x nvim.appimage
     mv nvim.appimage $NVIM_CONFIG
-    sudo ln -s $NVIM_CONFIG/nvim.appimage /usr/local/bin/nvim
+    mkdir -p $HOME/.local/bin
+    ln -s $NVIM_CONFIG/nvim.appimage $HOME/.local/bin/nvim
     vim +PlugInstall +qall > /dev/null
 
     # Zsh/OhMyZsh
@@ -89,4 +90,6 @@ else
         curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
         fish -c fisher install z fzf pure
     fi
+    chsh
+    zsh
 fi
