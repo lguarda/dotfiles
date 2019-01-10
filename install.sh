@@ -63,6 +63,8 @@ if [[ $REVERSE -eq "1" ]];then
     rm -rf $HOME/.zshrc #TEMP
     rm -rf $HOME/.oh-my-zsh #TEMP
 else
+    mkdir -p $HOME/clone/
+    cd $HOME/clone/dotfiles/
 
     #install dependency
     if [[ $DEPENDENCY -eq "1" ]];then
@@ -74,7 +76,6 @@ else
 
     # Clone repo
     if [[ $STANDALONE -eq "1" ]];then
-        mkdir -p $HOME/clone/
         git clone https://github.com/lguard/dotfiles $DOTFILES
     fi
     git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
