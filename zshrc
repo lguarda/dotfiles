@@ -68,6 +68,19 @@ gitinfo () {
     done
 }
 
+colorize() {
+    word=$(cat)
+    h=$(echo $word | md5sum | head -c 2)
+    h=$(( 40 + (16#$h % 80) * 2))
+    printf "\x1b[38;5;%dm%s\x1b[0m" "$h" "$word"
+}
+
+colorize2() {
+    h=$(echo $1 | md5sum | head -c 2)
+    h=$(( 40 + (16#$h % 80) * 2))
+    printf "\x1b[38;5;%dm%s\x1b[0m" "$h" "$1"
+}
+
 #fetch
 gfall () {
     local h

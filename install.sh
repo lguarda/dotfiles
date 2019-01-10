@@ -15,9 +15,12 @@ cat << _END_OF_USAGE_
     Output should match TAP format (for better integration with Jenkins).
 
     Options:
-    -h, --help      Display this help and exit
-    -R, --reverse   Undo everything (carefull rm -rf)
-    -f, --fish      Install fish shell
+    -h, --help       Display this help and exit
+    -R, --reverse    Undo everything (carefull rm -rf)
+    -f, --fish       Install fish shell
+    -s, --standalone clone dotfiles in \$HOME/clone
+    -d, --dependency install some dependency with apt
+    -r, --run        change zsh shell and run it
 
 _END_OF_USAGE_
 }
@@ -29,6 +32,15 @@ while [ -n "$1" ]; do
             ;;
         -f|--fish)
             FISH="1"
+            ;;
+        -d|--dependency)
+            DEPENDENCY="1"
+            ;;
+        -s|--standalone)
+            STANDALONE="1"
+            ;;
+        -r|--run)
+            RUN="1"
             ;;
         -h|--help)
             _usage
@@ -47,20 +59,24 @@ if [[ $REVERSE -eq "1" ]];then
     rm -rf $NVIM_CONFIG
     rm -rf $VIM_CONFIG
     rm -rf $DOTFILES
-    sudo rm /usr/local/bin/nvim #TEMP OR NOT ;)
+    sudo rm $HOME/.local/bin/nvim
     rm -rf $HOME/.zshrc #TEMP
     rm -rf $HOME/.oh-my-zsh #TEMP
 else
 
     #install dependency
-    if [ -f installDependency.sh ]; then
-        bash -e installDependency.sh
+    if [[ $DEPENDENCY -eq "1" ]];then
+        if [ -f installDependency.sh ]; then
+            bash -e installDependency.sh
+        fi
     fi
 
 
     # Clone repo
-    mkdir -p $HOME/clone/
-    git clone https://github.com/lguard/dotfiles $DOTFILES
+    if [[ $STANDALONE -eq "1" ]];then
+        mkdir -p $HOME/clone/
+        git clone https://github.com/lguard/dotfiles $DOTFILES
+    fi
     git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
 
     # git config
@@ -90,6 +106,8 @@ else
         curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
         fish -c fisher install z fzf pure
     fi
-    chsh
-    zsh
+    if [[ $RUN -eq "1" ]];then
+        chsh
+        zsh
+    fi
 fi
