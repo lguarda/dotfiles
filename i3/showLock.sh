@@ -1,6 +1,6 @@
 #!/bin/bash
 cd $HOME/.config/i3
-scrot currentScreen.png
+scrot ./img/cache/currentScreen.png
 
-composite -gravity center vpn-key-512.png currentScreen.png screen_lock.png
-i3lock -u -i screen_lock.png
+composite -gravity center ./img/vpn-key-512.png ./img/cache/currentScreen.png ./img/cache/screen_lock.png
+i3lock -u -i ./img/cache/screen_lock.png

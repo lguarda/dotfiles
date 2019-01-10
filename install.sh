@@ -20,6 +20,7 @@ cat << _END_OF_USAGE_
     -f, --fish       Install fish shell
     -s, --standalone clone dotfiles in \$HOME/clone
     -d, --dependency install some dependency with apt
+    -g, --gui        install gui component
     -r, --run        change zsh shell and run it
 
 _END_OF_USAGE_
@@ -38,6 +39,9 @@ while [ -n "$1" ]; do
             ;;
         -s|--standalone)
             STANDALONE="1"
+            ;;
+        -g|--gui)
+            GUI="1"
             ;;
         -r|--run)
             RUN="1"
@@ -77,8 +81,8 @@ else
     # Clone repo
     if [[ $STANDALONE -eq "1" ]];then
         git clone https://github.com/lguard/dotfiles $DOTFILES
+        git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
     fi
-    git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
 
     # git config
     cat $DOTFILES/gitconfig >> $HOME/.gitconfig
@@ -95,6 +99,9 @@ else
     ln -s $NVIM_CONFIG/nvim.appimage $HOME/.local/bin/nvim
     vim +PlugInstall +qall > /dev/null
 
+    # bash
+    ln -s $DOTFILES/inputrc $HOME/.inputrc
+
     # Zsh/OhMyZsh
     if [ -f ohmyzshInstall.sh ]; then
         bash -e ohmyzshInstall.sh
@@ -107,6 +114,15 @@ else
         curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
         fish -c fisher install z fzf pure
     fi
+
+    if [[ $GUI -eq "1" ]];then
+        # i3
+        mkdir -p $HOME/.config/
+        mkdir -p $HOME/.config/i3status
+        ln -s $DOTFILES/i3 $HOME/.config/i3
+        ln -s $DOTFILES/i3/i3status.config $HOME/.config/i3status/config
+    fi
+
     if [[ $RUN -eq "1" ]];then
         chsh
         zsh
