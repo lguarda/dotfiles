@@ -1,4 +1,4 @@
-#~/usr/bin/env bash
+#!/usr/bin/env bash
 
 ZENITY_LIST=""
 for i in $HOME/.config/screenlayout/*;do

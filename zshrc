@@ -1,3 +1,4 @@
+export LC_ALL="en_US.UTF-8"
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
@@ -365,7 +366,11 @@ function fbr() {
   local branches branch
   branches=$(git branch -vv --color=always) &&
   branch=$(echo "$branches" | fzf --ansi --reverse --height=20 +m) &&
-  git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+  if [ "$1" = "-f" ]; then
+      git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //") --force
+  else
+      git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+  fi
 }
 # fshow - git commit browser
 function fshow() {

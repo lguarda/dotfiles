@@ -68,13 +68,13 @@ Vagrant.configure("2") do |config|
     # documentation for more information about their specific syntax and use.
     config.vm.provision "shell", inline: <<-SHELL
 apt-get update
-apt-get -y install zsh gccgo-go autojump command-not-found fuse zenity shutter scrot xclip bc
+apt-get -y install zsh gccgo-go autojump command-not-found fuse zenity shutter scrot xclip bc htop
 chsh --shell /usr/bin/zsh vagrant
 su vagrant <<USERINSTALL
 	mkdir -p /home/vagrant/clone
 	git clone https://github.com/lguard/dotfiles /home/vagrant/clone/dotfiles
 	git --git-dir=/home/vagrant/clone/dotfiles/.git/ --work-tree=/home/vagrant/clone/dotfiles/ checkout Rework #TEMP
-	/home/vagrant/clone/dotfiles/install.sh -g
+	/home/vagrant/clone/dotfiles/installConf/install.sh -g
 USERINSTALL
 apt-get -y install xorg i3 firefox-esr
 SHELL

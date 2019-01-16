@@ -63,44 +63,43 @@ if [[ $REVERSE -eq "1" ]];then
     rm -rf $NVIM_CONFIG
     rm -rf $VIM_CONFIG
     rm -rf $DOTFILES
-    sudo rm $HOME/.local/bin/nvim
+    sudo rm -f $HOME/.local/bin/nvim
     rm -rf $HOME/.zshrc #TEMP
     rm -rf $HOME/.oh-my-zsh #TEMP
 else
     mkdir -p $HOME/clone/
-    cd $HOME/clone/dotfiles/
 
     #install dependency
     if [[ $DEPENDENCY -eq "1" ]];then
-        if [ -f installDependency.sh ]; then
-            bash -e installDependency.sh
-        fi
+        bash -e $DOTFILES/installConf/installDependency.sh
     fi
+
+    cd $HOME/clone/dotfiles/
 
 
     # Clone repo
     if [[ $STANDALONE -eq "1" ]];then
         git clone https://github.com/lguard/dotfiles $DOTFILES
-        git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
+        #git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
     fi
 
     # git config
     cat $DOTFILES/gitconfig >> $HOME/.gitconfig
 
     # Vim/Nvim
-    bash -e neovimapp.sh 
+    bash -e $DOTFILES/installConf/neovimapp.sh
 
     # bash
-    ln -s $DOTFILES/inputrc $HOME/.inputrc
+    ln -sf $DOTFILES/inputrc $HOME/.inputrc
 
     # Script
-    ln -s $DOTFILES/bin/* $HOME/.local/bin/
+    ln -sf $DOTFILES/bin/* $HOME/.local/bin/
 
     # Zsh/OhMyZsh
-    if [ -f ohmyzshInstall.sh ]; then
-        bash -e ohmyzshInstall.sh
-        rm ~/.zshrc
-        ln -s $DOTFILES/zshrc $HOME/.zshrc #TEMP
+    if [ -f $DOTFILES/installConf/ohmyzshInstall.sh ]; then
+        bash -e $DOTFILES/installConf/ohmyzshInstall.sh
+        rm -f ~/.zshrc
+        ln -sf $DOTFILES/zshrc $HOME/.zshrc #TEMP
     fi
 
     if [[ $FISH -eq "1" ]];then
@@ -113,7 +112,7 @@ else
         # i3
         bash -e gui.h
         if [[ $DEPENDENCY -eq "1" ]];then
-            bash -e installDependencyGui.sh
+            bash -e $DOTFILES/installConf/installDependencyGui.sh
         fi
     fi
 
