@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+
+/usr/bin/xset r rate 210 40

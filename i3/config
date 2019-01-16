@@ -129,8 +129,8 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
-bindsym $mod+Shift+x exec "/home/leo/.config/i3/showLock.sh"
-bindsym $mod+x exec "/home/leo/.config/i3/mylock.sh
+bindsym $mod+Shift+x exec "$HOME/.config/i3/showLock.sh"
+bindsym $mod+x exec "$HOME/.config/i3/mylock.sh"
 
 bindsym $mod+Shift+s exec "shutter -s --exit_after_capture --output=$HOME/screenshot/%y-%m-%d_\$w_\$h.png --no_session"
 bindsym $mod+Tab exec "switchKeyboardLayout.sh"

@@ -1,7 +1,7 @@
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
-plugins=(zsh-autosuggestions git autojump)
+plugins=(zsh-autosuggestions git autojump fzf vagrant sudo)
 source $ZSH/oh-my-zsh.sh
 source /etc/zsh_command_not_found
 

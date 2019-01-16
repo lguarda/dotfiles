@@ -88,19 +88,13 @@ else
     cat $DOTFILES/gitconfig >> $HOME/.gitconfig
 
     # Vim/Nvim
-    mkdir -p $NVIM_CONFIG
-    ln -s $DOTFILES/vimrc $NVIM_CONFIG/init.vim
-    ln -s $DOTFILES/vimrc $NVIM_CONFIG/vimrc
-    ln -s $NVIM_CONFIG $VIM_CONFIG
-    curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
-    chmod u+x nvim.appimage
-    mv nvim.appimage $NVIM_CONFIG
-    mkdir -p $HOME/.local/bin
-    ln -s $NVIM_CONFIG/nvim.appimage $HOME/.local/bin/nvim
-    vim +PlugInstall +qall > /dev/null
+    bash -e neovimapp.sh 
 
     # bash
     ln -s $DOTFILES/inputrc $HOME/.inputrc
+
+    # Script
+    ln -s $DOTFILES/bin/* $HOME/.local/bin/
 
     # Zsh/OhMyZsh
     if [ -f ohmyzshInstall.sh ]; then
@@ -117,10 +111,10 @@ else
 
     if [[ $GUI -eq "1" ]];then
         # i3
-        mkdir -p $HOME/.config/
-        mkdir -p $HOME/.config/i3status
-        ln -s $DOTFILES/i3 $HOME/.config/i3
-        ln -s $DOTFILES/i3/i3status.config $HOME/.config/i3status/config
+        bash -e gui.h
+        if [[ $DEPENDENCY -eq "1" ]];then
+            bash -e installDependencyGui.sh
+        fi
     fi
 
     if [[ $RUN -eq "1" ]];then

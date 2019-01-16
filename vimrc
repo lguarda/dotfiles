@@ -538,6 +538,7 @@ vnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/
 nnoremap <space>c <ESC>o/**<CR><CR>/<ESC><Up>A<space>
 nnoremap <space>1 :call SwitchNargs(function('Switch_arg'))<CR>@a| "function argument switcher
 nnoremap <space>2 :call SwitchNargs(function('Switch_argBack'))<CR>@a| "function argument switcher
+nnoremap <space><S-r> VG:normal @r<CR>
 "}}}
 "{{{ Calcuation
     inoremap <C-q> <C-O>yiW<End><Esc>S<C-R>=<C-R>0<CR>|" delete line and replace it with arithmetic result
