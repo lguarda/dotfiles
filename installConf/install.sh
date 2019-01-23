@@ -69,18 +69,15 @@ if [[ $REVERSE -eq "1" ]];then
 else
     mkdir -p $HOME/clone/
 
-    #install dependency
-    if [[ $DEPENDENCY -eq "1" ]];then
-        bash -e $DOTFILES/installConf/installDependency.sh
-    fi
-
-    cd $HOME/clone/dotfiles/
-
-
     # Clone repo
     if [[ $STANDALONE -eq "1" ]];then
         git clone https://github.com/lguard/dotfiles $DOTFILES
         #git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
+    fi
+
+    #install dependency
+    if [[ $DEPENDENCY -eq "1" ]];then
+        bash -e $DOTFILES/installConf/installDependency.sh
     fi
 
     # git config
