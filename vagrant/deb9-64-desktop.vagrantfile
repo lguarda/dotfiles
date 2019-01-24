@@ -76,6 +76,6 @@ su vagrant <<USERINSTALL
 	git --git-dir=/home/vagrant/clone/dotfiles/.git/ --work-tree=/home/vagrant/clone/dotfiles/
 	/home/vagrant/clone/dotfiles/installConf/install.sh -g
 USERINSTALL
-apt-get -y install xorg i3 firefox-esr
+apt-get -y install xorg lightdm i3 firefox-esr
 SHELL
 end
