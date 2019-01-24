@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
     config.vm.provider "virtualbox" do |vb|
         # Display the VirtualBox GUI when booting the machine
         vb.gui = true
-        vb.name = deb9-64-desktop
+        vb.name = "deb9-64-desktop"
 
         # Customize the amount of memory on the VM:
         vb.memory = "2048"
@@ -73,7 +73,7 @@ chsh --shell /usr/bin/zsh vagrant
 su vagrant <<USERINSTALL
 	mkdir -p /home/vagrant/clone
 	git clone https://github.com/lguard/dotfiles /home/vagrant/clone/dotfiles
-	git --git-dir=/home/vagrant/clone/dotfiles/.git/ --work-tree=/home/vagrant/clone/dotfiles/ checkout Rework #TEMP
+	git --git-dir=/home/vagrant/clone/dotfiles/.git/ --work-tree=/home/vagrant/clone/dotfiles/
 	/home/vagrant/clone/dotfiles/installConf/install.sh -g
 USERINSTALL
 apt-get -y install xorg i3 firefox-esr

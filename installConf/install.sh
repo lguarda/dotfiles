@@ -107,7 +107,7 @@ else
 
     if [[ $GUI -eq "1" ]];then
         # i3
-        bash -e gui.h
+        bash -e $DOTFILES/installConf/gui.h
         if [[ $DEPENDENCY -eq "1" ]];then
             bash -e $DOTFILES/installConf/installDependencyGui.sh
         fi
