@@ -11,6 +11,7 @@ alias v="nvim"
 alias vim="nvim"
 alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
 alias vz="nvim $HOME/.zshrc"
+alias re="readlink -e"
 
 if [[ -x $(command -v setxkbmap ) ]] ;then setxkbmap  -option caps:escape ; fi
 
