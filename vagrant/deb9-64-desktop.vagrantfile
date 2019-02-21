@@ -74,7 +74,7 @@ su vagrant <<USERINSTALL
 	mkdir -p /home/vagrant/clone
 	git clone https://github.com/lguard/dotfiles /home/vagrant/clone/dotfiles
 	git --git-dir=/home/vagrant/clone/dotfiles/.git/ --work-tree=/home/vagrant/clone/dotfiles/
-	/home/vagrant/clone/dotfiles/installConf/install.sh -g
+	/home/vagrant/clone/dotfiles/installConf/install.sh -d -g
 USERINSTALL
 apt-get -y install xorg lightdm i3 firefox-esr
 SHELL

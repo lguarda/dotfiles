@@ -231,6 +231,6 @@ bar {
     status_command i3status
 }
 
-#exec_always feh --bg-scale $HOME/Downloads/dwar2.png
+exec_always feh --bg-center $HOME/.config/wallpaper
 #exec $HOME/.opt/bin/skippy-id --start-daemon
 

@@ -59,6 +59,15 @@ while [ -n "$1" ]; do
     shift
 done
 
+RED="\x1b[31m"
+GREEN="\x1b[32m"
+YELLOW="\x1b[33m"
+BLUE="\x1b[34m"
+PURPLE="\x1b[35m"
+LBLUE="\x1b[36m"
+B="\x1b[1m"
+NONE="\x1b[0m"
+
 if [[ $REVERSE -eq "1" ]];then
     rm -rf $NVIM_CONFIG
     rm -rf $VIM_CONFIG
@@ -71,35 +80,44 @@ else
 
     # Clone repo
     if [[ $STANDALONE -eq "1" ]];then
+        printf "$B$LBLUE%s$NONE\n" "======= Clone dotfiles repo ======="
         git clone https://github.com/lguard/dotfiles $DOTFILES
         #git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
     fi
 
     #install dependency
     if [[ $DEPENDENCY -eq "1" ]];then
+        printf "$B$LBLUE%s$NONE\n" "======= install dependency  ======="
         bash -e $DOTFILES/installConf/installDependency.sh
     fi
 
     # git config
+    printf "$B$LBLUE%s$NONE\n" "======= add gitconfig alias ======="
     cat $DOTFILES/gitconfig >> $HOME/.gitconfig
 
     # Vim/Nvim
+    printf "$B$LBLUE%s$NONE\n" "=======   insatll neovim    ======="
     bash -e $DOTFILES/installConf/neovimapp.sh
 
     # bash
+    printf "$B$LBLUE%s$NONE\n" "=======    link inputrc     ======="
     ln -sf $DOTFILES/inputrc $HOME/.inputrc
 
     # Script
+    printf "$B$LBLUE%s$NONE\n" "=======    link bin dir     ======="
     ln -sf $DOTFILES/bin/* $HOME/.local/bin/
 
     # Zsh/OhMyZsh
     if [ -f $DOTFILES/installConf/ohmyzshInstall.sh ]; then
+        printf "$B$LBLUE%s$NONE\n" "=======   install ohmyzsh   ======="
         bash -e $DOTFILES/installConf/ohmyzshInstall.sh
         rm -f ~/.zshrc
+        printf "$B$LBLUE%s$NONE\n" "=======     link zshrc      ======="
         ln -sf $DOTFILES/zshrc $HOME/.zshrc #TEMP
     fi
 
     if [[ $FISH -eq "1" ]];then
+        printf "$B$LBLUE%s$NONE\n" "=======    install fish     ======="
         # fish
         curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
         fish -c fisher install z fzf pure
@@ -107,8 +125,10 @@ else
 
     if [[ $GUI -eq "1" ]];then
         # i3
+        printf "$B$LBLUE%s$NONE\n" "======= link i3 config dir  ======="
         bash -e $DOTFILES/installConf/gui.h
         if [[ $DEPENDENCY -eq "1" ]];then
+            printf "$B$LBLUE%s$NONE\n" "=======  install gui deps   ======="
             bash -e $DOTFILES/installConf/installDependencyGui.sh
         fi
     fi

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 ZENITY_LIST=""
-if [ -d $HOME/.screenlayout ];
-    for i in $HOME/screenlayout/*;do
+if [ -d $HOME/.screenlayout ]; then
+    for i in $HOME/.screenlayout/*;do
         ZENITY_LIST="$ZENITY_LIST $i $(basename --suffix='.sh' $i)";
     done
 else

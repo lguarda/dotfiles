@@ -457,8 +457,8 @@ if has('nvim')
     nnoremap <M-j> :m+<CR>
     vnoremap <M-k> :m '<-2<CR>gv=gv
     vnoremap <M-j> :m '>+1<CR>gv=gv
-    vnoremap <M-h> <gv
-    vnoremap <M-l> >gv
+    vnoremap <M-h> d<left>Pgv<left>o<left>o
+    vnoremap <M-l> dpgv<right>o<right>o
     vnoremap <S-k> <PageUp>
     vnoremap <S-j> <PageDown>
 else " Vim does not support Meta
