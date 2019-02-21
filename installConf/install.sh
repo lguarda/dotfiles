@@ -126,7 +126,7 @@ else
     if [[ $GUI -eq "1" ]];then
         # i3
         printf "$B$LBLUE%s$NONE\n" "======= link i3 config dir  ======="
-        bash -e $DOTFILES/installConf/gui.h
+        bash -e $DOTFILES/installConf/gui.sh
         if [[ $DEPENDENCY -eq "1" ]];then
             printf "$B$LBLUE%s$NONE\n" "=======  install gui deps   ======="
             bash -e $DOTFILES/installConf/installDependencyGui.sh
