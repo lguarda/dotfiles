@@ -72,7 +72,7 @@ if [[ $REVERSE -eq "1" ]];then
     rm -rf $NVIM_CONFIG
     rm -rf $VIM_CONFIG
     rm -rf $DOTFILES
-    sudo rm -f $HOME/.local/bin/nvim
+    rm -f $HOME/.local/bin/nvim
     rm -rf $HOME/.zshrc #TEMP
     rm -rf $HOME/.oh-my-zsh #TEMP
 else
@@ -114,6 +114,7 @@ else
         rm -f ~/.zshrc
         printf "$B$LBLUE%s$NONE\n" "=======     link zshrc      ======="
         ln -sf $DOTFILES/zshrc $HOME/.zshrc #TEMP
+        sudo chsh -s /usr/bin/zsh $USER
     fi
 
     if [[ $FISH -eq "1" ]];then
@@ -134,7 +135,6 @@ else
     fi
 
     if [[ $RUN -eq "1" ]];then
-        chsh
         zsh
     fi
 fi

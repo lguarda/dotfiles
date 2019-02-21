@@ -75,6 +75,9 @@ su vagrant <<USERINSTALL
 	git clone https://github.com/lguard/dotfiles /home/vagrant/clone/dotfiles
 	git --git-dir=/home/vagrant/clone/dotfiles/.git/ --work-tree=/home/vagrant/clone/dotfiles/
 	/home/vagrant/clone/dotfiles/installConf/install.sh -d -g
+	echo "VboxClient --clipboard
+VboxClient --display
+VboxClient --draganddrop" >> ~/.xsessionrc
 USERINSTALL
 apt-get -y install xorg lightdm i3 firefox-esr
 SHELL
