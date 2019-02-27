@@ -4,3 +4,6 @@
 	lc = log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr'
 	co = checkout
 	su = status -s
+	amend = commit --amend
+	pu = "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\"; }; f"
+	puf= "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\" --force; }; f"

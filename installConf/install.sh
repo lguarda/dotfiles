@@ -23,6 +23,11 @@ cat << _END_OF_USAGE_
     -g, --gui        install gui component
     -r, --run        change zsh shell and run it
 
+    Example:
+    install via ssh:
+    scp install.sh user@127.0.0.1:./
+    ssh -t user@127.0.0.1 "./install.sh -s -d -r"
+
 _END_OF_USAGE_
 }
 

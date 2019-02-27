@@ -23,7 +23,12 @@ fi
 alias s="customSsh"
 
 customSsh () {
-	ssh -t $1 'bash  --rcfile <(cat ~/.bashrc && echo "PS1=\"[$(echo $SSH_CONNECTION | cut -d\  -f3)] \[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ \"") -i'
+    ssh -t $1 'bash  --rcfile <(cat ~/.bashrc \
+        && echo "PS1=\"[$(echo $SSH_CONNECTION | cut -d\  -f3)] \[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ \""\
+        && echo "bind '  "'\\\"\\e[A\\\": history-search-backward'"'" \
+        && echo "bind '  "'\\\"\\e[B\\\": history-search-forward'"'" \
+        ) \
+        -i'
 }
 
 
