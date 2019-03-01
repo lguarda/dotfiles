@@ -291,10 +291,10 @@ try
     let NERDTreeShowBookmarks=1
     let g:NERDTreeDirArrows=0
     let NERDTreeIgnore = ['\~$','\.pyc$','\*NTUSER*','\*ntuser*','\NTUSER.DAT','\ntuser.ini']
-    noremap <C-g>               :NERDTreeToggle<CR>
+    nnoremap <C-g>      :NERDTreeToggle<CR>
+    nnoremap <C-x><C-G> :NERDTreeFind<CR>
     "autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
     "autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-    nnoremap <space><S-N> :NERDTreeFind<CR>
     "}}}
     Plug 'https://github.com/AndrewRadev/switch.vim' "{{{
     let g:switch_mapping = '['
@@ -1010,7 +1010,7 @@ endfunction
 function! MgetTime() "{{{ Open Scratch Buffer <space>S
     return strftime("%y%m%d-%H%M%S")
 endfunction
-nnoremap <space>S :execute "vsp " . g:vimfiles . MgetTime() . ".txt"<CR>
+nnoremap <space>S :Snippets<CR>
 "}}}
 function! SaveSess()
     execute 'mksession! ' . $HOME . '/.vim/session.vim'

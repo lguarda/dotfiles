@@ -7,3 +7,4 @@
 	amend = commit --amend
 	pu = "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\"; }; f"
 	puf= "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\" --force; }; f"
+	yolo="!f(){ git commit -m \"$(curl -s https://whatthecommit.com/index.txt)\"; }; f"

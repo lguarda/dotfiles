@@ -1,8 +1,8 @@
 export LC_ALL="en_US.UTF-8"
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+ZSH_THEME="refined"
 
-plugins=(zsh-autosuggestions git autojump fzf vagrant sudo)
+plugins=(zsh-autosuggestions git autojump fzf vagrant sudo timer)
 source $ZSH/oh-my-zsh.sh
 source /etc/zsh_command_not_found
 
