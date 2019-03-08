@@ -124,6 +124,9 @@ try
     Plug 'https://github.com/anschnapp/move-less'
     Plug 'https://github.com/vim-scripts/vis'
     Plug 'https://github.com/mhinz/vim-startify'
+    Plug 'https://github.com/vim-scripts/groovy.vim'
+    Plug 'https://github.com/SirVer/ultisnips'
+    Plug 'https://github.com/honza/vim-snippets'
     Plug 'https://github.com/tpope/vim-surround'
     Plug 'https://github.com/pbogut/fzf-mru.vim' "{{{
     let fzf_mru_max=1000
@@ -349,9 +352,9 @@ endtry
 try
     hi! VertSplit ctermfg=darkgrey ctermbg=NONE guifg=bg guibg=NONE term=NONE
     hi! LineNr ctermfg=darkgrey ctermbg=NONE guifg=darkgrey guibg=NONE
-    hi Folded ctermbg=16 guibg=#2d1a35 guifg=#aaaaaa gui=bold
+    hi Folded ctermbg=234 guibg=#2d1a35 guifg=#aaaaaa gui=bold
     hi NonText ctermfg=234 guifg=#545454
-    hi CursorLine ctermbg=233 guibg=#2d1a35
+    hi CursorLine ctermbg=235 guibg=#2d1a35
     hi EndOfBuffer ctermfg=NONE guifg=bg
     hi CursorWord1 ctermbg=NONE guibg=NONE
     hi CursorWord0 ctermbg=NONE guibg=NONE
@@ -526,19 +529,21 @@ vnoremap <C-r><C-r> :s/<C-R>"/<C-R>"/g<left><left>|             "Relplace word i
 vnoremap / "ay:let @a = "/" . escape(@a, '/')<CR>@a<CR>|        "Search selected Text
 "}}}
 "{{{ Leader Command
-nnoremap <space>s :b#<CR>
+nnoremap <space>s :b#<CR>|                                            "Switch with previous buffer
+nnoremap <space>d :w !diff -u % -<CR>|                                "Show current unsaved modification diff
+nnoremap <space>D :DiffSaved<CR>|                                     "NOT WORKING AND IDK WTF IT IS
+nnoremap <space>w :set wrap! wrap?<CR>|                               "Toggle long line wraping
+nnoremap <space>e :set expandtab! expandtab?<CR>|                     "Toggle expandtab
+nnoremap <space>b :call ToggleBinaryMode()<CR>|                       "Toggle hexa editing mode
+nnoremap <space>r :so $MYVIMRC<CR>:nohlsearch<CR>|                    "Source $MYVIMRC
+nnoremap <space>1 :call SwitchNargs(function('Switch_arg'))<CR>@a|    "Function argument switcher
+nnoremap <space>2 :call SwitchNargs(function('Switch_argBack'))<CR>@a|"Revers Function argument switcher
+nnoremap <space><S-r> VG:normal @r<CR>|                               "Repalce selection with yanked buffer
+vnoremap <space>r :g/^/m0<CR>|                                        "Reverse the order of the selected line
+"Open the current buffer in a new tab
 nnoremap <space><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<CR>
-nnoremap <space>d :w !diff -u % -<CR>
-nnoremap <space>D :DiffWithSaved<CR>
-nnoremap <space>w :set wrap! wrap?<CR>
-nnoremap <space>e :set expandtab! expandtab?<CR>
-nnoremap <space>r :so $MYVIMRC<CR>:nohlsearch<CR>
-nnoremap <space>b :call ToggleBinaryMode()<CR>
+" Fix number of space between operand
 vnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/ \1 /ge<CR>:noh<CR>
-nnoremap <space>c <ESC>o/**<CR><CR>/<ESC><Up>A<space>
-nnoremap <space>1 :call SwitchNargs(function('Switch_arg'))<CR>@a| "function argument switcher
-nnoremap <space>2 :call SwitchNargs(function('Switch_argBack'))<CR>@a| "function argument switcher
-nnoremap <space><S-r> VG:normal @r<CR>
 "}}}
 "{{{ Calcuation
     inoremap <C-q> <C-O>yiW<End><Esc>S<C-R>=<C-R>0<CR>|" delete line and replace it with arithmetic result
@@ -550,7 +555,6 @@ vmap <C-Right> xpgvlolo
 vmap <C-left> xhPgvhoho
 vmap <C-Down> xjPgvjojo
 vmap <C-Up> xkPgvkoko
-
 
 nnoremap <c-k> p^f"l<c-a>yy
 " instantly select the first autocomplet choice
