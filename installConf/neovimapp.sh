@@ -9,9 +9,9 @@ VIMFILES=$DOTFILES/vim
 
 mkdir -p $NVIM_CONFIG
 mkdir -p $HOME/.local/bin
-mkdir -p $HOME.local/share/applications/
-ln -sf $VIMFILES/nvim.desktop $HOME.local/share/applications/
-#ln -sf $VIMFILES/vim.desktop $HOME.local/share/applications/
+mkdir -p $HOME/.local/share/applications/
+ln -sf $VIMFILES/nvim.desktop $HOME/.local/share/applications/
+#ln -sf $VIMFILES/vim.desktop $HOME/.local/share/applications/
 ln -sf $VIMFILES/vimrc $NVIM_CONFIG/init.vim
 #ln -sf $VIMFILES/vimrc $HOME/.vim
 ln -sf $NVIM_CONFIG $VIM_CONFIG

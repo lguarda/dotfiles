@@ -370,7 +370,7 @@ y/n ?";then
 # fbr - checkout git branch
 function fbr() {
   local branches branch
-  branches=$(git branch -vv --color=always) &&
+  branches=$(git branch --all -vv --color=always) &&
   branch=$(echo "$branches" | fzf --ansi --reverse --height=20 +m) &&
   if [ "$1" = "-f" ]; then
       git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //") --force

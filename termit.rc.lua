@@ -42,6 +42,18 @@ end
     --{title = 'Test new tab 2'; workingDir = '/tmp'}}
 setOptions(defaults)
 
+function toggleSearch()
+    toggleMenubar()
+    findDlg()
+end
+
+bindKey('CtrlShift-c', copy)
+bindKey('CtrlShift-v', paste)
+bindKey('CtrlShift-r', reconfigure)
+bindKey('Ctrl-F', toggleSearch)
+bindKey('Ctrl-N', findNext)
+bindKey('Ctrl-P', findPrev)
+
 --bindKey('Ctrl-Page_Up', prevTab)
 --bindKey('Ctrl-Page_Down', nextTab)
 --bindKey('Ctrl-F', findDlg)

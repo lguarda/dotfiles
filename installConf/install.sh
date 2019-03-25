@@ -82,6 +82,8 @@ if [[ $REVERSE -eq "1" ]];then
     rm -rf $HOME/.oh-my-zsh #TEMP
 else
     mkdir -p $HOME/clone/
+    mkdir -p $HOME/.local/bin
+    mkdir -p $HOME/.local/bin/share/applications/
 
     # Clone repo
     if [[ $STANDALONE -eq "1" ]];then
