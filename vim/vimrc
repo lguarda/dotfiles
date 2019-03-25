@@ -125,12 +125,13 @@ try
     Plug 'https://github.com/vim-scripts/vis'
     Plug 'https://github.com/mhinz/vim-startify'
     Plug 'https://github.com/vim-scripts/groovy.vim'
-    Plug 'https://github.com/SirVer/ultisnips'
+    Plug 'https://github.com/SirVer/ultisnips' "{{{
+    let g:UltiSnipsExpandTrigger="<c-n>"
+    "}}}
     Plug 'https://github.com/honza/vim-snippets'
     Plug 'https://github.com/tpope/vim-surround'
     Plug 'https://github.com/w0rp/ale'
     Plug 'https://github.com/junegunn/vim-easy-align'
-    "Plug 'https://github.com/tpope/vim-vinegar'
     Plug 'https://github.com/autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': 'bash install.sh',
