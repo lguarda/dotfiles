@@ -137,6 +137,7 @@ bindsym $mod+Shift+x exec "$HOME/.config/i3/showLock.sh"
 bindsym $mod+x exec "$HOME/.config/i3/mylock.sh"
 
 bindsym $mod+Shift+s exec "shutter -s --exit_after_capture --output=$HOME/screenshot/%y-%m-%d_\$w_\$h.png --no_session"
+bindsym Print exec "shutter -s --exit_after_capture --output=$HOME/screenshot/%y-%m-%d_\$w_\$h.png --no_session"
 bindsym $mod+Tab exec "switchKeyboardLayout.sh"
 
 # Pulse Audio controls

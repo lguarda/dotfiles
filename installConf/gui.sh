@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DOTFILES=$HOME/clone/dotfiles
+DOTFILES=${DOTFILES:-$HOME/clone/dotfiles}
 
 mkdir -p $HOME/.config/
 mkdir -p $HOME/.config/i3status

@@ -3,9 +3,9 @@
 # TODO: split vim zsh, and stuf
 
 ME="${0##*/}"
-NVIM_CONFIG=$HOME/.config/nvim
-VIM_CONFIG=$HOME/.vim
-DOTFILES=$HOME/clone/dotfiles
+NVIM_CONFIG=${NVIM_CONFIG:-$HOME/.config/nvim}
+VIM_CONFIG=${VIM_CONFIG:-$HOME/.vim}
+DOTFILES=${DOTFILES:-$HOME/clone/dotfiles}
 
 function _usage() {
 cat << _END_OF_USAGE_

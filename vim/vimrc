@@ -412,7 +412,7 @@ nnoremap <space><space> :tabedit $MYVIMRC<CR>
 nnoremap <S-Tab> :tabprevious<CR>
 nnoremap <Tab> :tabnext<CR>
 " Incremente or decrement indentation
-vnoremap <Tab> >gv|"Indent
+vnoremap <Tab> >gv| "Indent
 vnoremap <S-Tab> <gv
 inoremap <C-u> <Esc><C-r>
 noremap <C-u> <C-r>

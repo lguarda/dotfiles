@@ -438,13 +438,13 @@ function gerp() {
         return 1
     fi
     if [[ -x $(command -v rg ) ]] ;then
-            rg --vimgrep --color=always -S -M $(tput cols) -- $1 ${2:-./}
+            rg --vimgrep --color=always -S -M $(tput cols) -g "!.git/"-- $1 ${2:-./}
     else
         str="$(echo -n $1 | grep -o '[A-Z]')"
         if [[ $str == "" ]];then
-            find ${2:-./} -type f -exec grep -i --line-number --color=always -nH $1 {} +
+            find ${2:-./} -type f -not -path "./git/*" -exec grep -i --line-number --color=always -nH $1 {} +
         else
-            find ${2:-./} -type f -exec grep --line-number --color=always -nH $1 {} +
+            find ${2:-./} -type f -not -path "./git/*" -exec grep --line-number --color=always -nH $1 {} +
         fi
     fi
 }
