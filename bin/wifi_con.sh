@@ -25,12 +25,27 @@ die() {
 
 has -v nmcli fzf || die
 
-$START_WITH=""
+WIFI_ENABLED="$(nmcli radio wifi)"
+
+if [ "$WIFI_ENABLED" = "disabled" ];then
+    while true; do
+        read -p "Wifi is disabled do you wish to enable it? y/n" yn
+        case $yn in
+            [Yy]* ) nmcli radio wifi on; break;;
+            [Nn]* ) exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+    sleep 5
+fi
+
+START_WITH=""
 for (( ; ; ))
 do
-    nmcli -d wifi rescan 2> /dev/null
+    nmcli dev wifi rescan 2> /dev/null
     IFS=$'\n'
-    network=$(nmcli --color yes device wifi | fzf --ansi --reverse --cycle --inline-info --header-lines=1 --print-query --bind "ctrl-r:print-query+abort" --query=$START_WITH)
+    network=$(nmcli --color yes device wifi | fzf --ansi --reverse --cycle --inline-info --header-lines=1) # attempt to reload -> --print-query --bind "ctrl-r:print-query+abort" --query=$START_WITH)
+    echo $network
     [[ -z "$network" ]] && exit
     if [ "$(echo -e "$network" | wc -l)" = "1" ];then
         START_WITH="$network"

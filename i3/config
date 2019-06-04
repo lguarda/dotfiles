@@ -40,10 +40,10 @@ bindsym --release $mod+Shift+q kill
 # start dmenu (a program launcher)
 bindsym $mod+d exec  "command -v rofi && rofi -modi combi -show combi -combi-modi drun,run,window -matching fuzzy -sort -sorting-method fzf || dmenu_run"
 #bindsym $mod+d exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T fzf_drun -e 'i3-dmenu-desktop --dmenu=$HOME/.fzf/bin/fzf'
-bindsym $mod+z exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_con -e 'wifi_con.sh'
+bindsym $mod+z exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_config -e 'wifi_con.sh'
 #termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_con -e '$HOME/.local/bin/wifi_con.sh'
 for_window [title="fzf_drun"] floating enable
-for_window [title="wifi_con"] floating enable
+for_window [title="wifi_config"] floating enable
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.

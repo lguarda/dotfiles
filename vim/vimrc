@@ -6,7 +6,7 @@ let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 let g:vimfiles = fnamemodify(expand("$MYVIMRC"), ":p:h")
 "}}}
 "{{{ Basic Setting
-" More infomation :h '{option}'
+" More information :h '{option}'
 syntax on
 set noendofline                  " No <EOL> will be written for the last line in the file
 set background=dark              " Set background color in dark mode
@@ -66,6 +66,11 @@ if has('nvim')
     set termguicolors
     set fixendofline                 " <EOL> at the end of file will be not restored if missing
 endif
+
+if $SHLVL == 0
+    map <c-z> :echomsg "Nope ! cannot suspend in standalone."
+endif
+
 "}}}
 "{{{ Plugin
 "{{{ Vim-PLUG
@@ -140,6 +145,7 @@ try
     let g:LanguageClient_serverCommands = {
         \ 'lua': ['luacheck'],
         \ }
+        "\ 'lua': ['lua-lsp'],
         "\ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
         "\ 'javascript.jsx': ['tcp://127.0.0.1:2089'],
         "\ 'python': ['/usr/local/bin/pyls'],
