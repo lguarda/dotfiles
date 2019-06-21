@@ -1,6 +1,7 @@
 main() {
   # Use colors, but only if connected to a terminal, and that terminal
   # supports them.
+  set +e
   if which tput >/dev/null 2>&1; then
       ncolors=$(tput colors)
   fi
