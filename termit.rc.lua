@@ -50,9 +50,10 @@ end
 bindKey('CtrlShift-c', copy)
 bindKey('CtrlShift-v', paste)
 bindKey('CtrlShift-r', reconfigure)
-bindKey('Ctrl-F', toggleSearch)
+--bindKey('Ctrl-F', toggleSearch)
 bindKey('Ctrl-N', findNext)
 bindKey('Ctrl-P', findPrev)
+bindKey('Ctrl-F', findDlg)
 
 --bindKey('Ctrl-Page_Up', prevTab)
 --bindKey('Ctrl-Page_Down', nextTab)

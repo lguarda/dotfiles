@@ -62,10 +62,10 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
 # move focused window
-bindsym $mod+Shift+j move left
-bindsym $mod+Shift+k move down
-bindsym $mod+Shift+l move up
-bindsym $mod+Shift+semicolon move right
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Shift+Left move left
@@ -146,8 +146,8 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5% #d
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
 
 # Sreen brightness controls
-bindsym XF86MonBrightnessUp exec /usr/bin/xbacklight -inc 2 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"
-bindsym XF86MonBrightnessDown exec [ $(echo "$(xbacklight -get) >= 2" | bc -l) -eq 1 ] && /usr/bin/xbacklight -dec 2 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"
+bindsym XF86MonBrightnessUp exec /usr/bin/xbacklight -inc 5 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"
+bindsym XF86MonBrightnessDown exec [ $(echo "$(xbacklight -get) >= 5" | bc -l) -eq 1 ] && /usr/bin/xbacklight -dec 5 && notify-send --expire-time=100 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"
 #bindsym XF86MonBrightnessUp exec 'xbacklight -inc 20 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"'
 #bindsym XF86MonBrightnessDown exec 'xbacklight -dec 20 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"'
 
@@ -207,8 +207,24 @@ mode "move" {
         bindsym Caps_Lock mode "default"
         bindsym Escape mode "default"
 }
-bindsym $mod+m mode "move"
+bindsym $mod+Shift+m mode "move"
 
+mode "media" {
+        bindsym p exec playerctl play-pause
+        bindsym n exec playerctl next
+        bindsym Shift+n exec playerctl previous
+        bindsym l exec playerctl next
+        bindsym h exec playerctl previous
+        bindsym k exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
+        bindsym j exec --no-startup-id pactl set-sink-volume 0 -5% #decrease sound volume
+        bindsym m exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+
+        # back to normal: Enter or Escape
+        bindsym Return mode "default"
+        bindsym Caps_Lock mode "default"
+        bindsym Escape mode "default"
+}
+bindsym $mod+m mode "media"
 
 hide_edge_borders both
 for_window [class="^.*"] border none

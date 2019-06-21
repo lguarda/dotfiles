@@ -47,7 +47,6 @@ set incsearch                    " While typing a search command, show where the
 set undofile                     " Use undofile
 set undodir=$HOME/.vim/undo      " Undofile location
 set noswapfile                   " Don't use swapfile for the buffer
-set fillchars="" "vert:'|'       " Use pipe as split character
 set pastetoggle=<F2>             " Toggle paste mode vi legacy
 set notagbsearch                 " Disable the error E432 see :h E432
 set cmdheight=1                  " Number of screen lines to use for the command-line
@@ -57,6 +56,7 @@ set history=10000                " A history of ":" commands, and a history of p
 set sidescroll=1                 " The minimal number of columns to scroll horizontally
 set ruler                        " Show the line and column number of the cursor position
 set nobackup                     " Disable BackupFile(~)
+set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:\ ,diff:- " Use space for multiple separator
 set completeopt=menuone,menu,longest,preview
 set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$ ",eol:¶  " highlight tab space en eol
 set list
@@ -68,7 +68,8 @@ if has('nvim')
 endif
 
 if $SHLVL == 0
-    map <c-z> :echomsg "Nope ! cannot suspend in standalone."
+    map <c-z> :execute "echohl WarningMsg\|echomsg 'Nope ! cannot suspend in standalone.'\|silent echohl None"<CR>
+
 endif
 
 "}}}
@@ -462,16 +463,16 @@ inoremap <C-k> <Up>
 inoremap <C-j> <Down>
 inoremap <C-h> <Left>
 inoremap <C-l> <Right>
-inoremap <silent> hh <C-o>:stopinsert<CR>:s/\s\+$//e<CR>
+"inoremap <silent> hh <C-o>:stopinsert<CR>:s/\s\+$//e<CR>
 inoremap <silent> qq <C-o>:stopinsert<CR>:s/\s\+$//e<CR>
+cnoremap <C-a> <C-b>
 cnoremap <C-h> <Left>
 cnoremap <C-l> <Right>
 cnoremap <C-j> <Down>
 cnoremap <C-k> <Up>
-cnoremap <silent> qq <Esc>
-cnoremap <silent> hh <Esc>
+cnoremap qq <C-e><C-u><Esc>
+cnoremap hh <C-e><C-u><Esc>
 vnoremap <silent> qq <Esc>
-cnoremap <silent> qq <Esc>
 nnoremap <silent> qq <Esc>
 nnoremap <S-h> <C-w><Left>
 nnoremap <S-l> <C-w><Right>
@@ -636,6 +637,7 @@ autocmd FileType c map! <F4> printf( __func__" line:"__LINE__"\n");
 autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
 autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
 autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Right>);<Esc>2<Left><insert>
+autocmd FileType lua nnoremap <F4> "="print('Line at '..debug.getinfo(2, 'l').currentline..', FILE at '..debug.getinfo(2, 'S').source..', in func: '..debug.getinfo(2, 'n').name)"<CR>p
 autocmd FileType vim set fdm=marker
 autocmd! BufRead,BufNewFile *.markdown set filetype=markdown
 autocmd! BufRead,BufNewFile *.md       set filetype=markdown

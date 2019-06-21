@@ -9,6 +9,7 @@ source /etc/zsh_command_not_found
 export EDITOR='nvim'
 alias v="nvim"
 alias vim="nvim"
+alias vimdiff="nvim -d"
 alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
 alias vz="nvim $HOME/.zshrc"
 alias re="readlink -e"
@@ -531,10 +532,10 @@ bindkey "^[[1;5A" up-line-or-search-prefix
 bindkey "^[[1;5B" down-line-or-search-prefix
 bindkey "^K" up-line-or-search-prefix
 bindkey "^J" down-line-or-search-prefix
-bindkey -M menuselect 'h' vi-backward-char
-bindkey -M menuselect 'k' vi-up-line-or-history
-bindkey -M menuselect 'l' vi-forward-char
-bindkey -M menuselect 'j' vi-down-line-or-history
+#bindkey -M menuselect 'h' vi-backward-char
+#bindkey -M menuselect 'k' vi-up-line-or-history
+#bindkey -M menuselect 'l' vi-forward-char
+#bindkey -M menuselect 'j' vi-down-line-or-history
 
 alias zz="source $HOME/.zshrc"
 
@@ -542,19 +543,19 @@ typeset -ga precmd_functions
 rehash-last-install() { fc -l -1 |grep -q install && { echo "rehash-ing"; rehash } }
 precmd_functions+=rehash-last-install
 
-# 0 -- vanilla completion (abc => abc)
-# 1 -- smart case completion (abc => Abc)
-# 2 -- word flex completion (abc => A-big-Car)
-# 3 -- full flex completion (abc => ABraCadabra)
-#zstyle ':completion:*' matcher-list \
-  #'m:{a-zA-Z}={A-Za-z}' \
-  #'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
-  #'r:|?=** m:{a-z\-}={A-Z\_}'
+#0 -- vanilla completion (abc => abc)
+#1 -- smart case completion (abc => Abc)
+#2 -- word flex completion (abc => A-big-Car)
+#3 -- full flex completion (abc => ABraCadabra)
+zstyle ':completion:*' matcher-list \
+  'm:{a-zA-Z}={A-Za-z}' \
+  'r:[^[:alpha:]]||[[:alpha:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+  'r:|?=** m:{a-z\-}={A-Z\_}'
 
-zstyle ':completion:*' completer _complete
-zstyle ':completion:*' matcher-list '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' '+l:|=* r:|=*'
-autoload -Uz compinit
-compinit
+#zstyle ':completion:*' completer _complete
+#zstyle ':completion:*' matcher-list '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' '+l:|=* r:|=*'
+#autoload -Uz compinit
+#compinit
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f /usr/bin/xcape ] && xcape -e 'Shift_L=Escape;Control_L=Control_L|O'
