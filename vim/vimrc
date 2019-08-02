@@ -305,6 +305,8 @@ try
             noremap <buffer> <S-k> :GitGutterPrevHunk<CR>zz
             noremap <buffer> <S-h> :GitGutterUndoHunk<CR>
             noremap <buffer> <S-l> :GitGutterPreviewHunk<CR>
+            noremap <buffer> <c-l> :call CheckoutPreviousCommitLine()<CR>
+            noremap <buffer> <c-h> :call CheckoutPreviousCommitLineRevert()<CR>
             nnoremap w :call ToggleGutterWhiteSpace()<CR>:GitGutter<CR>
             let b:gutterMod = 1
         else
@@ -693,7 +695,7 @@ function! Insert_ifndef()
     $put = '#endif /* ' . l:filename . ' */'
 endfunction
 "}}}
-
+"{{{ Switch function argument
 function! Switch_arg(nb)
     let l:c = 1
     let l:str = ":s/(\\s*\\(.*\\)"
@@ -757,6 +759,7 @@ function! SwitchWordCamel(nb)
     let l:str = join([l:str, "/g|:nohlsearch" . repeat("\x80kl", 14)], "")
     let @a = l:str
 endfunction
+"}}}
 "{{{TODO: CLEAN
 highlight currawong ctermbg=darkred guibg=darkred
 
@@ -954,8 +957,32 @@ endfunction
 "}}}
 command! JsonIndent call JsonIndent() "{{{
 function! JsonIndent()
-    execute '%!python -m json.tool'
+    "execute '%!python -m json.tool'
+	execute ':%!jq "."'
 endfunction
+command! JsonIndentSort call JsonIndentSort() "{{{
+function! JsonIndentSort()
+	execute ':%!jq --sort-keys "."'
+endfunction
+command! JsonIndentMimify call JsonIndentMimify() "{{{
+function! JsonIndentMimify()
+	execute ':%!jq -c "."'
+endfunction
+
+command! YamlIndent call YamlIndent() "{{{
+function! YamlIndent()
+    "execute '%!python -m json.tool'
+	execute ':%!yq -y "."'
+endfunction
+command! YamlIndentSort call YamlIndentSort() "{{{
+function! YamlIndentSort()
+	execute ':%!yq -y --sort-keys "."'
+endfunction
+command! YamlIndentMimify call YamlIndentMimify() "{{{
+function! YamlIndentMimify()
+	execute ':%!yq -y -c "."'
+endfunction
+
 "}}}
 function! DoPrettyXML() " {{{
     if !executable('nautilus')
@@ -1191,5 +1218,36 @@ function! ChangeSpell(...)
     let b:spell +=1
     let b:spell = b:spell % 3
 endfunction
+
+"}}}
+"}}}
+"{{{ Checkout previous line's commit
+function! GetCurrentLineCommit()
+    let @a = system('git --no-pager blame -L ' . line(".") . ',+1 -- ' . expand('%:p'))
+    return matchstr(@a, '\w\+')
+endfunction
+
+function! GetCurrentCommit()
+    return system('git rev-parse --short HEAD')
+endfunction
+
+function! CheckoutPreviousCommitLine()
+    let l:commit = GetCurrentLineCommit() . "^"
+    let l:current_commit = GetCurrentCommit()
+    if !exists('g:commit_list') | let g:commit_list = [] | endif
+    call add(g:commit_list, l:current_commit)
+    call system('git checkout ' . l:commit)
+    checktime
+endfunction
+
+function! CheckoutPreviousCommitLineRevert()
+    if len(g:commit_list) > 0
+        let l:commit = g:commit_list[-1:-1][0]
+        let g:commit_list = g:commit_list[0:-2]
+        call system('git checkout ' . l:commit)
+        checktime
+    endif
+endfunction
+"}}}
 
 "}}}

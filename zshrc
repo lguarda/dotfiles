@@ -8,12 +8,16 @@ source /etc/zsh_command_not_found
 
 export EDITOR='nvim'
 alias v="nvim"
-alias vim="nvim"
 alias vimdiff="nvim -d"
 alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
 alias vz="nvim $HOME/.zshrc"
 alias re="readlink -e"
 alias bc="bc -q"
+alias reset="stty sane"
+
+function vim() {
+    echo $@ | sed -r "s/:([0-9]+)/ +\1/g" | xargs sh -c 'nvim "$@" < /dev/tty' nvim
+}
 
 if [[ -x $(command -v setxkbmap ) ]] ;then setxkbmap  -option caps:escape ; fi
 
@@ -299,6 +303,10 @@ function b2h()                  # binary to hexa
     echo $(( [#16]2#$1 ));
 }
 
+function h2o(){
+  echo "ibase=16\nobase=8\n$1" | bc
+}
+
 function winshared()
 {
     sudo mount -t vboxsf linux ~/shared
@@ -439,14 +447,26 @@ function gerp() {
         echo "Usage: gerp [to_search] [optional:path]"
         return 1
     fi
+    DEFAULT="--color=always"
+    while getopts "h:l" arg; do
+        case $arg in
+            h)
+                echo "Usage: gerp [to_search] [optional:path]"
+                return 0
+                ;;
+            l)
+                DEFAULT="-l"
+                ;;
+        esac
+    done
     if [[ -x $(command -v rg ) ]] ;then
-            rg --vimgrep --color=always -S -M $(tput cols) -g "!.git/"-- $1 ${2:-./}
+            rg --vimgrep "$DEFAULT" -S -M $(tput cols) -g "!.git/"-- $1 ${2:-./}
     else
         str="$(echo -n $1 | grep -o '[A-Z]')"
         if [[ $str == "" ]];then
-            find ${2:-./} -type f -not -path "./git/*" -exec grep -i --line-number --color=always -nH $1 {} +
+            find ${2:-./} -type f -not -path "./git/*" -exec grep -i --line-number "$DEFAULT" -nH $1 {} +
         else
-            find ${2:-./} -type f -not -path "./git/*" -exec grep --line-number --color=always -nH $1 {} +
+            find ${2:-./} -type f -not -path "./git/*" -exec grep --line-number "$DEFAULT" -nH $1 {} +
         fi
     fi
 }
