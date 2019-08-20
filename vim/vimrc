@@ -55,13 +55,16 @@ set display+=uhex,lastline       " Change the way text is displayed. uhex: Show 
 set history=10000                " A history of ":" commands, and a history of previous search patterns is remembered
 set sidescroll=1                 " The minimal number of columns to scroll horizontally
 set ruler                        " Show the line and column number of the cursor position
-set nobackup                     " Disable BackupFile(~)
+set backup                       " Make a backup before overwriting a file.
+set backupdir=$HOME/.vim/backup  " List of directories for the backup file, separated with commas.
+set colorcolumn=80               " Add a colored column marker at specified size cc=0 to disable
+set list                         " Enable listchars
+set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$ ",eol:¶  " highlight tab space en eol
 set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:\ ,diff:- " Use space for multiple separator
 set completeopt=menuone,menu,longest,preview
-set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$ ",eol:¶  " highlight tab space en eol
-set list
+set wildignore=.svn,CVS,.git,*.o,*.a,*.class,*.mo,*.la,*.so,*.obj,*.swp,*.jpg,*.png,*.xpm,*.gif,*.pdf,*.bak,*.beam,*.wave
 "set guifont=Droid\ Sans\ Mono\ Slashed\ for\ Powerline\ 10
-"set colorcolumn=80              " display column layout
+
 if has('nvim')
     set termguicolors
     set fixendofline                 " <EOL> at the end of file will be not restored if missing
@@ -131,17 +134,19 @@ try
     Plug 'https://github.com/vim-scripts/vis'
     Plug 'https://github.com/mhinz/vim-startify'
     Plug 'https://github.com/vim-scripts/groovy.vim'
+    Plug 'https://github.com/johngrib/vim-game-snake'
+    Plug 'https://github.com/johngrib/vim-game-code-break'
+    Plug 'https://github.com/takac/vim-spotifysearch'
+    let g:spotify_country_code = 'FR'
+    Plug 'https://github.com/HendrikPetertje/vimify' "{{{
+    let g:spotify_token='MTVmMzVjYTEwZTk5NDIxMjkyZjhmZDQ3NDhiZjExYzg='
+    "}}}
     Plug 'https://github.com/SirVer/ultisnips' "{{{
-    let g:UltiSnipsExpandTrigger="<c-n>"
+    let g:UltiSnipsExpandTrigger="<c-x><c-n>"
     "}}}
     Plug 'https://github.com/honza/vim-snippets'
     Plug 'https://github.com/tpope/vim-surround'
     Plug 'https://github.com/w0rp/ale'
-    Plug 'https://github.com/junegunn/vim-easy-align'
-    Plug 'https://github.com/autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
 
     let g:LanguageClient_serverCommands = {
         \ 'lua': ['luacheck'],
@@ -314,6 +319,7 @@ try
             noremap <buffer> <S-j> <C-w><Down>
             noremap <buffer> <S-h> <C-w><left>
             noremap <buffer> <S-l> <C-w><right>
+            nnoremap w w
             let b:gutterMod = 0
         endif
         call CallForMode()
@@ -416,7 +422,7 @@ nnoremap <M-x> de
 nnoremap <M-S-x> db
 nnoremap <silent> <S-x> "_<S-x>
 "nnoremap <silent> <C-t> :let @3=@"<CR>xlP:let@"=@3<CR>
-nnoremap ; :
+"nnoremap ; :
 nnoremap <space><space> :tabedit $MYVIMRC<CR>
 nnoremap <S-Tab> :tabprevious<CR>
 nnoremap <Tab> :tabnext<CR>
@@ -580,11 +586,68 @@ vnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/
     nnoremap gbc <C-O>yiW<End><Esc>S<C-R>=<C-R>0<CR>|" delete line and replace it with arithmetic result
     nnoremap gbs <C-O>yiW<End>=<C-R>=<C-R>0<CR>|" Add arithmetic result of the line at the end with an = sign
 "}}}
+"{{{ colemak
+let g:colemak_remap = [
+\['n', 'h'],
+\['e', 'j'],
+\['i', 'k'],
+\['o', 'l']
+\]
+function! EnableColemak()
+    call SwapKeys(g:colemak_remap)
+    let g:NERDTreeMapOpenSplit = "<S-s>"
+    let g:NERDTreeMapOpenExpl = "<S-e>"
+    let gNERDTreeMapActivateNode = "<S-y>"
+endfunction
+function! DisableColemak()
+    call SwapBackKeys(g:colemak_remap)
+    let g:NERDTreeMapOpenSplit = "s"
+    let g:NERDTreeMapOpenExpl = "e"
+    let gNERDTreeMapActivateNode = "o"
+endfunction
+
+function! SwapKeys(mappings)
+    for mapping in a:mappings
+        execute "nnoremap ".mapping[0] ." ".mapping[1]
+        execute "nnoremap ".mapping[1] ." ".mapping[0]
+        execute "vnoremap ".mapping[0] ." ".mapping[1]
+        execute "vnoremap ".mapping[1] ." ".mapping[0]
+
+        execute "nnoremap <S-".mapping[0] ."> <S-".mapping[1].">"
+        execute "nnoremap <S-".mapping[1] ."> <S-".mapping[0].">"
+        execute "vnoremap <S-".mapping[0] ."> <S-".mapping[1].">"
+        execute "vnoremap <S-".mapping[1] ."> <S-".mapping[0].">"
+    endfor
+endfunction
+
+function! SwapBackKeys(mappings)
+    for mapping in a:mappings
+        execute "nnoremap ".mapping[1] ." ".mapping[1]
+        execute "nnoremap ".mapping[0] ." ".mapping[0]
+        execute "vnoremap ".mapping[1] ." ".mapping[1]
+        execute "vnoremap ".mapping[0] ." ".mapping[0]
+
+        execute "nnoremap <S-".mapping[0] ."> <S-".mapping[1].">"
+        execute "nnoremap <S-".mapping[1] ."> <S-".mapping[1].">"
+        execute "vnoremap <S-".mapping[0] ."> <S-".mapping[0].">"
+        execute "vnoremap <S-".mapping[1] ."> <S-".mapping[1].">"
+    endfor
+endfunction
+
+"}}}
 "
-vmap <C-Right> xpgvlolo
-vmap <C-left> xhPgvhoho
-vmap <C-Down> xjPgvjojo
-vmap <C-Up> xkPgvkoko
+"vmap <C-Right> xpgvlolo
+"vmap <C-left> xhPgvhoho
+"vmap <C-Down> xjPgvjojo
+"vmap <C-Up> xkPgvkoko
+noremap j h
+noremap k j
+noremap l k
+noremap ; l
+vnoremap j h
+vnoremap k j
+vnoremap l k
+vnoremap ; l
 
 nnoremap <c-k> p^f"l<c-a>yy
 " instantly select the first autocomplet choice
@@ -632,6 +695,7 @@ autocmd BufLeave, term://* stopinsert
 autocmd BufEnter * if !exists('b:isBinary') | let b:isBinary = 0 | endif
 autocmd BufEnter * silent! execute "normal! :setlocal scrolloff=" . winheight(0) / 5 . "\r"
 autocmd BufEnter * silent! execute "normal! :setlocal sidescrolloff=" . winwidth(0) / 8 . "\r"
+autocmd bufreadpre *.md setlocal textwidth=80
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
 autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
 autocmd FileType cpp inoremap <buffer> \n  <space><< std::endl;
@@ -649,8 +713,9 @@ autocmd BufRead,BufNewFile *.conf setfiletype dosini
 
 highlight ExtraCarriageReturn ctermbg=red gui=bold,undercurl guifg=#ababcc "guibg=#000000
 highlight ExtraWhitespace ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
-highlight ExtraSpaceDwich ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
+highlight ExtraSpaceDwich ctermbg=red gui=bold,undercurl guifg=#997744 "guibg=#000000
 highlight NonBreakSpace gui=bold,undercurl guifg=#ff0000 ctermfg=red
+highlight EmptyChar gui=bold,undercurl guifg=#ff0055 guibg=#777777 ctermfg=red
 augroup WhitespaceMatch
     " Remove ALL autocommands for the WhitespaceMatch group.
     autocmd!
@@ -662,7 +727,22 @@ augroup WhitespaceMatch
                 \ matchadd('ExtraCarriageReturn', '\r')
     autocmd BufWinEnter * let w:NonBreakSpace =
                 \ matchadd('NonBreakSpace', ' ')
+                                                           "digraph section
+    autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1N 
+    autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1M 
+    autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "3M 
+    autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "4M 
+    autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "6M 
+    autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1T 
+    autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1H 
+    autocmd BufWinEnter * exec matchadd('EmptyChar', '　')|"IS　
 augroup END
+
+augroup Backup
+    " set backup file prefix with current time at vim startup
+    autocmd VimEnter * let &bex = '-' . strftime("%Y%m%d%H%M") . '~'
+augroup END
+
 augroup XML
     autocmd!
     "autocmd FileType xml setlocal foldmethod=indent foldnestmax=100

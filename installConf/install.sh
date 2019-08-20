@@ -3,10 +3,12 @@
 # TODO: split vim zsh, and stuf
 
 ME="${0##*/}"
-NVIM_CONFIG=${NVIM_CONFIG:-$HOME/.config/nvim}
+XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config/}
+
+NVIM_CONFIG=${NVIM_CONFIG:-$XDG_CONFIG_HOME/nvim}
+GIT_CONFIG=${GIT_CONFIG:-$XDG_CONFIG_HOME/git}
 VIM_CONFIG=${VIM_CONFIG:-$HOME/.vim}
 DOTFILES=${DOTFILES:-$HOME/clone/dotfiles}
-
 function _usage() {
 cat << _END_OF_USAGE_
     Usage: ${ME} OPTIONS...
@@ -100,7 +102,9 @@ else
 
     # git config
     printf "$B$LBLUE%s$NONE\n" "======= add gitconfig alias ======="
-    cat $DOTFILES/gitconfig >> $HOME/.gitconfig
+    mkdir -p $GIT_CONFIG
+    cp $DOTFILES/gitconfig $GIT_CONFIG/config
+    cp $DOTFILES/gitattributes $GIT_CONFIG/attributes
 
     # Vim/Nvim
     printf "$B$LBLUE%s$NONE\n" "=======   insatll neovim    ======="
@@ -127,7 +131,7 @@ else
     if [[ $FISH -eq "1" ]];then
         printf "$B$LBLUE%s$NONE\n" "=======    install fish     ======="
         # fish
-        curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs https://git.io/fisher
+        curl -Lo $XDG_CONFIG_HOME/fish/functions/fisher.fish --create-dirs https://git.io/fisher
         fish -c fisher install z fzf pure
     fi
 
