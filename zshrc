@@ -300,7 +300,9 @@ function h2b()                  # hexa to binary
 
 function b2h()                  # binary to hexa
 {
-    echo $(( [#16]2#$1 ));
+    for i in $@;do
+        echo $(( [#16]2#$i ));
+    done
 }
 
 function h2o(){

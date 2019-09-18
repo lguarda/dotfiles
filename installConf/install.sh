@@ -116,7 +116,7 @@ else
 
     # Script
     printf "$B$LBLUE%s$NONE\n" "=======    link bin dir     ======="
-    ln -sf $DOTFILES/bin/* $HOME/.local/bin/
+    for i in $DOTFILES/bin/*;do ln -sf $i $HOME/.local/bin/$(basename -s ".sh" $i) ;done
 
     # Zsh/OhMyZsh
     if [ -f $DOTFILES/installConf/ohmyzshInstall.sh ]; then

@@ -101,7 +101,9 @@ try
     Plug 'https://github.com/dracula/vim'
     "}}}
     "{{{ Syntax plugin
-    Plug 'https://github.com/plasticboy/vim-markdown'
+    Plug 'https://github.com/tpope/vim-markdown' "{{{
+        let g:markdown_fenced_languages = ['html', 'python', 'bash=sh', 'javascript', 'lua', 'c', 'cpp', 'perl']
+    "}}}
     Plug 'https://github.com/elzr/vim-json'
     Plug 'https://github.com/PotatoesMaster/i3-vim-syntax'
     Plug 'https://github.com/tbastos/vim-lua'
@@ -158,9 +160,9 @@ try
 
     nnoremap <F6> :call LanguageClient_contextMenu()<CR>
     " Or map each action separately
-    nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+    "nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
     nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-    nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+    "nnorema <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
     Plug 'https://github.com/pbogut/fzf-mru.vim' "{{{
     let fzf_mru_max=1000
     "}}}
@@ -310,8 +312,8 @@ try
             noremap <buffer> <S-k> :GitGutterPrevHunk<CR>zz
             noremap <buffer> <S-h> :GitGutterUndoHunk<CR>
             noremap <buffer> <S-l> :GitGutterPreviewHunk<CR>
-            noremap <buffer> <c-l> :call CheckoutPreviousCommitLine()<CR>
-            noremap <buffer> <c-h> :call CheckoutPreviousCommitLineRevert()<CR>
+            noremap <buffer> <c-l> :call CheckoutPreviousCommitLine()<CR>:Gblame<CR><c-w><right>
+            noremap <buffer> <c-h> :call CheckoutPreviousCommitLineRevert()<CR>:Gblame<CR><c-w><right>
             nnoremap w :call ToggleGutterWhiteSpace()<CR>:GitGutter<CR>
             let b:gutterMod = 1
         else
@@ -1064,8 +1066,8 @@ function! YamlIndentMimify()
 endfunction
 
 "}}}
-function! DoPrettyXML() " {{{
-    if !executable('nautilus')
+function! XmlIndent() " {{{
+    if !executable('xmllint')
         echomsg "No xmllint found !"
         return
     endif
@@ -1095,7 +1097,7 @@ function! DoPrettyXML() " {{{
     " restore the filetype
     exe "set ft=" . l:origft
 endfunction
-command! PrettyXML call DoPrettyXML()
+command! XmlIndent call XmlIndent()
 "}}}
 function! OpenExplorer() "{{{
     let l:open = GetExplorer()
