@@ -250,12 +250,12 @@ bar {
             statusline #fff5FF #that neon blue
             separator #b1b500
 
-            focused_workspace  #bf87ff #ac65cc #ffffff
+            focused_workspace  #0733a1 #1793D1 #ffffff
             active_workspace   #333332 #5f676a #ffffff
-            inactive_workspace #a58700 #856700 #333333
+            inactive_workspace #970033 #d70a53 #acb1e4
             urgent_workspace   #b1b500 #F89828 #ffffff
     }
-    status_command i3status
+    status_command i3blocks
 }
 
 exec_always feh --bg-center $HOME/.config/wallpaper

@@ -449,6 +449,7 @@ nnoremap <S-k> <PageUp>
 nnoremap <S-j> <PageDown>
 nnoremap gp `[v`]
 nnoremap <c-x><c-s> :w !sudo tee %<CR>
+nnoremap ; :
 "}}}
 "{{{ Pair characters change
 inoremap {<CR>  {}<Left><cr><cr><up><tab>
@@ -600,12 +601,20 @@ function! EnableColemak()
     let g:NERDTreeMapOpenSplit = "<S-s>"
     let g:NERDTreeMapOpenExpl = "<S-e>"
     let gNERDTreeMapActivateNode = "<S-y>"
+    noremap <S-n> <C-w><Up>
+    noremap <S-e> <C-w><Down>
+    noremap <S-i> <C-w><left>
+    noremap <S-o> <C-w><right>
 endfunction
 function! DisableColemak()
     call SwapBackKeys(g:colemak_remap)
     let g:NERDTreeMapOpenSplit = "s"
     let g:NERDTreeMapOpenExpl = "e"
     let gNERDTreeMapActivateNode = "o"
+    noremap <S-n> <S-n>
+    noremap <S-e> <S-e>
+    noremap <S-i> <S-i>
+    noremap <S-o> <S-o>
 endfunction
 
 function! SwapKeys(mappings)
@@ -637,19 +646,27 @@ function! SwapBackKeys(mappings)
 endfunction
 
 "}}}
-"
+nnoremap <silent> <space>p :call CopyPasteMode()<CR>
+function! CopyPasteMode()
+    if !exists('b:paste_mode') | let b:paste_mode = 0 | endif
+    if b:paste_mode == 0
+        :setlocal mouse=i
+        :setlocal nonumber
+        :setlocal nolist
+        :setlocal paste
+        let b:paste_mode = 1
+    else
+        :setlocal mouse=a
+        :setlocal number
+        :setlocal list
+        :setlocal nopaste
+        let b:paste_mode = 0
+    endif
+endfunction
 "vmap <C-Right> xpgvlolo
 "vmap <C-left> xhPgvhoho
 "vmap <C-Down> xjPgvjojo
 "vmap <C-Up> xkPgvkoko
-noremap j h
-noremap k j
-noremap l k
-noremap ; l
-vnoremap j h
-vnoremap k j
-vnoremap l k
-vnoremap ; l
 
 nnoremap <c-k> p^f"l<c-a>yy
 " instantly select the first autocomplet choice
