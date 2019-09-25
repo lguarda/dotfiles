@@ -11,15 +11,15 @@
 
 set $mod Mod4
 
-#set $left h
-#set $down j
-#set $up k
-#set $right l
+set $left h
+set $down j
+set $up k
+set $right l
 
-set $left j
-set $down k
-set $up l
-set $right semicolon
+#set $left j
+#set $down k
+#set $up l
+#set $right semicolon
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -94,7 +94,9 @@ bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
-bindsym $mod+Shift+space floating toggle
+#bindsym $mod+Shift+space floating toggle
+# Toogle floating window while enable titlebar and border
+bindsym $mod+Shift+space "mark --add _; [con_mark=f] floating disable, border none, mark --add --toggle _; [con_mark=_] floating enable, border normal; mark --add --toggle f;"
 
 # change focus between tiling / floating windows
 bindsym $mod+space focus mode_toggle
