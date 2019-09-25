@@ -138,11 +138,6 @@ try
     Plug 'https://github.com/vim-scripts/groovy.vim'
     Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/johngrib/vim-game-code-break'
-    Plug 'https://github.com/takac/vim-spotifysearch'
-    let g:spotify_country_code = 'FR'
-    Plug 'https://github.com/HendrikPetertje/vimify' "{{{
-    let g:spotify_token='MTVmMzVjYTEwZTk5NDIxMjkyZjhmZDQ3NDhiZjExYzg='
-    "}}}
     Plug 'https://github.com/SirVer/ultisnips' "{{{
     let g:UltiSnipsExpandTrigger="<c-x><c-n>"
     "}}}
