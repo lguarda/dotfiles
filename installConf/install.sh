@@ -84,8 +84,8 @@ if [[ $REVERSE -eq "1" ]];then
     rm -rf $HOME/.oh-my-zsh #TEMP
 else
     mkdir -p $HOME/clone/
-    mkdir -p $HOME/.local/bin
-    mkdir -p $HOME/.local/bin/share/applications/
+    mkdir -p $HOME/.local
+    mkdir -p $HOME/.config
 
     # Clone repo
     if [[ $STANDALONE -eq "1" ]];then
@@ -100,23 +100,17 @@ else
         bash -e $DOTFILES/installConf/installDependency.sh
     fi
 
-    # git config
-    printf "$B$LBLUE%s$NONE\n" "======= add gitconfig alias ======="
-    mkdir -p $GIT_CONFIG
-    cp $DOTFILES/gitconfig $GIT_CONFIG/config
-    cp $DOTFILES/gitattributes $GIT_CONFIG/attributes
+    SRCDIR=$DOTFILES'/config'
+    DSTDIR=$HOME'/.config/'
+    (cd $SRCDIR && find . -type f -exec bash -c "CDIR=$DSTDIR\$(dirname {}) && mkdir -p \$CDIR && ln -sf \$(readlink -f {}) \$CDIR/" \;)
 
-    # Vim/Nvim
+    SRCDIR=$DOTFILES'/local'
+    DSTDIR=$HOME'/.local/'
+    (cd $SRCDIR && find . -type f -exec bash -c "CDIR=$DSTDIR\$(dirname {}) && mkdir -p \$CDIR && ln -sf \$(readlink -f {}) \$CDIR/" \;)
+
+    # Nvim
     printf "$B$LBLUE%s$NONE\n" "=======   insatll neovim    ======="
     bash -e $DOTFILES/installConf/neovimapp.sh
-
-    # bash
-    printf "$B$LBLUE%s$NONE\n" "=======    link inputrc     ======="
-    ln -sf $DOTFILES/inputrc $HOME/.inputrc
-
-    # Script
-    printf "$B$LBLUE%s$NONE\n" "=======    link bin dir     ======="
-    for i in $DOTFILES/bin/*;do ln -sf $i $HOME/.local/bin/$(basename -s ".sh" $i) ;done
 
     # Zsh/OhMyZsh
     if [ -f $DOTFILES/installConf/ohmyzshInstall.sh ]; then
@@ -137,8 +131,6 @@ else
 
     if [[ $GUI -eq "1" ]];then
         # i3
-        printf "$B$LBLUE%s$NONE\n" "======= link i3 config dir  ======="
-        bash -e $DOTFILES/installConf/gui.sh
         if [[ $DEPENDENCY -eq "1" ]];then
             printf "$B$LBLUE%s$NONE\n" "=======  install gui deps   ======="
             bash -e $DOTFILES/installConf/installDependencyGui.sh

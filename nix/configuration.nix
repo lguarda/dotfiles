@@ -47,7 +47,7 @@
      htop
    ];
   services.openssh.enable = true;
-  services.openssh.permitRootLogin = "yes";
+  services.openssh.permitRootLogin = "yes"; # disable after full install
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
