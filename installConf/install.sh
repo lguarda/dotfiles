@@ -91,7 +91,6 @@ else
     if [[ $STANDALONE -eq "1" ]];then
         printf "$B$LBLUE%s$NONE\n" "======= Clone dotfiles repo ======="
         git clone https://github.com/lguard/dotfiles $DOTFILES
-        #git --git-dir=clone/dotfiles/.git/ --work-tree=clone/dotfiles/ checkout Rework #TEMP
     fi
 
     #install dependency
@@ -130,7 +129,6 @@ else
     fi
 
     if [[ $GUI -eq "1" ]];then
-        # i3
         if [[ $DEPENDENCY -eq "1" ]];then
             printf "$B$LBLUE%s$NONE\n" "=======  install gui deps   ======="
             bash -e $DOTFILES/installConf/installDependencyGui.sh

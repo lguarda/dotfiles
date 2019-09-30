@@ -117,8 +117,8 @@ pvcreate /dev/mapper/crypted
 # create lvm partition named fde
 vgcreate fde /dev/mapper/crypted
 # create lvm sub partition
-lvcreate -n root fde -L 2GB
-lvcreate -n home fde -l 100%FEE
+lvcreate -n root fde -L 8GB
+lvcreate -n home fde -l 100%FREE
 
 # set boot partition to ext2
 mkfs.ext2 /dev/sda1
@@ -132,8 +132,8 @@ mkfs.ext4 /dev/fde/home
 # https://nixos.org/nixos/manual/
 # http://stesie.github.io/2016/08/nixos-pt1
 # mount different partition to /mnt
-mkdir /mnt/boot/ /mnt/home
 mount /dev/fde/root /mnt
+mkdir -p /mnt/boot/ /mnt/home
 mount /dev/fde/home /mnt/home
 mount /dev/sda1 /mnt/boot
 # generate /etc/nixos/{configuration.nix,hardware-configuration.nix}
