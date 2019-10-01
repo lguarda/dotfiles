@@ -1,0 +1,20 @@
+[alias]
+    lg = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
+    l  = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
+    lc = log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
+    lfp= log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
+    fa = fetch --all
+    co = checkout
+    su = status -s
+    amend = commit --amend
+    pu = "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\"; }; f"
+    puf= "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\" --force; }; f"
+    yolo="!f(){ git commit -m \"$(curl -s https://whatthecommit.com/index.txt)\"; }; f"
+    grog = log --graph --abbrev-commit --decorate --all --format=format:\"%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
+[merge]
+    tool = nvim
+    renameLimit = 999999
+[mergetool "nvim"]
+    cmd = nvim -f -c \"Gdiff\" \"$MERGED\"
+[diff "json"]
+    textconv = jq "." --sort-keys
