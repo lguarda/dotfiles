@@ -107,6 +107,11 @@ else
     DSTDIR=$HOME'/.local/'
     (cd $SRCDIR && find . -type f -exec bash -c "CDIR=$DSTDIR\$(dirname {}) && mkdir -p \$CDIR && ln -sf \$(readlink -f {}) \$CDIR/" \;)
 
+    # session manager (ex: lightdm)
+    ln -sf $DOTFILES'/config/xsessionrc '$HOME'/.xsessionrc'
+    # startx
+    ln -sf $DOTFILES'/config/xsessionrc '$HOME'/.xinitrc'
+
     # Nvim
     printf "$B$LBLUE%s$NONE\n" "=======   insatll neovim    ======="
     bash -e $DOTFILES/installConf/neovimapp.sh

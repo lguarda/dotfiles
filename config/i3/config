@@ -89,7 +89,7 @@ bindsym $mod+Shift+v split v
 bindsym $mod+f fullscreen
 
 # change container layout (stacked, tabbed, toggle split)
-bindsym $mod+s layout stacking
+#bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
@@ -166,7 +166,8 @@ bindsym XF86AudioPlay exec playerctl play
 bindsym XF86AudioPause exec playerctl pause
 bindsym XF86AudioNext exec playerctl next
 bindsym XF86AudioPrev exec playerctl previous
-bindsym XF86Display exec arandr.sh
+bindsym XF86Display exec screen_setup.sh
+bindsym $mod+s exec screen_setup.sh
 bindsym XF86KbdBrightnessUp exec kbdbacklight up
 bindsym XF86KbdBrightnessDown exec kbdbacklight Down
 
