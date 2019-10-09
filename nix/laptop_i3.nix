@@ -5,7 +5,6 @@
     ./common.nix
     ./gui/common_gui.nix
     ./gui/i3wm.nix
-    ./users/default_user.nix
   ];
 
   # Use the GRUB 2 boot loader.
@@ -19,4 +18,13 @@
   ];
   services.openssh.permitRootLogin = "yes"; # disable after full install
   system.stateVersion = "19.03"; # Did you read the comment?
+
+  programs.fish.enable = true;
+  users.extraUsers.leo = {
+    isNormalUser = true;
+    home = "/home/leo";
+    extraGroups = [ "wheel" "networkmanager" "audio" ];
+    password = ""; # remember to passwd
+    shell = pkgs.fish;
+  };
 }

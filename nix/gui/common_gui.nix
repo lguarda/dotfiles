@@ -1,6 +1,10 @@
 { config, pkgs, ... }:
 
 {
+  imports =
+    [
+      ./common_audio.nix
+    ];
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.layout = "us";
@@ -17,8 +21,15 @@
     xclip
     xorg.xbacklight
     xorg.xinput
-    termit
     firefox
     #zenity
   ];
+
+  nixpkgs.config = {
+    allowUnfree = true;
+  };
+
+  nixpkgs.config.firefox = {
+    enableAdobeFlash = true;
+  };
 }

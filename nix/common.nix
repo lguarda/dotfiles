@@ -8,6 +8,9 @@
     defaultLocale = "en_US.UTF-8";
   };
 
+  boot.kernelParams=["quiet"];
+  boot.consoleLogLevel=0;
+
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
