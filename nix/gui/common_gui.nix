@@ -25,11 +25,12 @@
     #zenity
   ];
 
-  nixpkgs.config = {
-    allowUnfree = true;
-  };
+  # not working on install
+  #nixpkgs.config = {
+    #allowUnfree = true;
+  #};
 
-  nixpkgs.config.firefox = {
-    enableAdobeFlash = true;
-  };
+  #nixpkgs.config.firefox = {
+    #enableAdobeFlash = true;
+  #};
 }

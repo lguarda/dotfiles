@@ -35,6 +35,7 @@ do
             ;;
         -s|--swap_size)
             shift
+            export USE_SWAP=1
             SWAP_SIZE=$1
             ;;
         --)
