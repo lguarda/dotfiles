@@ -8,11 +8,10 @@
     defaultLocale = "en_US.UTF-8";
   };
 
+  # Remove systemd log on boot
   boot.kernelParams=["quiet"];
   boot.consoleLogLevel=0;
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
   environment.systemPackages = with pkgs; [
     autojump
     bc

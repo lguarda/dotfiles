@@ -109,16 +109,14 @@ try
     Plug 'https://github.com/dracula/vim'
     "}}}
     "{{{ Syntax plugin
-    Plug 'https://github.com/tpope/vim-markdown' "{{{
-        let g:markdown_fenced_languages = ['html', 'python', 'bash=sh', 'javascript', 'lua', 'c', 'cpp', 'perl', 'nix']
-    "}}}
+    Plug 'https://github.com/tpope/vim-markdown'
+    let g:markdown_fenced_languages = ['html', 'python', 'bash=sh', 'javascript', 'lua', 'c', 'cpp', 'perl', 'nix']
     Plug 'https://github.com/elzr/vim-json'
     Plug 'https://github.com/PotatoesMaster/i3-vim-syntax'
     Plug 'https://github.com/tbastos/vim-lua'
     Plug 'https://github.com/dag/vim-fish'
-    Plug 'https://github.com/octol/vim-cpp-enhanced-highlight' "{{{
+    Plug 'https://github.com/octol/vim-cpp-enhanced-highlight'
     let g:cpp_class_scope_highlight = 1
-    "}}}
     Plug 'https://github.com/vim-scripts/gnuplot.vim/'
     "}}}
     Plug 'https://github.com/will133/vim-dirdiff'
@@ -132,7 +130,6 @@ try
     Plug 'https://github.com/justinmk/vim-syntax-extra'
     Plug 'https://github.com/kshenoy/vim-signature'
     Plug 'https://github.com/google/vim-searchindex'
-    Plug 'https://github.com/mhinz/vim-signify'
     Plug 'https://github.com/dpelle/vim-LanguageTool'
     Plug 'https://github.com/google/vim-maktaba'
     Plug 'https://github.com/google/vim-syncopate'
@@ -146,27 +143,14 @@ try
     Plug 'https://github.com/vim-scripts/groovy.vim'
     Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/johngrib/vim-game-code-break'
-    Plug 'https://github.com/SirVer/ultisnips' "{{{
-    let g:UltiSnipsExpandTrigger="<c-x><c-n>"
-    "}}}
     Plug 'https://github.com/honza/vim-snippets'
     Plug 'https://github.com/tpope/vim-surround'
     Plug 'https://github.com/LnL7/vim-nix'
     Plug 'https://github.com/w0rp/ale'
-
-    let g:LanguageClient_serverCommands = {
-        \ 'lua': ['luacheck'],
-        \ }
-        "\ 'lua': ['lua-lsp'],
-        "\ 'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
-        "\ 'javascript.jsx': ['tcp://127.0.0.1:2089'],
-        "\ 'python': ['/usr/local/bin/pyls'],
-
-    nnoremap <F6> :call LanguageClient_contextMenu()<CR>
-    " Or map each action separately
-    "nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-    nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
-    "nnorema <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+    Plug 'https://github.com/tpope/vim-sleuth'
+    Plug 'https://github.com/SirVer/ultisnips' "{{{
+    let g:UltiSnipsExpandTrigger="<c-x><c-n>"
+    "}}}
     Plug 'https://github.com/pbogut/fzf-mru.vim' "{{{
     let fzf_mru_max=1000
     "}}}
@@ -280,53 +264,44 @@ try
     let g:airline_theme='oceanicnext'
     let g:airline_mode_map = {'c': 'C', '^S': 'S-B', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
     "}}}
-    "DISABLED Plug 'https://github.com/mhinz/vim-signify' "{{{
-    "}}}
-    Plug 'https://github.com/airblade/vim-gitgutteR' "{{{
-    call add(g:mod, 'gutterMod')
-    let g:gitgutter_sign_removed         ="-"
-    let g:gitgutter_sign_modified_removed="\u22c"
-    let g:gitgutter_realtime             = 0
-    let g:gitgutter_eager                = 0
+    Plug 'https://github.com/mhinz/vim-signify' "{{{
+    call add(g:mod, 'git_mode')
     let g:signify_sign_add               = '+'
     let g:signify_sign_delete            = '-'
     let g:signify_sign_delete_first_line = '¯'
     let g:signify_sign_change            = '~'
-    let g:signify_sign_changedelete      = g:signify_sign_change
-    noremap <C-c> :call ToggleGutterMode()<CR>
-    autocmd BufEnter * if !exists('b:gutterMod') | let b:gutterMod = 0 | endif
-    autocmd BufEnter * if !exists('b:visualMove') | let b:visualMove = 0 | endif
-    try
-        hi GitGutterAdd ctermbg=NONE guifg=green
-        hi GitGutterDelete ctermbg=NONE guifg=red
-        hi GitGutterChange ctermbg=NONE guifg=yellow
-        hi GitGutterChangeDelete ctermbg=NONE guifg=red
-    catch
-    endtry
-    function! ToggleGutterWhiteSpace()
-        if g:gitgutter_diff_args == '-w'
-            let g:gitgutter_diff_args = ''
+    let g:signify_sign_changedelete      = "\u22c"
+    noremap <C-c> :call ToggleGitMode()<CR>
+    autocmd BufEnter * if !exists('b:git_mode') | let b:git_mode = -1 | endif
+    autocmd BufEnter * if !exists('b:visualMove') | let b:visualMove = -1 | endif
+
+    let g:vcs_diff_whitespace = 1
+
+    function! ToggleGitDiffWhiteSpace()
+        let g:vcs_diff_whitespace *= -1
+        if g:vcs_diff_whitespace == 1
+            let g:signify_vcs_cmds['git'] = 'git diff --no-color --no-ext-diff -U0 -- %f'
         else
-            let g:gitgutter_diff_args = '-w'
+            let g:signify_vcs_cmds['git'] = 'git diff -w --no-color --no-ext-diff -U0 -- %f'
         endif
     endfunction
-    function! ToggleGutterMode()
-        if b:gutterMod == 0
-            noremap <buffer> <S-j> :GitGutterNextHunk<CR>zz
-            noremap <buffer> <S-k> :GitGutterPrevHunk<CR>zz
-            noremap <buffer> <S-h> :GitGutterUndoHunk<CR>
-            noremap <buffer> <S-l> :GitGutterPreviewHunk<CR>
+
+    function! ToggleGitMode()
+        let b:git_mode *= -1
+        if b:git_mode == 1
+            noremap <buffer> <S-j> <plug>(signify-next-hunk)
+            noremap <buffer> <S-k> <plug>(signify-prev-hunk)
+            noremap <buffer> <S-h> :SignifyHunkUndo<CR>
+            noremap <buffer> <S-l> :SignifyHunkDiff<CR>
             noremap <buffer> <c-l> :call CheckoutPreviousCommitLine()<CR>:Gblame<CR><c-w><right>
             noremap <buffer> <c-h> :call CheckoutPreviousCommitLineRevert()<CR>:Gblame<CR><c-w><right>
-            nnoremap w :call ToggleGutterWhiteSpace()<CR>:GitGutter<CR>
-            let b:gutterMod = 1
+            nnoremap w :call ToggleGitDiffWhiteSpace()<CR>:SignifyRefresh<CR>
         else
             noremap <buffer> <S-k> <C-w><Up>
             noremap <buffer> <S-j> <C-w><Down>
             noremap <buffer> <S-h> <C-w><left>
             noremap <buffer> <S-l> <C-w><right>
             nnoremap w w
-            let b:gutterMod = 0
         endif
         call CallForMode()
     endfunction
@@ -345,16 +320,28 @@ try
     let g:switch_mapping = '['
     let g:switch_reverse_mapping = ']'
     let g:switch_custom_definitions = [
+                \   ['.', '->'],
                 \   ['--', '++'],
+                \   ['==', '!='],
+                \   ['<=', '>='],
                 \   ['yes', 'no'],
                 \   ['YES', 'NO'],
-                \   ['.', '->'],
+                \   ['Yes', 'No'],
                 \   ['true', 'false'],
                 \   ['TRUE', 'FALSE'],
+                \   ['True', 'False'],
+                \   ['or', 'and'],
                 \   ['break', 'continue'],
-                \   ['<=', '==', '!=', '>='],
                 \   ['package', 'import'],
-                \   ['private', 'public']
+                \   ['private', 'public'],
+                \   {
+                \     '\<[a-z0-9]\+_\k\+\>': {
+                \       '_\(.\)': '\U\1'
+                \     },
+                \     '\<[a-z0-9]\+[A-Z]\k\+\>': {
+                \       '\([A-Z]\)': '_\l\1'
+                \     },
+                \   }
                 \ ]
     "}}}
     Plug 'https://github.com/vim-scripts/OmniCppComplete' "{{{
@@ -739,6 +726,7 @@ highlight ExtraWhitespace ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#0
 highlight ExtraSpaceDwich ctermbg=red gui=bold,undercurl guifg=#997744 "guibg=#000000
 highlight NonBreakSpace gui=bold,undercurl guifg=#ff0000 ctermfg=red
 highlight EmptyChar gui=bold,undercurl guifg=#ff0055 guibg=#777777 ctermfg=red
+highlight currawong ctermbg=darkred guibg=darkred
 augroup WhitespaceMatch
     " Remove ALL autocommands for the WhitespaceMatch group.
     autocmd!
@@ -845,167 +833,6 @@ function! SwitchNargs(fun)
         call a:fun(CountChar(l:str, ','))
     endif
 endfunction
-
-function! SwitchWordCamel(nb)
-    let l:c = 1
-    let l:str = ":s/\\(\\u*\\l\\+\\)"
-    while l:c < a:nb
-        let l:str = join([l:str, "\\(\\u\\l\\+\\)"], "")
-        let l:c += 1
-    endwhile
-    let l:c = 1
-    let l:str = join([l:str, "/\\l\\1"], "")
-    while l:c < a:nb
-        let l:str = join([l:str, "\\u\\", l:c+1], "")
-        let l:c += 1
-    endwhile
-    let l:str = join([l:str, "/g|:nohlsearch" . repeat("\x80kl", 14)], "")
-    let @a = l:str
-endfunction
-"}}}
-"{{{TODO: CLEAN
-highlight currawong ctermbg=darkred guibg=darkred
-
-if has('nvim')
-    let g:mtags = []
-
-    command! SetTags call SetTags()
-    function! SetTags()
-        let l:str = ":set tags="
-        :for i in g:mtags
-        :  let l:str = l:str . i . ','
-        :endfor
-        :execute l:str
-        ":echomsg l:str
-    endfunction
-
-    command! Test3 call Test3()
-    function! Test3()
-        let l:str = ":match currawong /"
-        :for i in g:mtags
-        :  let l:str = l:str . '\%' . string(i) . 'l\|'
-        :endfor
-        if len(g:mtags) > 0
-            :let l:str = strpart(l:str, 0, len(l:str) - 2)
-        endif
-        let l:str = l:str . '/'
-        :execute l:str
-        ":echomsg l:str
-    endfunction
-
-    command! Test2 call Test2()
-    function! Test2()
-        :set modifiable
-        "let b:line = winline()
-        let b:line = strpart(getline('.'), 3, len(getline('.')))
-
-        let b:num = index(g:mtags, b:line)
-        if b:num == -1
-            :call add(g:mtags, b:line)
-            execute "normal! ^R[*]"
-        else
-            :call remove(g:mtags, b:num)
-            execute "normal! ^R[ ]"
-        endif
-        :call writefile(msgpackdump(g:mtags), $HOME . '/fname.mpack', 'b')
-        :call uniq(sort(g:mtags))
-        :set nomodifiable
-        :SetTags
-        ":Test3
-    endfunction
-
-    command! GetTagsList call GetTagsList()
-    function! GetTagsList()
-        let fname = expand($HOME . '/fname.mpack')
-        let mpack = readfile(fname, 'b')
-        let g:mtags = msgpackparse(mpack)
-        let g:tlist = expand($HOME . '/.vim/tags/tlist')
-        :SetTags
-    endfunction
-
-    command! Test call Test()
-    function! Test()
-        let fname = expand($HOME . '/fname.mpack')
-        let mpack = readfile(fname, 'b')
-        let g:mtags = msgpackparse(mpack)
-        let g:tlist = expand($HOME . '/.vim/tags/tlist')
-        :execute 'vne' g:tlist
-        :vertical resize 35
-        :set modifiable
-        :setlocal nobuflisted buftype=nofile bufhidden=wipe noswapfile
-        :set noundofile
-        :nnoremap <buffer> <space> :Test2<CR>
-        :nnoremap <buffer> <CR> :Test2<CR>
-
-        let g:allt = getline(0, '$')
-        :for i in g:mtags
-        if index(g:allt, i) == -1
-            :call remove(g:mtags, index(g:mtags, i))
-        endif
-        :endfor
-
-        execute "normal! gg"
-        let b:c = 0
-        while b:c < line('$')
-            let b:c += 1
-            if index(g:mtags, getline('.')) == -1
-                execute "normal! ^I[ ]"
-            else
-                execute "normal! ^I[*]"
-            endif
-            normal! j
-        endwhile
-        :set nomodifiable
-        ":Test3
-    endfunction
-
-    let g:DAYFUNC = []
-    let g:WEEKFUNC = [":PlugUpdate"]
-    let g:MONTHFUNC = []
-    let g:YEARFUNC = []
-
-    command! TimeCheck call TimeCheck()
-    function! TimeCheck()
-        let l:year = strftime('%y')
-        let l:month = strftime('%m')
-        let l:day = strftime('%d')
-
-        if !exists("g:TODAYYEAR")
-            let g:TODAYYEAR = l:year
-        endif
-        if !exists("g:TODAYMONTH")
-            let g:TODAYMONTH = l:month
-        endif
-        if !exists("g:TODAYDAY")
-            let g:TODAYDAY = l:day
-        endif
-        if g:TODAYYEAR != l:year
-            let g:TODAYYEAR = l:year
-            for i in g:YEARFUNC
-                execute i
-            endfor
-        endif
-        if g:TODAYMONTH != l:month
-            let g:TODAYMONTH = l:month
-            for i in g:MONTHFUNC
-                execute i
-            endfor
-        endif
-        if ((l:day) % 7 == 1) && (g:TODAYDAY != l:day)
-            let g:TODAYDAY = l:day
-            for i in g:WEEKFUNC
-                execute i
-            endfor
-        endif
-        if g:TODAYDAY != l:day
-            let g:TODAYDAY = l:day
-            for i in g:DAYFUNC
-                execute i
-            endfor
-        endif
-        wshada
-    endfunction
-endif
 "}}}
 "{{{TODO: Tidy up and clean
 function! LineEnding() abort
@@ -1218,16 +1045,15 @@ function! s:DiffWithSaved()
 endfunction
 com! DiffSaved call s:DiffWithSaved()
 
-function! s:MoveBlockMapping(...)
-    if !exists('b:visualMove') | let b:visualMove = 0 | endif
-    if b:visualMove == 0 && a:0 == 0
+function! s:MoveBlockMapping()
+    let b:visualMove *= -1
+    if b:visualMove == 1
         vnoremap <buffer> k koko
         vnoremap <buffer> j jojo
         vnoremap <buffer> h hoho
         vnoremap <buffer> l lolo
         vnoremap <buffer> gk gkogko
         vnoremap <buffer> gj gjogjo
-        let b:visualMove = 1
     else
         vnoremap <buffer> k k
         vnoremap <buffer> j j
@@ -1235,13 +1061,12 @@ function! s:MoveBlockMapping(...)
         vnoremap <buffer> l l
         vnoremap <buffer> gk gk
         vnoremap <buffer> gj gj
-        let b:visualMove = 0
     endif
 endfunction
 com! -nargs=? ToggleMoveVisual call s:MoveBlockMapping(<f-args>)
-nnoremap <silent> v :ToggleMoveVisual 1<CR>v
-nnoremap <silent> gv :ToggleMoveVisual 1<CR>gv
-nnoremap <silent> gn :ToggleMoveVisual 1<CR>gn
+nnoremap <silent> v :let b:visualMove = 1<CR>:ToggleMoveVisual<CR>v
+nnoremap <silent> gv :let b:visualMove = 1<CR>:ToggleMoveVisual<CR>gv
+nnoremap <silent> gn :let b:visualMove = 1<CR>:ToggleMoveVisual<CR>gn
 vnoremap <silent> v <ESC>:ToggleMoveVisual<CR>gv
 let g:useFullRegex = { 'Make upper case letter after get and set':'/\(\(g\|s\)et\)\(\w\)/\1\u\3/gc',
             \ 'New line on coma':'/,/,\r/gc',
