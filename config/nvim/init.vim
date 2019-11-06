@@ -133,7 +133,7 @@ try
     Plug 'https://github.com/dpelle/vim-LanguageTool'
     Plug 'https://github.com/google/vim-maktaba'
     Plug 'https://github.com/google/vim-syncopate'
-    Plug 'https://github.com/iamcco/markdown-preview.vim'
+    Plug 'https://github.com/iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
     Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/Shougo/unite.vim'
     Plug 'https://github.com/Shougo/vimfiler.vim'
@@ -146,8 +146,9 @@ try
     Plug 'https://github.com/honza/vim-snippets'
     Plug 'https://github.com/tpope/vim-surround'
     Plug 'https://github.com/LnL7/vim-nix'
+    Plug 'https://github.com/neoclide/coc.nvim', {'branch': 'release'}
+    "Plug 'https://github.com/vim-scripts/LargeFile'
     Plug 'https://github.com/w0rp/ale'
-    Plug 'https://github.com/tpope/vim-sleuth'
     Plug 'https://github.com/SirVer/ultisnips' "{{{
     let g:UltiSnipsExpandTrigger="<c-x><c-n>"
     "}}}
@@ -291,7 +292,7 @@ try
         if b:git_mode == 1
             noremap <buffer> <S-j> <plug>(signify-next-hunk)
             noremap <buffer> <S-k> <plug>(signify-prev-hunk)
-            noremap <buffer> <S-h> :SignifyHunkUndo<CR>
+            noremap <buffer> <S-h> :SignifyHunkUndo<CR>:SignifyRefresh<CR>
             noremap <buffer> <S-l> :SignifyHunkDiff<CR>
             noremap <buffer> <c-l> :call CheckoutPreviousCommitLine()<CR>:Gblame<CR><c-w><right>
             noremap <buffer> <c-h> :call CheckoutPreviousCommitLineRevert()<CR>:Gblame<CR><c-w><right>
@@ -307,6 +308,7 @@ try
     endfunction
     "}}}
     Plug 'https://github.com/scrooloose/nerdtree' "{{{
+    Plug 'https://github.com/ryanoasis/vim-devicons'
     "execute ":NERDTreeToggle " . expand("%:p:h")
     let NERDTreeShowBookmarks=1
     let g:NERDTreeDirArrows=0

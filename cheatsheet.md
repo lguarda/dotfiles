@@ -6,11 +6,21 @@
 ```bash
 # convert pcapng to pcap
 editcap -F pcap pcapng_source.pcap  pcap_dest.pcap
+# crop pcap by time -a start time -b end time
+editcap -A "2019-10-23 10:00:00" -B "2019-10-23 11:00:00"
 ```
 
 ### tshark
 ```bash
 tshark -r input.pcap -Y "!(ip.addr == 211.111.1.1/16 && ip.dst == 212.111.1.1/16) && !(ip.addr == 212.111.1.1/16 && ip.dst ==211.111.1.1/16)" -w output.pcap
+```
+
+### tcpdump
+```bash
+# -w is the output file name date format can be used
+# -W 3 -G 60 pcap roation occur every 60 second 3 time
+# -z this option enable postrotate command in this case the pcap is gziped
+tcpdump -i wlp58s0 -w /tmp/trace-%m-%d-%H-%M-%S-%s -W 3 -G 60 -z gzip
 ```
 
 ### awk
@@ -127,6 +137,44 @@ mkfs.ext4 /dev/fde/root
 mkfs.ext4 /dev/fde/home
 ```
 
+### progress onliner
+```bash
+# change the pid then copypaste this script to get file progress information
+pid=90700; for i in /proc/$pid/fd/*;do
+a=$(sudo stat -L $i | perl -ne '/Size:\s+(\d+)/ && print "$1\n"');
+f=$(sudo stat -L $i | perl -ne '/File:\s+(.*)/ && print "$1\n"')
+b=$(sudo cat /proc/$pid/fdinfo/`basename $i`| perl -ne '/^pos:\s*(\d*)/ && print "$1\n"');
+if [ "$a" -gt "0" ] ; then echo "file $f: $(bc -l <<< $b/$a)"; fi;
+done
+```
+
+### dd (aka:bootable usb key maker)
+https://askubuntu.com/questions/372607/how-to-create-a-bootable-ubuntu-usb-flash-drive-from-terminal
+```bash
+sudo umount /dev/sd<?><?>
+```
+
+where <?><?> is a letter followed by a number, look it up by running lsblk.
+
+It will look something like
+```
+sdb      8:16   1  14.9G  0 disk
+├─sdb1   8:17   1   1.6G  0 part /media/username/usb volume name
+└─sdb2   8:18   1   2.4M  0 part
+```
+
+Then, next (this is a destructive command and wipes the entire USB drive with the contents of the iso, so be careful):
+
+```bash
+sudo dd bs=4M if=path/to/input.iso of=/dev/sd<?> conv=fdatasync  status=progress
+```
+where input.iso is the input file, and /dev/sd<?> is the USB device you're writing to (run lsblk to see all drives to find out what <?> is for your USB).
+Note:for mac use lowercase for bs=4m:
+```bash
+sudo dd if=inputfile.img of=/dev/disk<?> bs=4m && sync
+```
+If USB drive does not boot (this happened to me), it is because the target is a particular partition on the drive instead of the drive. So the target needs to be /dev/sdc and not dev/sdc <?> For me it was /dev/sdb .
+
 ### nixos
 ```bash
 # https://nixos.org/nixos/manual/
@@ -173,16 +221,43 @@ collectgarbage("count") --returns the total memory in use by Lua (in Kbytes)
 
 #### table for each loop
 ``` lua
-    for key,value in pairs({base="lol",[5]=1, [3]="as",[0]=123,[1]="ab", [2]=123}) do
-        print(key, value)
+for key,value in pairs({base="lol",[5]=1, [3]="as",[0]=123,[1]="ab", [2]=123}) do
+    print(key, value)
+end
+-- use when the key or value _ is unused
+for _,value in pairs({base="lol",[5]=1, [3]="as",[0]=123,[1]="ab", [2]=123}) do
+    print(value)
+end
+-- ipaire is used for array part of lua table
+-- it will only use continuous key from 1 to N
+for key,value in ipairs({base="lol",[5]=1, [3]="as",[0]=123,[1]="ab", [2]=123}) do
+    print(key,value)
+end
+```
+
+#### read from stdin
+csv example
+
+``` lua
+function split(s, delimiter)
+    result = {};
+    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+        table.insert(result, match);
     end
-    -- use when the key or value _ is unused
-    for _,value in pairs({base="lol",[5]=1, [3]="as",[0]=123,[1]="ab", [2]=123}) do
-        print(value)
-    end
-    -- ipaire is used for array part of lua table
-    -- it will only use continuous key from 1 to N
-    for key,value in ipairs({base="lol",[5]=1, [3]="as",[0]=123,[1]="ab", [2]=123}) do
-        print(key,value)
-    end
+    return result;
+end
+
+for line in io.lines() do
+    local field1, field2, field3 = unpack(split(line, ";"))
+    print(field1, field2, field3)
+```
+
+#### arg access
+``` lua
+local some_env_var = os.getenv("SOME_ENV_VAR")
+print(some_env_var)
+print(arg[1]) --name of the file
+print(arg[2]) --first argument
+print(arg[3]) --second argument
+-- etc
 ```
