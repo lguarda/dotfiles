@@ -1,6 +1,7 @@
 with import <nixpkgs> {};
 #{ stdenv, fetchurl, pkgconfig, cmake, gtk3, vte, lua, pcre}:
-
+# to install:
+# nix-env -f termit.nix -i
 stdenv.mkDerivation {
   pname = "termit";
 

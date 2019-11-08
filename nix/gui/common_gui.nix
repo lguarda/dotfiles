@@ -12,6 +12,8 @@
   services.xserver.autoRepeatDelay = 200;
   services.xserver.autoRepeatInterval = 35;
 
+  networking.networkmanager.enable = true;
+
   environment.systemPackages = with pkgs; [
     arandr
     feh
