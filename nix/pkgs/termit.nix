@@ -3,7 +3,7 @@ with import <nixpkgs> {};
 # to install:
 # nix-env -f termit.nix -i
 stdenv.mkDerivation {
-  pname = "termit";
+  name = "termit";
 
   src = fetchurl {
     url = "https://github.com/nonstop/termit/releases/download/termit-3.0/termit-3.0.tar.gz";
@@ -29,7 +29,6 @@ stdenv.mkDerivation {
     homepage = "https://github.com/nonstop/termit";
     description = "Simple terminal emulator based on vte library, extensible via Lua.";
     license = licenses.gpl3;
-    maintainers = with maintainers; [ nonstop ];
     platforms = with platforms; linux;
   };
 }

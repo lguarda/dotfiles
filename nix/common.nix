@@ -15,6 +15,7 @@
   environment.systemPackages = with pkgs; [
     autojump
     bc
+    progress
     # command-not-found # don't work
     curl
     dtrx

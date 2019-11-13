@@ -1,5 +1,7 @@
+#!/usr/bin/env bash
+
 ME="${0##*/}"
-params="$(getopt -o p:b:r:s: --long passpharse:,boot_size:,root_size:,swap_size --name "$0" -- "$@")"
+params="$(getopt -o p:b:r:s:h --long passpharse:,boot_size:,root_size:,swap_size,help --name "$0" -- "$@")"
 eval set -- "$params"
 
 _usage() {
@@ -14,6 +16,9 @@ _usage() {
     -r, --root_size     Root logical partition size
     -s, --swap_size     Swap logical partition size
     -h, --help          Display this help and exit
+
+    Exemple:
+    ./part.sh -p :root: -b 500MIB -r 20GIB -s 10GIB
 
 _END_OF_USAGE_
 }
@@ -38,12 +43,16 @@ do
             export USE_SWAP=1
             SWAP_SIZE=$1
             ;;
+        -h|--help)
+            _usage
+            exit 0
+            ;;
         --)
             shift
             break
             ;;
         *)
-            echo "Not implemented: $1" >&2
+            _usage
             exit 1
             ;;
     esac

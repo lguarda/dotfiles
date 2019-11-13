@@ -30,9 +30,20 @@ defaults.setStatusbar = function (tabInd)
     return ''
 end
 
+local function handle_url_simple_open (url)
+    -- simply opens the url
+    -- requires package xdg-utils
+
+    local url = string.gsub(url,"\n.+$", "")
+    os.execute ("xdg-open '"..url.."'")
+    notify (url, "opened")
+end
+
+defaults.matches = {['http[^ \'\"]+'] = handle_url_lgi }
+
 setOptions(defaults)
 
-function toggleSearch()
+local function toggleSearch()
     toggleMenubar()
     findDlg()
 end
@@ -40,14 +51,8 @@ end
 bindKey('CtrlShift-c', copy)
 bindKey('CtrlShift-v', paste)
 bindKey('CtrlShift-r', reconfigure)
---bindKey('Ctrl-F', toggleSearch)
-bindKey('Ctrl-N', findNext)
-bindKey('Ctrl-P', findPrev)
-bindKey('Ctrl-F', findDlg)
+bindKey('CtrlShift-f', toggleSearch)
+bindKey('CtrlShift-n', findNext)
+bindKey('CtrlShift-p', findPrev)
+bindKey('Shift-Insert', function() get_primary() end)
 
---bindKey('Ctrl-Page_Up', prevTab)
---bindKey('Ctrl-Page_Down', nextTab)
---bindKey('Ctrl-F', findDlg)
---bindKey('Ctrl-2', function () print('Hello2!') end)
---bindKey('Ctrl-3', function () print('Hello3!') end)
---bindKey('Ctrl-3', nil) -- remove previous binding
