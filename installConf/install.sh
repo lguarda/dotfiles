@@ -108,9 +108,9 @@ else
     (cd $SRCDIR && find . -type f -exec bash -c "CDIR=$DSTDIR\$(dirname {}) && mkdir -p \$CDIR && ln -sf \$(readlink -f {}) \$CDIR/" \;)
 
     # session manager (ex: lightdm)
-    ln -sf $DOTFILES'/config/xsessionrc '$HOME'/.xsessionrc'
+    ln -sf "$DOTFILES/config/xsessionrc" "$HOME/.xsessionrc"
     # startx
-    ln -sf $DOTFILES'/config/xsessionrc '$HOME'/.xinitrc'
+    ln -sf "$DOTFILES/config/inputrc" "$HOME/.inputrc"
 
     # Nvim
     printf "$B$LBLUE%s$NONE\n" "=======   insatll neovim    ======="

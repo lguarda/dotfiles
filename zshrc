@@ -7,6 +7,7 @@ source $ZSH/oh-my-zsh.sh
 source /etc/zsh_command_not_found
 
 export EDITOR='nvim'
+alias vim="nvim"
 alias v="nvim"
 alias vimdiff="nvim -d"
 alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"

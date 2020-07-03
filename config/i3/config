@@ -43,7 +43,7 @@ bindsym $mod+Return exec i3-sensible-terminal
 bindsym --release $mod+Shift+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec  "command -v rofi && rofi -modi combi -show combi -combi-modi drun,run,window -matching fuzzy -sort -sorting-method fzf || dmenu_run"
+bindsym $mod+d exec  "command -v rofi && rofi -modi combi -show combi -combi-modi drun,run,window -matching fuzzy -sort -sorting-method fzf || i3-dmenu-desktop"
 #bindsym $mod+d exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T fzf_drun -e 'i3-dmenu-desktop --dmenu=$HOME/.fzf/bin/fzf'
 bindsym $mod+z exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_config -e 'wifi_con.sh'
 #termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_con -e '$HOME/.local/bin/wifi_con.sh'
@@ -205,6 +205,11 @@ mode "move" {
         bindsym $left move left 20px
         bindsym $down move down 20px
         bindsym $right move right 20px
+
+        bindsym Shift+$up move up 1px
+        bindsym Shift+$left move left 1px
+        bindsym Shift+$down move down 1px
+        bindsym Shift+$right move right 1px
 
         # back to normal: Enter or Escape
         bindsym Return mode "default"
