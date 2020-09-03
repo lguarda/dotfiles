@@ -277,5 +277,6 @@ bar {
 }
 
 exec_always feh --bg-center $HOME/.config/wallpaper
+exec --no-startup-id compton --config ~/.config/compton.conf -b
 #exec $HOME/.opt/bin/skippy-id --start-daemon
 
