@@ -47,14 +47,8 @@ do
     network=$(nmcli --color yes device wifi | fzf --ansi --reverse --cycle --inline-info --header-lines=1) # attempt to reload -> --print-query --bind "ctrl-r:print-query+abort" --query=$START_WITH)
     echo $network
     [[ -z "$network" ]] && exit
-    if [ "$(echo -e "$network" | wc -l)" = "1" ];then
-        START_WITH="$network"
-        continue
-    else
-        network=$(echo -e "$network" | tail -n +2)
-        network=$(sed -r 's/^\s*\*?\s*//; s/\s*(Ad-Hoc|Infra).*//' <<< "$network")
-        echo "connecting to \"${network}\"..."
-        nmcli -a device wifi connect "$network"
-        exit 0
-    fi
+    network=$(echo -e "$network" | awk '{print $1}')
+    echo "connecting to \"${network}\"..."
+    nmcli -a device wifi connect "$network"
+    exit 0
 done

@@ -89,9 +89,10 @@ sudo umount /mnt/tmpfs
 # advanced sed regex
 
 # -i: replace in file instead of print stdout
-# -0: slurp all file (useful for multi line regex)
+# -0: slurp all file useful for multi line regex you can find -0777 on the web but -0 work
 # -e: allows you to provide the program as an argument rather than in a file.
 # -p: places a printing loop around your command so that it acts on each line of standard input or file given in argument
+# -n: same as -p but only print your match
 
 # advanced sed
 # regex option /m multi line
@@ -99,10 +100,17 @@ sudo umount /mnt/tmpfs
 perl -i -0 -pe 's/match/replace/mg' file_to_sed
 #same as
 sed -i -r "s/match/replace/g" file_to_sed
+
 # advanced grep (with true regex)
 git --no-pager shortlog -esn | perl -ne '/<(.*)>/ && print "$1\n"'
 #same as (without group selection)
 git --no-pager shortlog -esn | grep -Po "<.*>"
+
+# multiline first match
+echo "abc=3\ndef=4"| perl -0 -ne 'm/(\w+)=(\d)/g && print "$2|$1\n";'
+
+# multiline and multi match
+echo "abc=3\ndef=4"| perl -0 -ne 'while(m/(\w+)=(\d)/g){print "$2|$1\n";}'
 ```
 
 ### parted onliner

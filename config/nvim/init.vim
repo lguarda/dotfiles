@@ -823,7 +823,7 @@ function! Switch_argBack(nb)
         let l:str = join([l:str, ", \\", l:c-1], "")
         let l:c -= 1
     endwhile
-    let l:str = join([l:str, "/g|:nohlsearch" . repeat("\x80kl", 14)], "")
+    let l:str = join([l:str, ")/g|:nohlsearch" . repeat("\x80kl", 15)], "")
     let @a = l:str
 endfunction
 
@@ -894,7 +894,8 @@ function! JsonIndent()
 endfunction
 command! JsonIndentSort call JsonIndentSort() "{{{
 function! JsonIndentSort()
-	execute ':%!jq --sort-keys "."'
+    execute ':%!jq --sort-keys "."'
+    execute ':%!jq "walk(if type == \"array\" then sort else . end)"'
 endfunction
 command! JsonIndentMimify call JsonIndentMimify() "{{{
 function! JsonIndentMimify()
