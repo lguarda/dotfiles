@@ -1,6 +1,18 @@
 command=/usr/share/i3blocks/$BLOCK_NAME
 separator_block_width=14
 
+[keymap]
+label=⌨️
+interval=once
+command=setxkbmap -query | grep layout | cut -d:  -f2 | tr -d " "
+signal=24
+
+[backlight]
+label=☀
+command=xbacklight -get | sed 's,\..*,%,'
+interval=once
+signal=22
+
 [mediaplayer]
 label=♪
 interval=3
@@ -9,9 +21,10 @@ color=#d70a53
 
 [volume]
 label=
-interval=2
+interval=once
 signal=10
 color=#6c71c4
+signal=23
 
 [load_average]
 label=

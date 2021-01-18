@@ -6,10 +6,15 @@
     fa = fetch --all
     co = checkout
     su = status -s
+    st = !git --no-pager diff --stat
     amend = commit --amend
+    rod = rebase -i origin/develop
+    rc = rebase --continue
+    rl = remote -v
     pu = "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\"; }; f"
     puf= "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\" --force; }; f"
     yolo="!f(){ git commit -m \"$(curl -s https://whatthecommit.com/index.txt)\"; }; f"
+    rho= "!f(){ git reset --hard \"origin/$(git rev-parse --abbrev-ref HEAD)\"; }; f"
     grog = log --graph --abbrev-commit --decorate --all --format=format:\"%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
 [merge]
     tool = nvim

@@ -2,6 +2,19 @@
 
 ## linux command
 
+### git
+```bash
+#clone specific branch without history
+git clone --depth 1  --branch=$branch git@github.com:$repo $name
+
+# bisect
+# good and bad is missleading, we can't revers the order of bad and good
+git bisect start
+git bisect bad
+git bisec good HEAD~100 # Or the targeted commit
+git bisect run sh -c '{command that return 1/0 in case of sucess/fail}'
+```
+
 ### editcap
 ```bash
 # convert pcapng to pcap
@@ -62,6 +75,9 @@ sort --field-separator=',' --key=2 | awk -F"," '!_[$2]++'
 # Call system command in awk
 
 echo "a,b,c\ne,b,z" | awk -F ',' '{system("colorize.sh " $1",");printf "%s,",$2;system("colorize.sh " $3);printf "\n"}' | sort --field-separator=',' --key=2
+
+# apply regex on field before print
+echo "one;def;veg\neth;bhf;ftr\none;5e3232;as\n123;eeee;eeee" | awk -F';' '$1=="one" && $2 ~ /.e.*/ {print $3}'
 
 # sum number on each line
 echo "num:1\nnum:5\nnum:10" | awk -F ":" '{ total += $2; count++ } END { print total/count }'
@@ -208,6 +224,14 @@ Then edit configuration.nix to setup boot
   ];
 }
 ```
+## program
+### virtualization
+#### Virtualbox
+```bash
+# ipmport ova to virtuabox
+vboxmanage import --vsys 0 --memory 4096 --cpus 2 --vmname "vmname" vm.ova
+# -n for dry run
+```
 
 ## language
 
@@ -269,3 +293,26 @@ print(arg[2]) --first argument
 print(arg[3]) --second argument
 -- etc
 ```
+
+## 3d printer
+### anet a8 plus
+```bash
+# flashing klipper on anet a8 plus
+avrdude -p atmega1284p -c arduino -b  115200 -P /dev/ttyUSB0 -U out/klipper.elf.hex 
+```
+
+### klipper
+prob command:
+start z offset prob calibration (difference betwen teh nozzle and the prob)
+```
+PROBE_CALIBRATE
+```
+manualy move z axis
+```
+TESTZ Z=-1
+```
+```
+ACCEPT or ABORT
+```
+
+

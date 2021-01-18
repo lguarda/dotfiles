@@ -110,7 +110,8 @@ try
     "}}}
     "{{{ Syntax plugin
     Plug 'https://github.com/tpope/vim-markdown'
-    let g:markdown_fenced_languages = ['html', 'python', 'bash=sh', 'javascript', 'lua', 'c', 'cpp', 'perl', 'nix']
+    let g:markdown_folding = 1
+    let g:markdown_fenced_languages = ['html', 'python', 'bash=sh', 'javascript', 'lua', 'c', 'cpp', 'perl', 'nix', 'yaml']
     Plug 'https://github.com/elzr/vim-json'
     Plug 'https://github.com/PotatoesMaster/i3-vim-syntax'
     Plug 'https://github.com/tbastos/vim-lua'
@@ -118,63 +119,54 @@ try
     Plug 'https://github.com/octol/vim-cpp-enhanced-highlight'
     let g:cpp_class_scope_highlight = 1
     Plug 'https://github.com/vim-scripts/gnuplot.vim/'
+    Plug 'https://github.com/sirtaj/vim-openscad'
+    Plug 'https://github.com/LnL7/vim-nix'
+    Plug 'https://github.com/vim-scripts/groovy.vim'
+    Plug 'https://github.com/justinmk/vim-syntax-extra'
     "}}}
-    Plug 'https://github.com/will133/vim-dirdiff'
-    Plug 'https://github.com/tpope/vim-fugitive'
-    Plug 'https://github.com/godlygeek/tabular'
+    "{{{ Text object
     Plug 'https://github.com/kana/vim-textobj-user'
     Plug 'https://github.com/kana/vim-textobj-function'
     Plug 'https://github.com/rhysd/vim-textobj-anyblock'
     Plug 'https://github.com/sgur/vim-textobj-parameter'
+    "}}}
+    Plug 'https://github.com/will133/vim-dirdiff'
+    Plug 'https://github.com/tpope/vim-fugitive'
+    Plug 'https://github.com/godlygeek/tabular'
     Plug 'https://github.com/terryma/vim-multiple-cursors'
-    Plug 'https://github.com/justinmk/vim-syntax-extra'
-    Plug 'https://github.com/kshenoy/vim-signature'
-    Plug 'https://github.com/google/vim-searchindex'
+    "Plug 'https://github.com/kshenoy/vim-signature' " SLOW
+    "Plug 'https://github.com/google/vim-searchindex'  " mess with undo
     Plug 'https://github.com/dpelle/vim-LanguageTool'
     Plug 'https://github.com/google/vim-maktaba'
     Plug 'https://github.com/google/vim-syncopate'
     Plug 'https://github.com/iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
     Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/Shougo/unite.vim'
-    Plug 'https://github.com/Shougo/vimfiler.vim'
-    Plug 'https://github.com/anschnapp/move-less'
     Plug 'https://github.com/vim-scripts/vis'
     Plug 'https://github.com/mhinz/vim-startify'
-    Plug 'https://github.com/vim-scripts/groovy.vim'
     Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/johngrib/vim-game-code-break'
     Plug 'https://github.com/honza/vim-snippets'
     Plug 'https://github.com/tpope/vim-surround'
-    Plug 'https://github.com/LnL7/vim-nix'
-    Plug 'https://github.com/neoclide/coc.nvim', {'branch': 'release'}
+    Plug 'https://github.com/lambdalisue/suda.vim'
+    "Plug 'https://github.com/neoclide/coc.nvim', {'branch': 'release'}
     "Plug 'https://github.com/vim-scripts/LargeFile'
+    Plug 'https://github.com/raghur/vim-ghost', {'do': ':GhostInstall'}
+    Plug 'https://github.com/neoclide/coc-snippets'
+    Plug 'https://github.com/glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+    Plug 'https://github.com/ternjs/tern_for_vim', { 'do': 'npm install -g tern' }
     Plug 'https://github.com/w0rp/ale'
-    Plug 'https://github.com/SirVer/ultisnips' "{{{
+    "Plug 'https://github.com/SirVer/ultisnips' "{{{
     let g:UltiSnipsExpandTrigger="<c-x><c-n>"
     "}}}
     Plug 'https://github.com/pbogut/fzf-mru.vim' "{{{
     let fzf_mru_max=1000
+    nnoremap <space>m :FZFMru<CR>
     "}}}
     Plug 'https://github.com/yuttie/comfortable-motion.vim'"{{{
     let g:comfortable_motion_no_default_key_mappings = 1
     noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(80)<CR>
     noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-80)<CR>
-    "}}}
-    Plug 'https://github.com/kien/ctrlp.vim' "{{{
-    Plug 'https://github.com/tacahiroy/ctrlp-funky'
-    Plug 'https://github.com/voronkovich/ctrlp-nerdtree.vim'
-
-    let g:ctrlp_funky_syntax_highlight = 1
-    let g:ctrlp_funky_matchtype = 'path'
-    let g:ctrlp_extensions = ['tag', 'buffertag', 'quickfix', 'dir',
-                \ 'undo', 'line', 'changes', 'mixed', 'bookmarkdir']
-    let g:ctrlp_mruf_max = 1000
-    let g:ctrlp_prompt_mappings = { 'ToggleMRURelative()': ['<F2>'] }
-    nnoremap <space>m :FZFMru<CR>
-    let g:ctrlp_custom_ignore = {
-                \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-                \ 'file': '\v\.(exe|so|dll)$',
-                \ }
     "}}}
     Plug 'https://github.com/vim-scripts/a.vim' "{{{
     let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../Src,sfr:../include,sfr:../inc,sfr:../Inc'
@@ -218,12 +210,6 @@ try
     "}}}
     Plug 'https://github.com/luochen1990/rainbow' "{{{
     nnoremap <M-r> :RainbowToggle<CR>
-    "}}}
-    Plug 'https://github.com/junegunn/goyo.vim' "{{{
-    let g:goyo_width = 1000
-    let g:goyo_height = 1000
-    let g:goyo_linenr = 1
-    nnoremap <silent> <C-d> :Goyo<CR>
     "}}}
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' } "{{{
     Plug 'junegunn/fzf.vim'
@@ -290,25 +276,26 @@ try
     function! ToggleGitMode()
         let b:git_mode *= -1
         if b:git_mode == 1
-            noremap <buffer> <S-j> <plug>(signify-next-hunk)
-            noremap <buffer> <S-k> <plug>(signify-prev-hunk)
-            noremap <buffer> <S-h> :SignifyHunkUndo<CR>:SignifyRefresh<CR>
-            noremap <buffer> <S-l> :SignifyHunkDiff<CR>
+            echo "LOL2"
+            nmap <buffer> <S-j> <plug>(signify-next-hunk)
+            nmap <buffer> <S-k> <plug>(signify-prev-hunk)
+            nmap <buffer> <S-h> :SignifyHunkUndo<CR>:SignifyRefresh<CR>
+            nmap <buffer> <S-l> :SignifyHunkDiff<CR>
             noremap <buffer> <c-l> :call CheckoutPreviousCommitLine()<CR>:Gblame<CR><c-w><right>
             noremap <buffer> <c-h> :call CheckoutPreviousCommitLineRevert()<CR>:Gblame<CR><c-w><right>
             nnoremap w :call ToggleGitDiffWhiteSpace()<CR>:SignifyRefresh<CR>
         else
-            noremap <buffer> <S-k> <C-w><Up>
-            noremap <buffer> <S-j> <C-w><Down>
-            noremap <buffer> <S-h> <C-w><left>
-            noremap <buffer> <S-l> <C-w><right>
+            nmap <buffer> <S-k> <C-w><Up>
+            nmap <buffer> <S-j> <C-w><Down>
+            nmap <buffer> <S-h> <C-w><left>
+            nmap <buffer> <S-l> <C-w><right>
             nnoremap w w
         endif
         call CallForMode()
     endfunction
     "}}}
     Plug 'https://github.com/scrooloose/nerdtree' "{{{
-    Plug 'https://github.com/ryanoasis/vim-devicons'
+    "Plug 'https://github.com/ryanoasis/vim-devicons' SLOW
     "execute ":NERDTreeToggle " . expand("%:p:h")
     let NERDTreeShowBookmarks=1
     let g:NERDTreeDirArrows=0
@@ -443,6 +430,7 @@ nnoremap <S-j> <PageDown>
 nnoremap gp `[v`]
 nnoremap <c-x><c-s> :w !sudo tee %<CR>
 nnoremap ; :
+nnoremap -<S-o> :vertical sbuffer 2<CR>
 "}}}
 "{{{ Pair characters change
 inoremap {<CR>  {}<Left><cr><cr><up><tab>
@@ -661,7 +649,14 @@ endfunction
 "vmap <C-Down> xjPgvjojo
 "vmap <C-Up> xkPgvkoko
 
-nnoremap <c-k> p^f"l<c-a>yy
+" Scrollwheel
+nnoremap <S-ScrollWheelUp> <ScrollWheelLeft>
+nnoremap <S-ScrollWheelDown> <ScrollWheelRight>
+nnoremap <S-2-ScrollWheelDown> <2-ScrollWheelRight>
+nnoremap <S-3-ScrollWheelDown> <3-ScrollWheelRight>
+nnoremap <S-4-ScrollWheelDown> <4-ScrollWheelRight>
+
+nnoremap <c-k> p^f"l<c-a>yy==
 " instantly select the first autocomplet choice
 inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
             \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'

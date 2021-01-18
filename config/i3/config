@@ -145,18 +145,27 @@ bindsym $mod+x exec "$HOME/.config/i3/mylock.sh"
 
 bindsym $mod+Shift+s exec "shutter -s --exit_after_capture --output=$HOME/screenshot/%y-%m-%d_\$w_\$h.png --no_session"
 bindsym Print exec "shutter -s --exit_after_capture --output=$HOME/screenshot/%y-%m-%d_\$w_\$h.png --no_session"
-bindsym $mod+Tab exec "switchKeyboardLayout.sh"
+bindsym $mod+Tab exec "switchKeyboardLayout.sh && pkill -SIGRTMIN+24 i3blocks"
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 0 -5% #decrease sound volume
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute 1 toggle
+bindsym $mod+z exec --no-startup-id pactl set-source-mute 1 toggle
+#bindsym $mod+q exec --no-startup-id pactl set-source-mute 1 toggle
+
+bindsym --release XF86AudioRaiseVolume exec  pkill -SIGRTMIN+23 i3blocks
+bindsym --release XF86AudioLowerVolume exec  pkill -SIGRTMIN+23 i3blocks
+bindsym --release XF86AudioMute exec pkill -SIGRTMIN+23 i3blocks
 
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp exec /usr/bin/xbacklight -inc 5 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"
 bindsym XF86MonBrightnessDown exec [ $(echo "$(xbacklight -get) >= 5" | bc -l) -eq 1 ] && /usr/bin/xbacklight -dec 5 && notify-send --expire-time=100 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"
 #bindsym XF86MonBrightnessUp exec 'xbacklight -inc 20 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"'
 #bindsym XF86MonBrightnessDown exec 'xbacklight -dec 20 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"'
+bindsym --release XF86MonBrightnessUp   exec pkill -SIGRTMIN+22 i3blocks
+bindsym --release XF86MonBrightnessDown exec pkill -SIGRTMIN+22 i3blocks
 
 # Touchpad controls
 bindsym XF86TouchpadToggle exec /some/path/toggletouchpad.sh # toggle touchpad
@@ -224,9 +233,9 @@ mode "media" {
         bindsym Shift+n exec playerctl previous
         bindsym l exec playerctl next
         bindsym h exec playerctl previous
-        bindsym k exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
-        bindsym j exec --no-startup-id pactl set-sink-volume 0 -5% #decrease sound volume
-        bindsym m exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
+        bindsym k exec --no-startup-id pactl set-sink-volume 0 +5% && pkill -SIGRTMIN+23 i3blocks #increase sound volume
+        bindsym j exec --no-startup-id pactl set-sink-volume 0 -5% && pkill -SIGRTMIN+23 i3blocks #decrease sound volume
+        bindsym m exec --no-startup-id pactl set-sink-mute 0 toggle && pkill -SIGRTMIN+23 i3blocks # mute sound
 
         # back to normal: Enter or Escape
         bindsym Return mode "default"
@@ -236,10 +245,10 @@ mode "media" {
 bindsym $mod+m mode "media"
 
 mode "backlight" {
-        bindsym $up exec kbdbacklight up
-        bindsym $down exec kbdbacklight down
-        bindsym $left exec [ $(echo "$(xbacklight -get) >= 5" | bc -l) -eq 1 ] && /usr/bin/xbacklight -dec 5 && notify-send --expire-time=100 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"
-        bindsym $right exec /usr/bin/xbacklight -inc 5 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))"
+        bindsym $left exec kbdbacklight.sh up
+        bindsym $right exec kbdbacklight.sh down
+        bindsym $down exec [ $(echo "$(xbacklight -get) >= 5" | bc -l) -eq 1 ] && /usr/bin/xbacklight -dec 5 && notify-send --expire-time=100 "LCD Backlight $(printf %.0f%% $(xbacklight -get))" && pkill -SIGRTMIN+22 i3blocks
+        bindsym $up exec /usr/bin/xbacklight -inc 5 && notify-send --expire-time=150 "LCD Backlight $(printf %.0f%% $(xbacklight -get))" && pkill -SIGRTMIN+22 i3blocks
 
         # back to normal: Enter or Escape
         bindsym Return mode "default"
