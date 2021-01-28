@@ -4,24 +4,11 @@
   imports = [ # Include the results of the hardware scan.
     ./common.nix
     ./gui/common_gui.nix
-    ./gui/common_laptop.nix
     ./gui/i3wm.nix
-  ];
-
-  # Use the GRUB 2 boot loader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
-
-  # Define on which hard drive you want to install Grub.
-  boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
-
-  # Open fde at the end of boot
-  boot.initrd.luks.devices = [
-    { name = "crypted"; device = "/dev/sda2"; preLVM = true; }
+    ./system/boot/grub_default.nix
   ];
 
   services.openssh.permitRootLogin = "yes"; # disable after full install
-  system.stateVersion = "19.09"; # Did you read the comment?
 
   programs.fish.enable = true;
   users.extraUsers.leo = {

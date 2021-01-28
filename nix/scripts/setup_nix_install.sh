@@ -2,12 +2,13 @@
 
 SCRIPT_DIR=$( cd ${0%/*} && pwd -P )
 
-mount /dev/fde/root /mnt
-mkdir -p /mnt/boot/ /mnt/home
-mount /dev/fde/home /mnt/home
-mount /dev/sda1 /mnt/boot
+
+mount ${ROOT_D} /mnt
+mkdir /mnt/boot/ /mnt/home
+mount ${HOME_D} /mnt/home
+mount ${BOOT_D} /mnt/boot
 if [ ! -z $USE_SWAP ];then
-    swapon /dev/fde/swap
+    swapon ${SWAP_D}
 fi
 
 # generate /etc/nixos/{configuration.nix,hardware-configuration.nix}
