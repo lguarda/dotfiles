@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w
+
+use POSIX;
+
+opendir(DIR, "/proc");
+@files = grep(/[0-9]+/,readdir(DIR));
+closedir(DIR);
+
+my $regex = qr/pos:\s*(\d+)/mp;
+
+
+sub find_pos {
+    open (my $fh, "<", $_[0]);
+
+    while(my $line = <$fh>)
+    {
+        for ($line =~ /$regex/g) {
+            return $1
+        }
+    }
+}
+
+
+foreach $file (@files) {
+    my $dir = "/proc/" . $file;
+    my $fd_dir = $dir . "/fd/";
+    my $fdinfo_dir = $dir . "/fdinfo/";
+    my $cmdline_file = $dir . "/cmdline";
+
+    if (opendir(DIR, $fd_dir)) {
+        @fds = readdir(DIR);
+        closedir(DIR);
+        foreach $fd (@fds) {
+            next if $fd eq '.' or $fd eq '..';
+            my $target = readlink $fd_dir . $fd;
+            if ($target) {
+                my @stat = stat $target;
+                if (@stat) {
+                    my $pos = &find_pos($fdinfo_dir . $fd);
+                    if ($stat[7] != 0) {
+                        open(FILE, $cmdline_file);
+                        my $cmd_line = <FILE>;
+                        $cmd_line =~ s/\x00/ /;
+                        if ($cmd_line =~ /$ARGV[0]/g) {
+                            my $percent = ($pos / $stat[7]);
+                            printf("$cmd_line\n$target : \033[1;33m%.3f%%\x1b[0m\n", $percent * 100);
+                            my $cols = `tput cols`;
+                            my $ratio = $cols * $percent;
+                            printf("%s%s", "#"x($ratio), "="x($cols-$ratio));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

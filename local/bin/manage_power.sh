@@ -4,6 +4,7 @@ result=$(zenity --info --title="power management" \
 --text "What do you wana do" \
 --ok-label="Nothing" \
 --extra-button "poweroff" \
+--extra-button "reboot" \
 --extra-button "suspend")
 
 if [ "$?" != 1 ]
@@ -11,10 +12,18 @@ then
     exit
 fi
 
-if [ "$result" = "poweroff" ]
-then
-    /usr/sbin/shutdown --poweroff
-elif [ "$result" = "suspend" ]
-then
-    systemctl suspend
-fi
+case "$result" in
+    poweroff)
+        /usr/sbin/shutdown --poweroff now
+        ;;
+
+    reboot)
+        systemctl reboot
+        ;;
+
+    suspend)
+        systemctl suspend
+        ;;
+    *)
+        exit 1
+esac

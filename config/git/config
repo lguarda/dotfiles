@@ -23,3 +23,6 @@
     cmd = nvim -f -c \"Gdiff\" \"$MERGED\"
 [diff "json"]
     textconv = jq "." --sort-keys
+[user]
+	email = leoman037@live.fr
+	name = lguard

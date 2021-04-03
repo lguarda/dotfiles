@@ -148,6 +148,7 @@ try
     Plug 'https://github.com/johngrib/vim-game-code-break'
     Plug 'https://github.com/honza/vim-snippets'
     Plug 'https://github.com/tpope/vim-surround'
+    Plug 'https://github.com/torrancew/vim-openscad'
     Plug 'https://github.com/lambdalisue/suda.vim'
     "Plug 'https://github.com/neoclide/coc.nvim', {'branch': 'release'}
     "Plug 'https://github.com/vim-scripts/LargeFile'
