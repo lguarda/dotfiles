@@ -294,7 +294,7 @@ awful.screen.connect_for_each_screen(function(s)
             layout             = awful.layout.suit.tile,
             master_fill_policy = "master_width_factor",
             gap_single_client  = true,
-            gap                = 20,
+            gap                = 3,
             screen             = s,
             selected           = true,
             -- custom
@@ -857,5 +857,6 @@ client.connect_signal("mouse::enter", function(c)
 end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
+client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
