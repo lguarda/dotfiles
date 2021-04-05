@@ -232,6 +232,14 @@ Then edit configuration.nix to setup boot
 vboxmanage import --vsys 0 --memory 4096 --cpus 2 --vmname "vmname" vm.ova
 # -n for dry run
 ```
+### game
+#### xboxdrv
+xbox drv can emulate xbox input from another /dev/input/event
+example below to with taranisqx7 mapping
+```bash
+sudo xboxdrv --evdev "/dev/input/event20" --evdev-keymap "BTN_A=a,BTN_B=b,BTN_C=x" --evdev-absmap "ABS_X=x1,ABS_Y=y1,ABS_RX=x2,ABS_RY=y2" --mimic-xpad --axismap "" --silent --detach-kernel-driver
+# i don't understand why but it's not working for the first 2~3 minute
+```
 
 ## language
 
