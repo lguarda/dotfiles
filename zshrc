@@ -15,6 +15,7 @@ alias vz="nvim $HOME/.zshrc"
 alias re="readlink -e"
 alias bc="bc -q"
 alias reset="stty sane"
+alias woof="echo "http://$(ip route get 1.1.1.1 | grep -oP 'src \K\S+'):8080" | qrencode -t ansiutf8 & woof"
 
 function vim() {
     echo $@ | sed -r "s/:([0-9]+)/ +\1/g" | xargs sh -c 'nvim "$@" < /dev/tty' nvim

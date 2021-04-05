@@ -207,27 +207,30 @@ local function debug_popup(text)
     awful.popup(popup)
 end
 
---local function concat_keys(from_table, into_table) 
+-- Helper functions for sane(er) keyboard resizing in layout.suit.tile.* modes
+local function resize_horizontal(factor)
+    local layout = awful.layout.get(awful.screen.focused())
+    if layout == awful.layout.suit.tile then
+        awful.client.incwfact(-factor)
+    end
+end
 
-    --if not into_table then 
-        --into_table = {}
-    --end
-
-    --local lenFrom = #fromTable
-    --for i = 1, lenFrom do 
-        --table.insert(intoTable, fromTable[i])
-    --end 
---end
+local function resize_vertical(factor)
+    local layout = awful.layout.get(awful.screen.focused())
+    if layout == awful.layout.suit.tile then
+        awful.tag.incmwfact(factor)
+    end
+end
 
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
-local key_mode_widget wibox.widget({
+local key_bind_text_widget = wibox.widget.textbox("")
+
+local key_bind_mode_widget = wibox.widget({
     {
-        id = "texte",
-        text = "mon texte",
-        widget = wibox.widget.textbox,
+        widget = key_bind_text_widget,
     },
     --bg = beautiful.bg_normal,
     bg = '#ff944d',
@@ -236,28 +239,10 @@ local key_mode_widget wibox.widget({
     widget = wibox.container.background
 })
 
-local pbar = wibox.widget {
-    {
-        max_value     = 1,
-        value         = 0.5,
-        forced_height = 20,
-        forced_width  = 100,
-        paddings      = 1,
-        border_width  = 1,
-        border_color  = beautiful.border_color,
-        widget        = wibox.widget.progressbar,
-    },
-    {
-        text   = '50%',
-        widget = wibox.widget.textbox,
-    },
-    layout = wibox.layout.stack
-}
-
-pbar.color = "#000000"
-pbar.background_color = "#000000"
-
-debug_popup("ads")
+local function signal_key_bind_mode(text, visible)
+    key_bind_text_widget:set_text(text)
+    key_bind_mode_widget.visible = visible
+end
 
 local tag_list = {
     {name="0", key="#49"},
@@ -273,21 +258,70 @@ local tag_list = {
     {name="10", key="#" .. 10 + 9 },
 }
 
+local function tag_select_layout(t)
+    local list = t:clients()
+    if #list == 1 then
+        t.layout = awful.layout.suit.max
+    elseif #list > 1 then
+        local no_floating = 0
+        for _,c in pairs(list) do
+            if c.floating == false then
+                no_floating = no_floating + 1
+                if no_floating > 1 then
+                    t.layout = t.layout_save
+                    return
+                end
+            end
+        end
+        t.layout = awful.layout.suit.max
+    end
+end
+
+local function focus_first_client_in_tag(t)
+    local client_list = t:clients()
+    if #client_list > 0 then
+        client.focus = client_list[1]
+    end
+end
+
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
     for _, tag in ipairs(tag_list) do
-        awful.tag.add(tag.name, {
-            --icon               = "/path/to/icon1.png",
+        local t = awful.tag.add(tag.name, {
             layout             = awful.layout.suit.tile,
             master_fill_policy = "master_width_factor",
             gap_single_client  = true,
-            gap                = 4,
+            gap                = 20,
             screen             = s,
             selected           = true,
+            -- custom
+            layout_save            = awful.layout.suit.tile,
+            focused            = nil
         })
+        t:connect_signal("tagged", function(c)
+            local client_list = t:clients()
+            if #client_list > 0 then
+                client.focus = client_list[#client_list]
+            end
+            tag_select_layout(t)
+        end)
+        t:connect_signal("untagged", function()
+            -- when a client is kill or move to another tag focus the first cient
+            -- found in the current tag
+            focus_first_client_in_tag(t)
+            tag_select_layout(t)
+        end)
+        t:connect_signal("tag_unfocused", function()
+            -- save last focused client in tag
+            t.focused = client.focus
+            -- when a client is kill or move to another tag focus the first cient
+            -- found in the current tag
+            focus_first_client_in_tag(t)
+            tag_select_layout(t)
+        end)
     end
 
     -- Create a promptbox for each screen
@@ -323,8 +357,7 @@ awful.screen.connect_for_each_screen(function(s)
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
             mylauncher,
-            key_mode_widget,
-            pbar,
+            key_bind_mode_widget,
             s.mytaglist,
             s.mypromptbox,
         },
@@ -464,9 +497,13 @@ globalkeys = gears.table.join(
               {description = "view next", group = "tag"}),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
-    awful.key({ modkey,           }, "w", function () awful.layout.set(awful.layout.suit.max) end,
+    awful.key({ modkey,           }, "w", function ()
+        awful.tag.selected(1).layout_save = awful.layout.suit.max
+        awful.layout.set(awful.layout.suit.max)
+    end,
               {description = "show main menu", group = "awesome"}),
     awful.key({ modkey,           }, "e", function ()
+        awful.tag.selected(1).layout_save = awful.layout.suit.tile
         if awful.layout.getname() == "tile" then
             awful.client.cycle(true)
         else
@@ -514,12 +551,13 @@ globalkeys = gears.table.join(
               {description = "show the menubar", group = "launcher"}),
     -- Keybind mode
     awful.key({ modkey }, "r", function ()
-        --key_mode_widget[1].text = 'resize'
-        --key_mode_widget.visible = true
+        signal_key_bind_mode("resize", true)
         root.keys(mode_keys_resize)
     end,
               {description = "Change keybind mode to resize", group = "Keybind mode"}),
-    awful.key({ modkey }, "m", function () root.keys(mode_keys_move) end,
+    awful.key({ modkey }, "m", function ()
+        signal_key_bind_mode("move", true)
+        root.keys(mode_keys_move) end,
               {description = "Change keybind mode to move", group = "Keybind mode"})
 )
 
@@ -530,7 +568,7 @@ clientkeys = gears.table.join(
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
-    awful.key({ modkey, "Shift"   }, "q",      function (c) c:kill() focus_client_under_mouse() end,
+    awful.key({ modkey, "Shift"   }, "q",      function (c) c:kill() end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
               {description = "toggle floating", group = "client"}),
@@ -574,69 +612,81 @@ for i, tag_setting in ipairs(tag_list) do
     globalkeys = gears.table.join(globalkeys,
         -- View tag only.
         awful.key({ modkey }, tag_setting.key,
-                  function ()
-                        local screen = awful.screen.focused()
-                        local tag = screen.tags[i]
-                        if tag then
-                           tag:view_only()
-                        end
-                        focus_client_under_mouse()
-                  end,
-                  {description = "view tag ".. tag_setting.name, group = "tag"}),
+            function ()
+                awful.tag.selected(1):emit_signal("tag_unfocused", awful.tag.selected(1))
+                local screen = awful.screen.focused()
+                local tag = screen.tags[i]
+                if tag then
+                    tag:view_only()
+                    if tag.focused then
+                        -- Restore previsous focused client for the new tag
+                        client.focus = tag.focused
+                    else
+                        focus_first_client_in_tag(tag)
+                    end
+                end
+            end,
+            {description = "view tag ".. tag_setting.name, group = "tag"}),
         -- Toggle tag display.
         awful.key({ modkey, "Control" }, tag_setting.key,
-                  function ()
-                      local screen = awful.screen.focused()
-                      local tag = screen.tags[i]
-                      if tag then
-                         awful.tag.viewtoggle(tag)
-                      end
-                      focus_client_under_mouse()
-                  end,
-                  {description = "toggle tag " .. tag_setting.name, group = "tag"}),
+            function ()
+                local screen = awful.screen.focused()
+                local tag = screen.tags[i]
+                if tag then
+                    awful.tag.viewtoggle(tag)
+                    focus_first_client_in_tag(tag)
+                end
+            end,
+            {description = "toggle tag " .. tag_setting.name, group = "tag"}),
         -- Move client to tag.
         awful.key({ modkey, "Shift" }, tag_setting.key,
-                  function ()
-                      if client.focus then
-                          local tag = client.focus.screen.tags[i]
-                          if tag then
-                              client.focus:move_to_tag(tag)
-                          end
-                     end
-                  end,
-                  {description = "move focused client to tag ".. tag_setting.name, group = "tag"}),
-        -- Toggle tag on focused client.
-        awful.key({ modkey, "Control", "Shift" }, tag_setting.key,
-                  function ()
-                      if client.focus then
-                          local tag = client.focus.screen.tags[i]
-                          if tag then
-                              client.focus:toggle_tag(tag)
-                          end
-                      end
-                  end,
-                  {description = "toggle focused client on tag " .. tag_setting.name, group = "tag"})
+            function ()
+                if client.focus then
+                    local tag = client.focus.screen.tags[i]
+                    if tag then
+                        client.focus:move_to_tag(tag)
+                        focus_first_client_in_tag(tag)
+                    end
+                end
+            end,
+            {description = "move focused client to tag ".. tag_setting.name, group = "tag"})
     )
 end
 
 mode_keys_resize = gears.table.join(
     awful.key({ modkey,           }, key_alias["up"],
-    function () client.focus:relative_move(0,0,0,-10) end,
+    function () if client.focus.floating then client.focus:relative_move(0,0,0,-10) else resize_horizontal(-0.05) end  end,
               {description="show help", group="awesome"}),
 
     awful.key({ modkey,           }, key_alias["down"],
-    function () client.focus:relative_move(0,0,0,10) end,
+    function () if client.focus.floating then client.focus:relative_move(0,0,0,10) else resize_horizontal(0.05) end  end,
               {description="show help", group="awesome"}),
 
     awful.key({ modkey,           }, key_alias["left"],
-    function () client.focus:relative_move(0,0,-10,0) end,
+    function () if client.focus.floating then client.focus:relative_move(0,0,-10,0) else resize_vertical(-0.05) end  end,
               {description="show help", group="awesome"}),
 
     awful.key({ modkey,           }, key_alias["right"],
-    function () client.focus:relative_move(0,0,10,0) end,
+    function () if client.focus.floating then client.focus:relative_move(0,0,10,0) else resize_vertical(0.05) end  end,
+              {description="show help", group="awesome"}),
+
+    awful.key({ modkey,   "Shift" }, key_alias["up"],
+    function () if client.focus.floating then client.focus:relative_move(0,0,0,-1) else resize_horizontal(-0.01) end  end,
+              {description="show help", group="awesome"}),
+
+    awful.key({ modkey,   "Shift" }, key_alias["down"],
+    function () if client.focus.floating then client.focus:relative_move(0,0,0,1) else resize_horizontal(0.01) end  end,
+              {description="show help", group="awesome"}),
+
+    awful.key({ modkey,   "Shift" }, key_alias["left"],
+    function () if client.focus.floating then client.focus:relative_move(0,0,-1,0) else resize_vertical(-0.01) end  end,
+              {description="show help", group="awesome"}),
+
+    awful.key({ modkey,   "Shift" }, key_alias["right"],
+    function () if client.focus.floating then client.focus:relative_move(0,0,1,0) else resize_vertical(0.01) end  end,
               {description="show help", group="awesome"}),
     -- # back to normal
-    awful.key({}, "Escape", function() root.keys(globalkeys) end,
+    awful.key({}, "Escape", function() signal_key_bind_mode("", false) root.keys(globalkeys) end,
               {description="show help", group="awesome"})
         )
 
@@ -657,7 +707,9 @@ mode_keys_move = gears.table.join(
     function () client.focus:relative_move(10,0,0,0) end,
               {description="show help", group="awesome"}),
     -- # back to normal
-    awful.key({}, "Escape", function() root.keys(globalkeys) end,
+    awful.key({}, "Escape", function()
+        signal_key_bind_mode("", false)
+        root.keys(globalkeys) end,
               {description="show help", group="awesome"})
         )
 

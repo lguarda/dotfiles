@@ -25,7 +25,7 @@ set $right l
 # is used in the bar {} block below.
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango:DejaVu Sans Mono 8
+font pango:Space Mono 8
 # Before i3 v4.8, we used to recommend this one as the default:
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
 # The font above is very space-efficient, that is, it looks good, sharp and
@@ -42,6 +42,8 @@ bindsym $mod+Return exec i3-sensible-terminal
 # kill focused window
 bindsym --release $mod+Shift+q kill
 
+bindsym $mod+t exec $HOME/.local/bin/getwindows.sh
+bindsym $mod+a exec $HOME/.local/bin/switch_audio.sh
 # start dmenu (a program launcher)
 bindsym $mod+d exec  "command -v rofi && rofi -modi combi -show combi -combi-modi drun,run,window -matching fuzzy -sort -sorting-method fzf || i3-dmenu-desktop"
 #bindsym $mod+d exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T fzf_drun -e 'i3-dmenu-desktop --dmenu=$HOME/.fzf/bin/fzf'
@@ -102,7 +104,7 @@ bindsym $mod+Shift+space "mark --add _; [con_mark=f] floating disable, border no
 bindsym $mod+space focus mode_toggle
 
 # focus the parent container
-bindsym $mod+a focus parent
+#bindsym $mod+a focus parent
 
 # focus the child container
 bindsym $mod+Shift+a focus child
@@ -139,13 +141,15 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+#bindsym $mod+Shift+p exec "i3-nagbar -t warning -m 'You pressed the poweroff shortcut. Do you really want to poweroff?' -b 'Yes, exit i3' '/usr/sbin/shutdown --poweroff'
+bindsym $mod+Shift+p exec "$HOME/.local/bin/manage_power.sh"
 
 bindsym $mod+Shift+x exec "$HOME/.config/i3/showLock.sh"
 bindsym $mod+x exec "$HOME/.config/i3/mylock.sh"
 
-bindsym $mod+Shift+s exec "shutter -s --exit_after_capture --output=$HOME/screenshot/%y-%m-%d_\$w_\$h.png --no_session"
-bindsym Print exec "shutter -s --exit_after_capture --output=$HOME/screenshot/%y-%m-%d_\$w_\$h.png --no_session"
-bindsym $mod+Tab exec "switchKeyboardLayout.sh && pkill -SIGRTMIN+24 i3blocks"
+bindsym $mod+Shift+s exec "flameshot gui --path=/home/leo/screenshot"
+bindsym Print exec "flameshot gui --path=/home/leo/screenshot"
+>>>>>>> Stashed changes
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
