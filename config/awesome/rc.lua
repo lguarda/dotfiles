@@ -439,6 +439,8 @@ local function unset_chasing_property(c)
     c.floating = false
     c.ontop = false
     c.sticky = false
+    c.skip_taskbar = false
+    c.focusable = true
     c.opacity=1
 end
 
@@ -449,6 +451,8 @@ local function set_chasing_property(c)
         c.floating = true
         c.ontop = true
         c.sticky = true
+        c.skip_taskbar = true
+        c.focusable = false
         c.opacity=0.8
         local geometry = c:geometry()
         geometry["x"] = c.screen.geometry["width"]-client_chasing_width
@@ -460,7 +464,7 @@ end
 
 local uniq_sticky_chasing_window = nil
 
-local function test_gain_focus()
+local function chasing_window_flee_mouse()
     local c = uniq_sticky_chasing_window
     local geometry = c:geometry()
     if geometry["x"] == 0 then
@@ -472,16 +476,16 @@ local function test_gain_focus()
     focus_client_under_mouse()
 end
 
-local function create_sticky_chasing_window(pause)
+local function create_sticky_chasing_window()
     if uniq_sticky_chasing_window ~= nil then
         unset_chasing_property(uniq_sticky_chasing_window)
-        uniq_sticky_chasing_window:disconnect_signal("mouse::enter", test_gain_focus)
+        uniq_sticky_chasing_window:disconnect_signal("mouse::enter", chasing_window_flee_mouse)
         uniq_sticky_chasing_window = nil
         focus_client_under_mouse()
     else
         local c = client.focus
         set_chasing_property(c)
-        c:connect_signal("mouse::enter", test_gain_focus)
+        c:connect_signal("mouse::enter", chasing_window_flee_mouse)
         focus_client_under_mouse(c)
         uniq_sticky_chasing_window = c
     end
@@ -491,17 +495,13 @@ end
 globalkeys = gears.table.join(
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
-    awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
-              {description = "view previous", group = "tag"}),
-    awful.key({ modkey,           }, "Right",  awful.tag.viewnext,
-              {description = "view next", group = "tag"}),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
     awful.key({ modkey,           }, "w", function ()
         awful.tag.selected(1).layout_save = awful.layout.suit.max
         awful.layout.set(awful.layout.suit.max)
     end,
-              {description = "show main menu", group = "awesome"}),
+              {description = "Set layout to max", group = "layout"}),
     awful.key({ modkey,           }, "e", function ()
         awful.tag.selected(1).layout_save = awful.layout.suit.tile
         if awful.layout.getname() == "tile" then
@@ -510,7 +510,7 @@ globalkeys = gears.table.join(
             awful.layout.set(awful.layout.suit.tile)
         end
     end,
-              {description = "show main menu", group = "awesome"}),
+              {description = "Set layout to tiled", group = "layout"}),
     -- Standard program
     awful.key({ modkey,           }, "Return", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
@@ -525,7 +525,7 @@ globalkeys = gears.table.join(
     awful.key({ modkey,           }, "x", function () awful.spawn("slock") end,
               {description = "Lock session", group = "awesome"}),
     awful.key({ modkey, "Shift" }, "p", function () awful.spawn("manage_power.sh") end,
-              {description = "Lock session", group = "awesome"}),
+              {description = "Display power managment utility", group = "awesome"}),
 
     awful.key({ modkey,           }, "g", function ()
         create_sticky_chasing_window()
@@ -548,7 +548,7 @@ globalkeys = gears.table.join(
 
     -- dmenu
     awful.key({ modkey }, "d", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"}),
+              {description = "Pop up the launcher", group = "launcher"}),
     -- Keybind mode
     awful.key({ modkey }, "r", function ()
         signal_key_bind_mode("resize", true)
@@ -577,32 +577,7 @@ clientkeys = gears.table.join(
     awful.key({ modkey,           }, "o",      function (c) c:move_to_screen()               end,
               {description = "move to screen", group = "client"}),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end,
-              {description = "toggle keep on top", group = "client"}),
-    awful.key({ modkey,           }, "n",
-        function (c)
-            -- The client currently has the input focus, so it cannot be
-            -- minimized, since minimized clients can't have the focus.
-            c.minimized = true
-        end ,
-        {description = "minimize", group = "client"}),
-    awful.key({ modkey,           }, "m",
-        function (c)
-            c.maximized = not c.maximized
-            c:raise()
-        end ,
-        {description = "(un)maximize", group = "client"}),
-    awful.key({ modkey, "Control" }, "m",
-        function (c)
-            c.maximized_vertical = not c.maximized_vertical
-            c:raise()
-        end ,
-        {description = "(un)maximize vertically", group = "client"}),
-    awful.key({ modkey, "Shift"   }, "m",
-        function (c)
-            c.maximized_horizontal = not c.maximized_horizontal
-            c:raise()
-        end ,
-        {description = "(un)maximize horizontally", group = "client"})
+              {description = "toggle keep on top", group = "client"})
 )
 
 -- Bind all key numbers to tags.
@@ -656,11 +631,11 @@ end
 mode_keys_resize = gears.table.join(
     awful.key({ modkey,           }, key_alias["up"],
     function () if client.focus.floating then client.focus:relative_move(0,0,0,-10) else resize_horizontal(-0.05) end  end,
-              {description="show help", group="awesome"}),
+              {description="Increase client size", group="awesome"}),
 
     awful.key({ modkey,           }, key_alias["down"],
     function () if client.focus.floating then client.focus:relative_move(0,0,0,10) else resize_horizontal(0.05) end  end,
-              {description="show help", group="awesome"}),
+              {description="show help", group="resize_mode"}),
 
     awful.key({ modkey,           }, key_alias["left"],
     function () if client.focus.floating then client.focus:relative_move(0,0,-10,0) else resize_vertical(-0.05) end  end,
