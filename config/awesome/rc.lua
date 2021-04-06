@@ -789,6 +789,8 @@ awful.rules.rules = {
     },
     { rule = { class = "Firefox" },
             properties = { opacity = 1, maximized = false, floating = false } },
+    { rule = { class = "Dragon" },
+            properties = { sticky = true, ontop = true, floating = true, placement = awful.placement.centered } },
 
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
