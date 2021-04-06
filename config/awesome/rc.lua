@@ -475,13 +475,13 @@ end
 local function create_sticky_chasing_window(pause)
     if uniq_sticky_chasing_window ~= nil then
         unset_chasing_property(uniq_sticky_chasing_window)
-        uniq_sticky_chasing_window:disconnect_signal("focus", test_gain_focus)
+        uniq_sticky_chasing_window:disconnect_signal("mouse::enter", test_gain_focus)
         uniq_sticky_chasing_window = nil
         focus_client_under_mouse()
     else
         local c = client.focus
         set_chasing_property(c)
-        c:connect_signal("focus", test_gain_focus)
+        c:connect_signal("mouse::enter", test_gain_focus)
         focus_client_under_mouse(c)
         uniq_sticky_chasing_window = c
     end
