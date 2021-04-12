@@ -16,6 +16,7 @@
     yolo="!f(){ git commit -m \"$(curl -s https://whatthecommit.com/index.txt)\"; }; f"
     rho= "!f(){ git reset --hard \"origin/$(git rev-parse --abbrev-ref HEAD)\"; }; f"
     grog = log --graph --abbrev-commit --decorate --all --format=format:\"%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
+    fixup = commit --fixup
 [merge]
     tool = nvim
     renameLimit = 999999
@@ -26,3 +27,5 @@
 [user]
 	email = leoman037@live.fr
 	name = lguard
+[rebase]
+	autosquash = true
