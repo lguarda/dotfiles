@@ -13,6 +13,13 @@ git bisect start
 git bisect bad
 git bisec good HEAD~100 # Or the targeted commit
 git bisect run sh -c '{command that return 1/0 in case of sucess/fail}'
+
+# apply patch with commit aka: checrry pick across local repository
+# inside repo1
+git format-patch --stdout HEAD~3 > repo2/patch
+
+# in repo2
+git am patch
 ```
 
 ### editcap
