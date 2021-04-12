@@ -279,7 +279,9 @@ local function focus_first_client_in_tag(t)
     local client_list = t:clients()
     if #client_list > 0 then
         client.focus = client_list[1]
+        t.focused = client_list[1]
     end
+    t.focused = nil
 end
 
 awful.screen.connect_for_each_screen(function(s)
@@ -606,7 +608,6 @@ for i, tag_setting in ipairs(tag_list) do
                 local tag = screen.tags[i]
                 if tag then
                     awful.tag.viewtoggle(tag)
-                    focus_first_client_in_tag(tag)
                 end
             end,
             {description = "toggle tag " .. tag_setting.name, group = "tag"}),
@@ -617,7 +618,7 @@ for i, tag_setting in ipairs(tag_list) do
                     local tag = client.focus.screen.tags[i]
                     if tag then
                         client.focus:move_to_tag(tag)
-                        focus_first_client_in_tag(tag)
+                        focus_first_client_in_tag(awful.tag.selected(1))
                     end
                 end
             end,
