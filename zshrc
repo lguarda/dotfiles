@@ -1,23 +1,25 @@
 export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8"
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="refined"
+ZSH_THEME="amuse"
 
 plugins=(zsh-autosuggestions git autojump fzf vagrant sudo timer)
 source $ZSH/oh-my-zsh.sh
 source /etc/zsh_command_not_found
 
 export EDITOR='nvim'
-alias vim="nvim"
-alias v="nvim"
+unalias g
+alias re="readlink -e"
+alias vim="vim_func"
+alias v="vim_func"
 alias vimdiff="nvim -d"
 alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
 alias vz="nvim $HOME/.zshrc"
-alias re="readlink -e"
 alias bc="bc -q"
 alias reset="stty sane"
 alias woof="echo "http://$(ip route get 1.1.1.1 | grep -oP 'src \K\S+'):8080" | qrencode -t ansiutf8 & woof"
 
-function vim() {
+function vim_func() {
     echo $@ | sed -r "s/:([0-9]+)/ +\1/g" | xargs sh -c 'nvim "$@" < /dev/tty' nvim
 }
 
@@ -35,6 +37,7 @@ customSsh () {
         && echo "PS1=\"[$(echo $SSH_CONNECTION | cut -d\  -f3)] \[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ \""\
         && echo "bind '  "'\\\"\\e[A\\\": history-search-backward'"'" \
         && echo "bind '  "'\\\"\\e[B\\\": history-search-forward'"'" \
+        && echo "bind '  "'set completion-ignore-case on'"'" \
         ) \
         -i'
 }
@@ -42,6 +45,14 @@ customSsh () {
 
 export FZF_DEFAULT_OPTS="--height=35 --inline-info -m --history=\"$HOME/.local/share/fzf-history\" --bind=ctrl-x:toggle-sort,ctrl-h:previous-history,ctrl-l:next-history,ctrl-f:jump-accept,alt-j:preview-down,alt-k:preview-up --cycle"
 export PATH=$HOME/.fzf/bin:$HOME/.local/bin:$PATH
+
+swap()
+{
+    local TMPFILE=tmp.$$
+    mv "$1" $TMPFILE
+    mv "$2" "$1"
+    mv $TMPFILE "$2"
+}
 
 gcdev () {
     local h
@@ -343,15 +354,12 @@ function vif() {
     dir=$(
         find ${1:-$HOME} -type f -print 2> /dev/null |
         fzf -1 --preview="cat {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
-    ) && nvim "$dir"
-}
-
-function vf() {
-    local dir
-    dir=$(
-        find ${2:-$HOME} \( ! -regex '.*/\..*' \) -type f -print 2> /dev/null |
-        fzf -1 --preview="cat {-1}" --header-lines=1 --ansi --prompt="${2:-$HOME}" -q "${1:-}"
-    ) && nvim -O $(echo "$dir" | sed ':a;N;$!ba;s/\n/ /g')
+    )
+    if [ -n "$dir" ]; then
+        local cmd="nvim -O "$(echo "$dir" | sed ':a;N;$!ba;s/\n/ /g')
+        print -s "$cmd"
+        eval $cmd
+    fi
 }
 
 
@@ -392,8 +400,61 @@ function fbr() {
       git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
   fi
 }
+
+function vf() {
+    local dir
+    dir=$(
+        find ${2:-./} \( ! -regex '.*/\..*' \) -type f -print 2> /dev/null |
+        fzf -1 --preview="cat {-1}" --header-lines=1 --ansi --prompt="${2:-$HOME}" -q "${1:-}"
+    )
+    if [ -n "$dir" ]; then
+        local cmd="nvim -O "$(echo "$dir" | sed ':a;N;$!ba;s/\n/ /g')
+        print -s "$cmd"
+        eval $cmd
+    fi
+}
+
+
+function lf() {
+    local dir
+    dir=$(
+        find ${1:-$HOME} -type d -print 2> /dev/null |
+        fzf -1 --preview="ls -l --color=always  {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
+    ) && ls -l "$dir"
+}
+
+function caf() {
+    local dir
+    dir=$(
+        find ${1:-$HOME} -type f -print 2> /dev/null |
+        fzf -1 --preview="cat {-1}" --header-lines=1 --ansi --prompt="${1:-$HOME}"
+    ) && cat "$dir"
+}
+
+function astash() {
+	stash=$(git --no-pager stash list | fzf --preview "git --no-pager stash show -p --color \$(echo {} | cut -d: -f1)");
+	if [ "$stash" != "" ];then
+		if read -q "?Do you realy want to apply: $stash
+y/n ?";then
+			git stash apply "$(echo $stash | cut -d: -f1)";
+		fi;
+	fi
+}
+
+# fbr - checkout git branch
+function fbr() {
+  local branches branch
+  branches=$(git branch --all -vv --color=always) &&
+  branch=$(echo "$branches" | fzf --ansi --reverse --height=20 +m) &&
+  if [ "$1" = "-f" ]; then
+      git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //") --force
+  else
+      git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+  fi
+}
+
 # fshow - git commit browser
-function fshow() {
+function fshowa() {
   git log --all --graph --color=always \
       --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
   fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
@@ -401,6 +462,25 @@ function fshow() {
                 (grep -o '[a-f0-9]\{7\}' | head -1 |
                 xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
                 {} FZF-EOF"
+}
+
+# fshow - git commit browser
+function fshow() {
+  git log --graph --color=always \
+      --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+  fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --bind "ctrl-m:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                {} FZF-EOF"
+}
+
+# fshow - git commit browser
+function gv() {
+    gerp "$@" |
+        fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+        --bind "ctrl-m:reload(rg --vimgrep --color=always -S -M $(tput cols) -g '!.git/' -- '$@')" --bind 'ctrl-m:execute:
+            echo {} | sed -e "s/\x1b\[.\{1,5\}m//g"| perl -ne '"'/(.*?):(\d+)/ && exec \"nvim\", \"\$1\", \"+\$2\"'"
 }
 
 function vg() {
@@ -473,6 +553,10 @@ function gerp() {
             find ${2:-./} -type f -not -path "./git/*" -exec grep --line-number "$DEFAULT" -nH $1 {} +
         fi
     fi
+}
+
+function g() {
+    gerp "$*"
 }
 
 function ctrlz()
@@ -549,6 +633,10 @@ git_prompt_info () {
 	fi
 }
 
+# Appends every command to the history file once it is executed
+setopt inc_append_history
+# Reloads the history whenever you use it
+setopt share_history
 
 unsetopt listambiguous
 bindkey "^Z" ctrlz

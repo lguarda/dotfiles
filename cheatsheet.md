@@ -2,6 +2,24 @@
 
 ## linux command
 
+### gcc
+```bash
+# add include path for compilation
+ -I mylib/include
+# add dynamic library path for comilation
+ -L mylib
+# add dynamic lib for compilation
+ -lmylib
+# in the binary add prefered path to lib so you don't need to use LD_LIBRARY_PATH
+# neither install the lib a known path or edit /etc/ld.so.conf.d/mylib.conf
+ -Wl,-R/home/user/path/to/mylib
+
+# get default gcc std version
+gcc -dM -E -x c  /dev/null | grep -i stdc_version
+gcc -dM -E -x c++  /dev/null | grep -F __cplusplus
+
+```
+
 ### git
 ```bash
 #clone specific branch without history
@@ -20,6 +38,24 @@ git format-patch --stdout HEAD~3 > repo2/patch
 
 # in repo2
 git am patch
+
+# remote clone from a trusted machine
+ssh-add {idrsa_git}
+ssh -A {remote_host}
+#or put this in conf
+echo 'Host remote_host
+    ForwardAgent yes'
+# then
+ssh {remote_host}
+ +# at this point any of these command will be able to use ssh agent
+# of the first machine
+# keep in mind that ssh agent forwarding is succeptible to Man in the middle
+git clone || git fetch --all || git submodule update --init
+
+# change remote url to https
+git remote set-url origin $(git config --get remote.origin.url | perl -ne '/(github.com)[:\/]+(.+?\/.+)/g && print "https://$1/$2\n"')
+# change remote url to ssh
+git remote set-url origin $(git config --get remote.origin.url | perl -ne '/(github.com)[:\/]+(.+?\/.+)/g && print "git\@$1:$2.git\n"')
 ```
 
 ### editcap
@@ -88,10 +124,24 @@ echo "one;def;veg\neth;bhf;ftr\none;5e3232;as\n123;eeee;eeee" | awk -F';' '$1=="
 
 # sum number on each line
 echo "num:1\nnum:5\nnum:10" | awk -F ":" '{ total += $2; count++ } END { print total/count }'
-
 ```
-### xinput
 
+### crontab
+```bash
+# to start write contab
+crontab -e
+# to start write contab as root
+sudo crontab -e
+```
+```crontab
+# to perform contab on reboot
+@reboot command
+# every 5 minute
+*/5 * * * * command
+# else go to https://crontab.guru
+```
+
+### xinput
 ```bash
 xinput list # show devices
 
@@ -99,6 +149,12 @@ xinput list-props <device> # show devices
 
 # example: enable tapping on a touch pad
 xinput set-prop "SynPS/2 Synaptics TouchPad" "libinput Tapping Enabled" 1
+```
+
+### rsync
+```bash
+# copy file to a "sudo" location #root
+rsync --rsync-path="sudo rsync" ./file  user@tart:/opt/p1/ptm/scripts/guest/
 ```
 
 ### tpmfs
@@ -206,6 +262,13 @@ sudo dd if=inputfile.img of=/dev/disk<?> bs=4m && sync
 ```
 If USB drive does not boot (this happened to me), it is because the target is a particular partition on the drive instead of the drive. So the target needs to be /dev/sdc and not dev/sdc <?> For me it was /dev/sdb .
 
+### socat
+```bash
+# this is pretty self explanatory, this will redirect the ip/port 127.0.0.1:8888
+# to the ip/port 10.206.172.161:10000
+socat TCP-LISTEN:8888,fork,bind=127.0.0.1 TCP:10.206.172.161:10000
+```
+
 ### nixos
 ```bash
 # https://nixos.org/nixos/manual/
@@ -239,7 +302,45 @@ Then edit configuration.nix to setup boot
 vboxmanage import --vsys 0 --memory 4096 --cpus 2 --vmname "vmname" vm.ova
 # -n for dry run
 ```
-### game
+#### lxc/lxd
+```yaml
+config: {}
+networks:
+- config:
+    ipv4.address: auto
+    ipv6.address: auto
+  description: ""
+  name: lxdbr0
+  type: ""
+  project: default
+storage_pools:
+- config:
+    size: 10GB
+  description: ""
+  name: default
+  driver: btrfs
+profiles:
+- config: {}
+  description: ""
+  devices:
+    eth0:
+      name: eth0
+      network: lxdbr0
+      type: nic
+    root:
+      path: /
+      pool: default
+      type: disk
+  name: default
+cluster: null
+```
+### DevOps
+#### Ansible
+```bash
+# run ansible for one specific host with variable in command line
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i "192.168.56.106," -u ptm free_vm.yml --extra-vars "variable_host=all USER=ptm"
+```
+### Game
 #### xboxdrv
 xbox drv can emulate xbox input from another /dev/input/event
 example below to with taranisqx7 mapping

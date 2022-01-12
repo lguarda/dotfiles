@@ -57,9 +57,10 @@ set history=10000                " A history of ":" commands, and a history of p
 set sidescroll=1                 " The minimal number of columns to scroll horizontally
 set ruler                        " Show the line and column number of the cursor position
 set backup                       " Make a backup before overwriting a file.
-set backupdir=$VIMFILES/backup  " List of directories for the backup file, separated with commas.
+set backupdir=$VIMFILES/backup   " List of directories for the backup file, separated with commas.
 set colorcolumn=80               " Add a colored column marker at specified size cc=0 to disable
 set list                         " Enable listchars
+"set iskeyword+=-                 " Add charater for ctrl+n word completion
 set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$ ",eol:¶  " highlight tab space en eol
 set fillchars=stl:\ ,stlnc:\ ,vert:\ ,fold:\ ,diff:- " Use space for multiple separator
 set completeopt=menuone,menu,longest,preview
@@ -76,12 +77,18 @@ endif
 
 if has('nvim')
     set termguicolors
-    set fixendofline                 " <EOL> at the end of file will be not restored if missing
+    set nofixendofline                 " <EOL> at the end of file will be not restored if missing
 endif
 
 if $SHLVL == 0
     map <c-z> :execute "echohl WarningMsg\|echomsg 'Nope ! cannot suspend in standalone.'\|silent echohl None"<CR>
 endif
+
+" netwr settings {{{
+    let g:netrw_liststyle = 3 " tree
+    let g:netrw_banner = 0 " remove banner
+    let g:netrw_winsize = 25 " 25% of the window
+" }}}
 
 "}}}
 "{{{ Plugin
@@ -191,7 +198,7 @@ try
     Plug 'https://github.com/chrisbra/NrrwRgn' "{{{
     let g:nrrw_rgn_vert = 1
     let g:nrrw_rgn_resize_window = 'column'
-    vnoremap n :NR<CR>
+    vnoremap <space>n :NR<CR>
     "}}}
     Plug 'https://github.com/mbbill/undotree' "{{{
     noremap <C-b> :UndotreeToggle<CR>
@@ -200,13 +207,11 @@ try
     "}}}
     Plug 'https://github.com/easymotion/vim-easymotion' "{{{
     let g:EasyMotion_do_mapping = 0 " Disable default mappings
-    nmap f <Plug>(easymotion-sl)
-    nmap F <Plug>(easymotion-overwin-f2)
+    map f <Plug>(easymotion-sl)
+    map F <Plug>(easymotion-overwin-f2)
+    map W <Plug>(easymotion-bd-w)
     let g:EasyMotion_keys = 'alskjdhfwiuegnv'
-    let g:EasyMotion_do_shade = 0
-    nmap W <Plug>(easymotion-bd-w)
-    vmap W <Plug>(easymotion-bd-w)
-    vmap f <Plug>(easymotion-sl)
+    let g:EasyMotion_do_shade = 1 " greayed out text when hinting
     let g:EasyMotion_smartcase = 1
     "}}}
     Plug 'https://github.com/luochen1990/rainbow' "{{{
@@ -252,14 +257,15 @@ try
     let g:airline_theme='oceanicnext'
     let g:airline_mode_map = {'c': 'C', '^S': 'S-B', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
     "}}}
-    Plug 'https://github.com/mhinz/vim-signify' "{{{
+    try | Plug 'https://github.com/mhinz/vim-signify' "{{{
     call add(g:mod, 'git_mode')
     let g:signify_sign_add               = '+'
     let g:signify_sign_delete            = '-'
     let g:signify_sign_delete_first_line = '¯'
     let g:signify_sign_change            = '~'
     let g:signify_sign_changedelete      = "\u22c"
-    noremap <C-c> :call ToggleGitMode()<CR>
+    " C-c should also check if the current file is git versioned
+    noremap <C-x>c :call ToggleGitMode()
     autocmd BufEnter * if !exists('b:git_mode') | let b:git_mode = -1 | endif
     autocmd BufEnter * if !exists('b:visualMove') | let b:visualMove = -1 | endif
 
@@ -277,13 +283,12 @@ try
     function! ToggleGitMode()
         let b:git_mode *= -1
         if b:git_mode == 1
-            echo "LOL2"
             nmap <buffer> <S-j> <plug>(signify-next-hunk)
             nmap <buffer> <S-k> <plug>(signify-prev-hunk)
             nmap <buffer> <S-h> :SignifyHunkUndo<CR>:SignifyRefresh<CR>
             nmap <buffer> <S-l> :SignifyHunkDiff<CR>
-            noremap <buffer> <c-l> :call CheckoutPreviousCommitLine()<CR>:Gblame<CR><c-w><right>
-            noremap <buffer> <c-h> :call CheckoutPreviousCommitLineRevert()<CR>:Gblame<CR><c-w><right>
+            noremap <buffer> <c-l> :call CheckoutPreviousCommitLine()<CR>:Git blame<CR><c-w><right>
+            noremap <buffer> <c-h> :call CheckoutPreviousCommitLineRevert()<CR>:Git blame<CR><c-w><right>
             nnoremap w :call ToggleGitDiffWhiteSpace()<CR>:SignifyRefresh<CR>
         else
             nmap <buffer> <S-k> <C-w><Up>
@@ -294,6 +299,9 @@ try
         endif
         call CallForMode()
     endfunction
+    catch
+        echo "vim-signify setup fail:" . v:exception
+    endtry
     "}}}
     Plug 'https://github.com/scrooloose/nerdtree' "{{{
     "Plug 'https://github.com/ryanoasis/vim-devicons' SLOW
@@ -432,6 +440,8 @@ nnoremap gp `[v`]
 nnoremap <c-x><c-s> :w !sudo tee %<CR>
 nnoremap ; :
 nnoremap -<S-o> :vertical sbuffer 2<CR>
+" apply macro @r on each line of visual selection
+vnoremap @ :normal @r<CR>
 "}}}
 "{{{ Pair characters change
 inoremap {<CR>  {}<Left><cr><cr><up><tab>
@@ -452,10 +462,10 @@ nnoremap <C-a> 0
 nnoremap <C-e> $<right>
 vnoremap <C-a> ^
 vnoremap <C-e> $
-inoremap <C-k> <Up>
-inoremap <C-j> <Down>
-inoremap <C-h> <Left>
-inoremap <C-l> <Right>
+"inoremap <C-k> <Up>
+"inoremap <C-j> <Down>
+"inoremap <C-h> <Left>
+"inoremap <C-l> <Right>
 "inoremap <silent> hh <C-o>:stopinsert<CR>:s/\s\+$//e<CR>
 inoremap <silent> qq <C-o>:stopinsert<CR>:s/\s\+$//e<CR>
 cnoremap <C-a> <C-b>
@@ -530,7 +540,7 @@ nnoremap <space>l :rightbelow vnew<CR>:terminal<CR>
 nnoremap <silent> <space>o :call OpenExplorer()<CR><CR>
 nnoremap <space>n :execute "vsp $VIMFILES/note/" .expand("%") . ".note"<CR>
 "}}}
-noremap <S-z> :set fdm=syntax<CR>zR
+"noremap <S-z> :set fdm=syntax<CR>zR
 "{{{ Resize Pane
 noremap <S-right> :vertical resize +5<CR>
 noremap <S-left> :vertical resize -5<CR>
@@ -564,7 +574,7 @@ vnoremap <space>r :g/^/m0<CR>|                                        "Reverse t
 "Open the current buffer in a new tab
 nnoremap <space><Tab> :let @a = expand("%:p")<CR>:q<CR>:execute "tabedit " . @a<CR>
 " Fix number of space between operand
-vnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/ \1 /ge<CR>:noh<CR>
+vnoremap <silent><space>e :s/\s*\(\([+]\\|[=]\\|[-]\\|[&]\\|[\*]\\|[!]\)\+\)\s*/ \1 /ge<CR>:s/ \+/ /ge<CR>:noh<CR>
 "}}}
 "{{{ Calcuation
     inoremap <C-q> <C-O>yiW<End><Esc>S<C-R>=<C-R>0<CR>|" delete line and replace it with arithmetic result
@@ -665,8 +675,8 @@ inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
 map! <F3> <C-R>=strftime('%c')<CR>
 nnoremap <F5> :checktime<CR>
 augroup Refresh
-    autocmd FocusGained * checktime
-    autocmd BufEnter * checktime
+    autocmd FocusGained * if empty(&buftype) | checktime | endif
+    "autocmd BufEnter * if empty(&buftype) | checktime | endif
 augroup END
 "{{{ GUI
 nnoremap <silent> <space>- :call GuiZoom(-1)<CR>
@@ -694,6 +704,7 @@ endif
 "}}}
 "}}}
 "{{{ Autocmd
+if has("autocmd")
 autocmd BufEnter * set autochdir
 autocmd StdinReadPre * let s:std_in=1
 autocmd ColorScheme * hi! VertSplit ctermfg=darkgrey ctermbg=NONE term=NONE
@@ -707,17 +718,21 @@ autocmd bufreadpre *.md setlocal textwidth=80
 autocmd FileType cpp map! <F4> std::cout << __func__<< " line:" << __LINE__ << std::endl;
 autocmd FileType cpp map! <F5> std::cout << __func__<< " msg:" <<  << std::endl;<Esc>13<Left><insert>""
 autocmd FileType cpp inoremap <buffer> \n  <space><< std::endl;
-autocmd FileType c map! <F4> printf( __func__" line:"__LINE__"\n");
+autocmd FileType c map! <F4> printf("%s line:%d\n", __func__, __LINE__);
 autocmd FileType c map! <F5> printf(__func__" \n");<Esc>4<Left><insert>
 autocmd FileType php map! <F4> print_r("file: ".__FILE__."line: ".__LINE__);
 autocmd FileType php map! <F5> print_r("file: ".__FILE__."line: ".__LINE__.''<Right>);<Esc>2<Left><insert>
 autocmd FileType lua nnoremap <F4> "="print('Line at '..debug.getinfo(2, 'l').currentline..', FILE at '..debug.getinfo(2, 'S').source..', in func: '..debug.getinfo(2, 'n').name)"<CR>p
 autocmd FileType vim set fdm=marker
+autocmd FileType yaml set shiftwidth=2
 autocmd! BufRead,BufNewFile *.markdown set filetype=markdown
 autocmd! BufRead,BufNewFile *.md       set filetype=markdown
 "autocmd FileType cpp set fdm=indent
 "autocmd FileType c set fdm=indent
 autocmd BufRead,BufNewFile *.conf setfiletype dosini
+" When editing a file, always jump to the last cursor position
+autocmd BufReadPost * "normal! g`\""
+endif
 
 highlight ExtraCarriageReturn ctermbg=red gui=bold,undercurl guifg=#ababcc "guibg=#000000
 highlight ExtraWhitespace ctermbg=red gui=bold,undercurl guifg=#ab4444 "guibg=#000000
@@ -880,7 +895,6 @@ endfunction
 
 function! StopBench()
     :profile pause
-    :noautocmd qall!
 endfunction
 "}}}
 command! JsonIndent call JsonIndent() "{{{
@@ -1163,7 +1177,7 @@ function! CheckoutPreviousCommitLine()
     let l:current_commit = GetCurrentCommit()
     if !exists('g:commit_list') | let g:commit_list = [] | endif
     call add(g:commit_list, l:current_commit)
-    call system('git checkout ' . l:commit)
+    echo system('git checkout -f ' . l:commit)
     checktime
 endfunction
 

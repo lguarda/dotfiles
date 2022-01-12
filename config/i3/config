@@ -44,10 +44,12 @@ bindsym --release $mod+Shift+q kill
 
 bindsym $mod+t exec $HOME/.local/bin/getwindows.sh
 bindsym $mod+a exec $HOME/.local/bin/switch_audio.sh
+#bindsym $mod+Shift+p exec "i3lock --colour=ff66cc & systemctl suspend"
 # start dmenu (a program launcher)
-bindsym $mod+d exec  "command -v rofi && rofi -modi combi -show combi -combi-modi drun,run,window -matching fuzzy -sort -sorting-method fzf || i3-dmenu-desktop"
+bindsym $mod+d exec  "command -v rofi && rofi -modi combi -show combi -combi-modi ssh,drun,run,window -matching fuzzy -sort -sorting-method fzf || dmenu_run"
+bindsym $mod+Shift+d exec "keepmenu"
 #bindsym $mod+d exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T fzf_drun -e 'i3-dmenu-desktop --dmenu=$HOME/.fzf/bin/fzf'
-bindsym $mod+z exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_config -e 'wifi_con.sh'
+#bindsym $mod+z exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_config -e 'wifi_con.sh'
 #termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_con -e '$HOME/.local/bin/wifi_con.sh'
 for_window [title="fzf_drun"] floating enable
 for_window [title="wifi_config"] floating enable
@@ -84,8 +86,9 @@ bindsym $mod+Shift+Right move right
 #bindsym $mod+h split h
 
 # split in vertical orientation
-bindsym $mod+v split h
-bindsym $mod+Shift+v split v
+#bindsym $mod+v split h
+#bindsym $mod+Shift+v split v
+bindsym $mod+Shift+v exec "sleep 0.5; xdotool type $(xclip -o -selection clipboard)"
 
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen
@@ -99,9 +102,10 @@ bindsym $mod+e layout toggle split
 #bindsym $mod+Shift+space floating toggle
 # Toogle floating window while enable titlebar and border
 bindsym $mod+Shift+space "mark --add _; [con_mark=f] floating disable, border none, mark --add --toggle _; [con_mark=_] floating enable, border normal; mark --add --toggle f;"
+bindsym $mod+space floating toggle; sticky toggle; resize set height 576 px;resize set width 1024 px; move position 0 0
 
 # change focus between tiling / floating windows
-bindsym $mod+space focus mode_toggle
+#bindsym $mod+space focus mode_toggle
 
 # focus the parent container
 #bindsym $mod+a focus parent
@@ -147,9 +151,8 @@ bindsym $mod+Shift+p exec "$HOME/.local/bin/manage_power.sh"
 bindsym $mod+Shift+x exec "$HOME/.config/i3/showLock.sh"
 bindsym $mod+x exec "$HOME/.config/i3/mylock.sh"
 
-bindsym $mod+Shift+s exec "flameshot gui --path=/home/leo/screenshot"
-bindsym Print exec "flameshot gui --path=/home/leo/screenshot"
->>>>>>> Stashed changes
+bindsym $mod+Shift+s exec "flameshot gui --path=$HOME/screenshot"
+bindsym Print exec "flameshot gui --path=$HOME/screenshot"
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 0 +5% #increase sound volume
