@@ -414,7 +414,7 @@ print(arg[3]) --second argument
 ### anet a8 plus
 ```bash
 # flashing klipper on anet a8 plus
-avrdude -p atmega1284p -c arduino -b  115200 -P /dev/ttyUSB0 -U out/klipper.elf.hex 
+avrdude -p atmega1282p -c arduino -b  115200 -P /dev/ttyUSB0 -U out/klipper.elf.hex
 ```
 
 ### klipper

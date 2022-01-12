@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-/usr/bin/xset r rate 210 40
+/usr/bin/xset r rate 180 35
 
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$HOME/.steambin/:$PATH"

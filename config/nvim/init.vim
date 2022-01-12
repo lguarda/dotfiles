@@ -773,6 +773,11 @@ augroup XML
 augroup END
 "}}}
 "{{{ Function
+function! OpenscadOpen() "{{{
+    silent execute '!openscad ' . expand("%:p") . ' &'
+endfunction
+command! OpenscadOpen call OpenscadOpen()
+"}}}
 function! ToggleBinaryMode() "{{{ TODO: Tidy up
     if b:isBinary == 0
         :%!xxd

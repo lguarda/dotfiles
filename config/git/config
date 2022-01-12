@@ -58,11 +58,11 @@
 [diff "json"]
     textconv = jq "." --sort-keys
 [user]
-	email = leoman037@live.fr
-	name = lguard
+    email = leoman037@live.fr
+    name = lguard
 [push]
-	default = current
+    default = current
 [submodule]
-	recurse = true
+    recurse = true
 [rebase]
-	autosquash = true
+    autosquash = true
