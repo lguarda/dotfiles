@@ -671,3 +671,4 @@ zstyle ':completion:*' matcher-list \
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f /usr/bin/xcape ] && xcape -e 'Shift_L=Escape;Control_L=Control_L|O'
+if [ -e /home/leo/.nix-profile/etc/profile.d/nix.sh ]; then . /home/leo/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer

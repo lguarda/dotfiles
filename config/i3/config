@@ -44,13 +44,9 @@ bindsym --release $mod+Shift+q kill
 
 bindsym $mod+t exec $HOME/.local/bin/getwindows.sh
 bindsym $mod+a exec $HOME/.local/bin/switch_audio.sh
-#bindsym $mod+Shift+p exec "i3lock --colour=ff66cc & systemctl suspend"
 # start dmenu (a program launcher)
 bindsym $mod+d exec  "command -v rofi && rofi -modi combi -show combi -combi-modi ssh,drun,run,window -matching fuzzy -sort -sorting-method fzf || dmenu_run"
-bindsym $mod+Shift+d exec "keepmenu"
-#bindsym $mod+d exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T fzf_drun -e 'i3-dmenu-desktop --dmenu=$HOME/.fzf/bin/fzf'
-#bindsym $mod+z exec --no-startup-id termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_config -e 'wifi_con.sh'
-#termit -i $HOME/clone/dotfiles/termit.rc.lua -T wifi_con -e '$HOME/.local/bin/wifi_con.sh'
+bindsym $mod+Shift+d exec  "keepmenu"
 for_window [title="fzf_drun"] floating enable
 for_window [title="wifi_config"] floating enable
 # There also is the (new) i3-dmenu-desktop which only displays applications
@@ -102,8 +98,7 @@ bindsym $mod+e layout toggle split
 #bindsym $mod+Shift+space floating toggle
 # Toogle floating window while enable titlebar and border
 bindsym $mod+Shift+space "mark --add _; [con_mark=f] floating disable, border none, mark --add --toggle _; [con_mark=_] floating enable, border normal; mark --add --toggle f;"
-bindsym $mod+space floating toggle; sticky toggle; resize set height 576 px;resize set width 1024 px; move position 0 0
-
+bindsym $mod+space floating toggle; sticky toggle; resize set height 576 px; resize set width 1024 px; move position 0 0
 # change focus between tiling / floating windows
 #bindsym $mod+space focus mode_toggle
 
@@ -188,8 +183,8 @@ bindsym XF86KbdBrightnessUp exec kbdbacklight up
 bindsym XF86KbdBrightnessDown exec kbdbacklight Down
 
 # move focused workspace between monitors
-bindsym $mod+equal move workspace to output right
-bindsym $mod+minus move workspace to output left
+bindsym $mod+greater move workspace to output right
+bindsym $mod+less move workspace to output left
 
 bindsym $mod+Shift+underscore move window to output right
 bindsym $mod+Shift+plus move window to output left
