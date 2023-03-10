@@ -57,7 +57,7 @@ set history=10000                " A history of ":" commands, and a history of p
 set sidescroll=1                 " The minimal number of columns to scroll horizontally
 set ruler                        " Show the line and column number of the cursor position
 set backup                       " Make a backup before overwriting a file.
-set backupdir=$VIMFILES/backup   " List of directories for the backup file, separated with commas.
+set backupdir=$VIMFILES/backup// " List of directories for the backup file, separated with commas.
 set colorcolumn=80               " Add a colored column marker at specified size cc=0 to disable
 set list                         " Enable listchars
 "set iskeyword+=-                 " Add charater for ctrl+n word completion
@@ -146,12 +146,11 @@ try
     Plug 'https://github.com/dpelle/vim-LanguageTool'
     Plug 'https://github.com/google/vim-maktaba'
     Plug 'https://github.com/google/vim-syncopate'
-    Plug 'https://github.com/iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
+    Plug 'https://github.com/iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install' }
     Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/Shougo/unite.vim'
     Plug 'https://github.com/vim-scripts/vis'
     Plug 'https://github.com/mhinz/vim-startify'
-    Plug 'https://github.com/johngrib/vim-game-snake'
     Plug 'https://github.com/johngrib/vim-game-code-break'
     Plug 'https://github.com/honza/vim-snippets'
     Plug 'https://github.com/tpope/vim-surround'
@@ -164,6 +163,22 @@ try
     Plug 'https://github.com/glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
     Plug 'https://github.com/ternjs/tern_for_vim', { 'do': 'npm install -g tern' }
     Plug 'https://github.com/w0rp/ale'
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'https://github.com/neovim/nvim-lspconfig'
+    Plug 'https://github.com/rhysd/vim-clang-format' "{{{
+    let g:clang_format#style_options = {
+            \ "ColumnLimit" : 400,
+            \ "AccessModifierOffset" : -4,
+            \ "AllowShortIfStatementsOnASingleLine" : "true",
+            \ "AlwaysBreakTemplateDeclarations" : "true",
+            \ "Standard" : "C++11",
+            \ "BreakBeforeBraces" : "Stroustrup"}
+    "}}}
+    Plug 'is0n/fm-nvim' "{{{
+    "}}}
+    Plug 'https://github.com/mogelbrod/vim-jsonpath' " {{{
+    let g:jsonpath_register = '*'
+    "}}}
     "Plug 'https://github.com/SirVer/ultisnips' "{{{
     let g:UltiSnipsExpandTrigger="<c-x><c-n>"
     "}}}
@@ -257,6 +272,7 @@ try
     let g:airline_theme='oceanicnext'
     let g:airline_mode_map = {'c': 'C', '^S': 'S-B', 'R': 'R', 's': 'S', 't': 'TERM', 'V': 'V-L', '': 'V-B', 'i': 'I', '__': '------', 'S': 'S-LINE', 'v': 'V', 'n': 'N'}
     "}}}
+    Plug 'https://github.com/airblade/vim-gitgutter'
     try | Plug 'https://github.com/mhinz/vim-signify' "{{{
     call add(g:mod, 'git_mode')
     let g:signify_sign_add               = '+'
@@ -265,7 +281,7 @@ try
     let g:signify_sign_change            = '~'
     let g:signify_sign_changedelete      = "\u22c"
     " C-c should also check if the current file is git versioned
-    noremap <C-x>c :call ToggleGitMode()
+    noremap <C-x>c :call ToggleGitMode()<CR>
     autocmd BufEnter * if !exists('b:git_mode') | let b:git_mode = -1 | endif
     autocmd BufEnter * if !exists('b:visualMove') | let b:visualMove = -1 | endif
 
@@ -493,11 +509,11 @@ if has('nvim')
     vnoremap <M-j> :m '>+1<CR>gv=gv
     vnoremap <M-h> d<left>Pgv<left>o<left>o
     vnoremap <M-l> dpgv<right>o<right>o
-    vnoremap <S-k> <PageUp>
-    vnoremap <S-j> <PageDown>
+    "vnoremap <S-k> <PageUp>
+    "vnoremap <S-j> <PageDown>
 else " Vim does not support Meta
-    vnoremap <S-k> :m '<-2<CR>gv=gv
-    vnoremap <S-j> :m '>+1<CR>gv=gv
+    "vnoremap <S-k> :m '<-2<CR>gv=gv
+    "vnoremap <S-j> :m '>+1<CR>gv=gv
     vnoremap <S-h> <gv
     vnoremap <S-l> >gv
 endif
