@@ -419,6 +419,12 @@ end
 
 local toggle_state = {}
 
+local function toggle_spawn_handle_kill(c, cmd)
+    c:connect_signal("unmanage", function()
+        toggle_state[cmd] = nil
+    end)
+end
+
 local function toggle_spawn(cmd, do_hide, rule)
     local c = toggle_state[cmd]
     if c then
@@ -439,6 +445,7 @@ local function toggle_spawn(cmd, do_hide, rule)
             local c = client_find_first(rule)
             if c then
                 toggle_state[cmd] = c
+                toggle_spawn_handle_kill(c, cmd)
                 return toggle_spawn(cmd, do_hide, rule)
             end
         end
@@ -446,6 +453,7 @@ local function toggle_spawn(cmd, do_hide, rule)
             toggle_state[cmd] = c
             c:connect_signal("unmanage", function()
                 toggle_state[cmd] = nil
+                toggle_spawn_handle_kill(c, cmd)
             end)
         end)
     end
