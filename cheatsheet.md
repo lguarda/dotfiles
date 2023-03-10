@@ -20,7 +20,23 @@ gcc -dM -E -x c++  /dev/null | grep -F __cplusplus
 
 ```
 
-### git
+### ssh
+From:~?
+Supported escape sequences:
+ ~.   - terminate connection (and any multiplexed sessions)
+ ~B   - send a BREAK to the remote system
+ ~C   - open a command line
+ ~R   - request rekey
+ ~V/v - decrease/increase verbosity (LogLevel)
+ ~^Z  - suspend ssh
+ ~#   - list forwarded connections
+ ~&   - background ssh (when waiting for connections to terminate)
+ ~?   - this message
+ ~~   - send the escape character by typing it twice
+
+```
+
+[###](###) git
 ```bash
 #clone specific branch without history
 git clone --depth 1  --branch=$branch git@github.com:$repo $name
@@ -268,7 +284,111 @@ If USB drive does not boot (this happened to me), it is because the target is a 
 # to the ip/port 10.206.172.161:10000
 socat TCP-LISTEN:8888,fork,bind=127.0.0.1 TCP:10.206.172.161:10000
 ```
+### btrfs
 
+Format to btrfs
+```bash
+# obviously
+mkfs.btrfs /dev/xxx # -f force overwrite
+```
+Create subvolume
+```bash
+# most btrfs operation can only me performed when the volume is mounted
+mount /dev/xxx /mnt
+
+# btrfs support minumun lenght argument like vim command
+btrfs subvolume create /mnt/@
+btrfs su cr /mnt/@home
+# it can be interesting to create boot subvolume in order to snapshot kernel
+btrfs su cr /mnt/@boot
+umount /mnt
+
+mount -o noatime,compress=zstd,space_cache,subvol=@ /dev/sda3 /mnt
+mkdir /mnt/{boot,home,var,opt,tmp,.snapshots}
+mount -o noatime,compress=zstd,space_cache,subvol=@home /dev/sda3 /mnt/home
+```
+
+Workaround in order to make os-prober detect OS with btrfs subvolume
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=983107an
+```bash
+# I don't know exactly what os-prober to to find os depending on partition scheme it may be posible that only boot symlink is mandatory
+sudo mount -t btrfs -o subvol=/,defaults /dev/nvme1n1p1 /mnt
+cd /mnt
+sudo ln -sf @/boot boot
+sudo ln -sf @/etc  etc
+sudo ln -sf @/usr  usr
+sudo ln -sf @/lib  lib
+sudo btrfs subvol set-default /mnt/@
+# to revert defualt
+#sudo btrfs subvol set-default "" /
+# When you need to mount the root btrf
+# sudo mount /dev/xxx -o subvol=/ /mnt
+# This will mount root btfs wihtout change default subvolume
+cd /
+sudo umount /mnt
+```
+
+### snapper
+First we need to create a config, the default config name is root, if you only
+whant to snapshot un subvolume just don't change the same so you don't have to
+retype -c config_name before every snapper command
+
+```bash
+# So creating the default config
+snapper create-config / # here we will create config for / subvolume
+# configuration can be edited on /etc/snapper/{root: what you type in -c option}
+# Note: this will also create /.snapshots subvolumes
+```
+Don't forget to enable cron service, and that's it
+``` bash
+# It seems that if you don't create-config and
+# only copy the config snapper don't detect it so create it first with
+snapper -c root create-config
+# inorder to list the snapshot
+snapper -c root list # i will remove -c root since it's the default for next example
+# create manual snapshot
+snapper create --description "your description"
+# list file difference
+snapper status 2..5
+# pretty self explanatory 2 and 5 are id found i list command .. mean everything
+# in between those snapshots
+# print actual diff for each file
+snapper diff 2..5
+```
+
+Now this is greate we a have a wonderfull tool that create snapshot for us
+unfortulately i don't know how to roll back thos snapshot with this tool
+But we don't care it's realy easy with btrfs command
+```bash
+# The bad but quick solution that can be done on the file system we booted on
+# rsync /.snapshots/56/snapshot/{what i want to rollback} /{what i want to rollback}
+```
+If you want to do a "safe" full rollback of a snapshot here what you need to do
+First boot from another device that got btrfs command
+```bash
+# start by mounting root subvolume
+mount -o subvol=/ /dev/xxx /mnt
+# delete the subvolume you want to rollback
+btrfs subvol detete /mnt/@
+# then
+btrfs subvol snap /mnt/@snashots/56/snapshot /mnt/@
+# those final argument need to be read as source -> destination
+```
+Now the /mnt/@ is a the stats of snapshot id 56 you can reboot
+
+## distro
+### arch
+``` bash
+# This is my minumun arch install command
+pacstrap /mnt base base-devel linux linux-firmware vim networkmanager btrfs-progs
+```
+#### pacman
+```bash
+pacman -Ss pkg # apt search pkg
+pacman -Sy # apt update
+pacman -S pkg # apt install pkg
+pacman -Qu pkg # apt --list-upgradable
+```
 ### nixos
 ```bash
 # https://nixos.org/nixos/manual/
