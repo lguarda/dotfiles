@@ -1,30 +1,34 @@
 [core]
-    pager = sed 's/\t/>   /g' | less -R
+    ;pager = sed 's/\t/>   /g' | less -N
+    pager = less -N
     editor = nvim
 [alias]
+    su = submodule update
     ap = -c interactive.diffFilter="git diff --color | sed 's/\t/>   /g'" add -p
     lg = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an %ad'
+    lgc = log --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an %ad'
     l  = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
     lc = log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
     lfp= log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
     fa = fetch --all
     co = checkout
-    su = status -s
+    ss = status -s
     st = !git --no-pager diff --stat
     amend = commit --amend
     rod = rebase -i origin/develop
     rc = rebase --continue
     rl = remote -v
+    mv = branch --force ; <branch-name> [<new-tip-commit>]
     pu = "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\"; }; f"
-    puf= "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\" --force; }; f"
-    yolo="!f(){ git commit -m \"$(curl -s https://whatthecommit.com/index.txt)\"; }; f"
+    puf= "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\" --force-with-lease; }; f"
+    yolo="!f(){ git commit -m \"$(curl -s http://whatthecommit.com/index.txt)\"; }; f"
     rho= "!f(){ git reset --hard \"origin/$(git rev-parse --abbrev-ref HEAD)\"; }; f"
     dio= "!f(){ git diff \"origin/$(git rev-parse --abbrev-ref HEAD)\"; }; f"
     fc = "!f(){ nvim +/HEAD -p $(git diff --relative --name-only --diff-filter=U); }; f"
     brename = "!f() { git rev-parse --abbrev-ref HEAD > /tmp/git_branch_rename && vim /tmp/git_branch_rename && git branch -m \"$(cat /tmp/git_branch_rename)\"; }; f"
 
     ; use git cut {commit sha} {directory1} {file2} {etc}
-    cut = "!f(){ cd ${GIT_PREFIX:-.}; sha=$1;shift; git show ${sha} $@ > /tmp/patch.patch; }; f"
+    cut = "!f(){ cd ${GIT_PREFIX:-.}; sha=$1;shift; git show --binary ${sha} $@ > /tmp/patch.patch; }; f"
     cutapplyrd = "!f(){ git apply --reverse /tmp/patch.patch && git commit --amend --no-edit; }; f"
     cutapplyr = "!f(){ git apply --cached --reverse /tmp/patch.patch && git commit --amend --no-edit; }; f"
     cutapply = "!f(){ git apply --cached /tmp/patch.patch && git commit; }; f"
@@ -32,6 +36,7 @@
 
     ; Edit current commit as patch and create a new commit with what's remain in the patch
     dsplitp = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && nvim /tmp/patch.patch && git cutapplyr && git cutapply; }; f"
+    ddeletep = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && nvim /tmp/patch.patch && git cutapplyrd; }; f"
 
     ; use git dcherry {commit sha} {directory1} {file2} {etc}
     ; This is like cherry pick but you can select directory and files
@@ -50,13 +55,32 @@
 
     grog = log --graph --abbrev-commit --decorate --all --format=format:\"%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
     fixup = commit --fixup
+
+    mergelog = "!f() { CURRENT=$(git symbolic-ref --short HEAD) && \
+         BRANCHE_NAME=$(echo $1 | sed 's/origin\\///') && \
+         PR_NUMBER=$(gh pr view --json number --jq '.number' $BRANCHE_NAME) && \
+         git merge --no-commit $1 && \
+         DEF_MSG=$(cat $(git rev-parse --show-toplevel)/.git/MERGE_MSG) && \
+         printf '%s\n\nPR #%s\n\n%s' \"$DEF_MSG\" $PR_NUMBER > temp_merge_msg && \
+         git commit -eF temp_merge_msg; rm -f temp_merge_msg;}; f"
+
+    mergelogfull = "!f() { CURRENT=$(git symbolic-ref --short HEAD) && \
+         BRANCHE_NAME=$(echo $1 | sed 's/origin\\///') && \
+         PR_NUMBER=$(gh pr view --json number --jq '.number' $BRANCHE_NAME) && \
+         SUMMARY=$(git log --format=format:'%s' $CURRENT..$1) && \
+         git merge --no-commit $1 && \
+         DEF_MSG=$(cat $(git rev-parse --show-toplevel)/.git/MERGE_MSG) && \
+         printf '%s\n\nPR #%s\n\n::SUMMARY::\n%s' \"$DEF_MSG\" $PR_NUMBER \"$SUMMARY\" > temp_merge_msg && \
+         git commit -eF temp_merge_msg; rm -f temp_merge_msg;}; f"
+
 [merge]
     tool = nvim
     renameLimit = 999999
+    ff = no
 [mergetool "nvim"]
     cmd = nvim -f -c \"Gdiff\" \"$MERGED\"
-[diff "json"]
-    textconv = jq "." --sort-keys
+;[diff "json"]
+    ;textconv = jq "." --sort-keys
 [user]
     email = leoman037@live.fr
     name = lguard
