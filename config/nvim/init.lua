@@ -34,11 +34,12 @@ vim.o.linebreak = true                   -- Break at a word boundary
 vim.o.lazyredraw = true                  -- Redraw only when we need to.
 vim.o.incsearch = true                   -- While typing a search command, show where the pattern is
 vim.o.swapfile = false                   -- Don't use swapfile for the buffer
-vim.bo.swapfile = false                   -- Don't use swapfile for the buffer
+vim.bo.swapfile = false                  -- Don't use swapfile for the buffer
 vim.o.ruler = true                       -- Show the line and column number of the cursor position
 vim.o.undofile = true                    -- Use undofile
-vim.o.backup = false                      -- Make a backup before overwriting a file.
+vim.o.backup = false                     -- Make a backup before overwriting a file.
 vim.o.list = true                        -- Enable listchars
+vim.o.conceallevel = 2
 
 vim.o.syntax='on'
 vim.opt.whichwrap:append('<,>,h,l,[,]')       -- Move cursor to next/previous line when reach end and begin of line
@@ -50,9 +51,17 @@ vim.opt.display:append('uhex,lastline')       -- Change the way text is displaye
 --vim.o.backupdir=vim.env['HOME']/.vim/backup  -- List of directories for the backup file, separated with commas.
 --vim.o.completeopt=menuone,menu,longest,preview -- Change <ctrl+n> behavior see :h completeopt
 
-
--- {{{ lua conversion needed
-vim.api.nvim_exec(
+vim.api.nvim_create_autocmd(
+"VimEnter",
+{ callback = function()
+    if vim.fn.expand('%') == 'init.lua' then
+        vim.opt.foldmethod = "marker"
+    end
+end}
+)
+-- {{{ Auto command
+-- {{{ Wrong whitespace
+vim.cmd(
 [[
 " red highlight color for every whitechar issue
 highlight ExtraCarriageReturn ctermbg=red
@@ -61,24 +70,32 @@ highlight ExtraSpaceDwich ctermbg=red
 highlight NonBreakSpace ctermbg=yellow
 highlight EmptyChar ctermfg=red ctermbg=red
 highlight currawong ctermbg=darkred guibg=darkred
+]])
 
-augroup WhitespaceMatch
-autocmd BufWinEnter * exec matchadd('ExtraWhitespace', '\s\+$')| " Highlight white space at end of line
-autocmd BufWinEnter * exec matchadd('ExtraSpaceDwich', ' \t\|\t ')| " Highlight mixed tab and space
-autocmd BufWinEnter * exec matchadd('ExtraCarriageReturn', '\r')| " Highlight windows \r
-autocmd BufWinEnter * exec matchadd('NonBreakSpace', ' ')| " Highlight non breaking space
+local wrongwhitespace = vim.api.nvim_create_augroup('wrongwhitespace', {clear = true})
+local ac = vim.api.nvim_create_autocmd 
+-- Highlight white space at end of line
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('ExtraWhitespace', '\\s\\+$')"})
+-- Highlight mixed tab and space
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('ExtraSpaceDwich', ' \\t\\|\\t ')"})
+-- Highlight windows \r
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('ExtraCarriageReturn', '\\r')"})
+-- Highlight non breaking space
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('NonBreakSpace', ' ')"})
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('EmptyChar', ' ')"})
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('EmptyChar', ' ')"})
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('EmptyChar', ' ')"})
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('EmptyChar', ' ')"})
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('EmptyChar', ' ')"})
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('EmptyChar', ' ')"})
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('EmptyChar', ' ')"})
+ac("BufWinEnter", {group=wrongwhitespace, command="exec matchadd('EmptyChar', '　')"})
+--}}}
+--}}}
 
-" highlight every withchar displayable by vim that aren't space
-autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1N
-autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1M
-autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "3M
-autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "4M
-autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "6M
-autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1T
-autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1H
-autocmd BufWinEnter * exec matchadd('EmptyChar', '　')|"IS
-augroup END
-
+-- {{{ lua conversion needed
+vim.api.nvim_exec(
+[[
 " ZZ is the default keybinding for :wq
 " Here i add ZS key bind to save current file as root
 " I find this on slack, here more info on how it's work
@@ -94,17 +111,9 @@ if filereadable('~/.local/share/nvim/site/pack/packer/start/packer.nvim') == 0 &
     silent execute ":!git clone --depth 1 https://github.com/wbthomason/packer.nvim ~/.local/share/nvim/site/pack/packer/start/packer.nvim"
 endif
 
-let g:EasyMotion_do_mapping = 0 " Disable default mappings
-map f <Plug>(easymotion-sl)
-map F <Plug>(easymotion-overwin-f2)
-map W <Plug>(easymotion-bd-w)
-let g:EasyMotion_keys = 'alskjdhfwiuegnv'
-let g:EasyMotion_do_shade = 1 " greayed out text when hinting
-let g:EasyMotion_smartcase = 1
-
-
 ]],
 true)
+local remap = vim.api.nvim_set_keymap
 -- }}}
 vim.cmd [[packadd packer.nvim]]
 require('packer').startup(function()
@@ -121,7 +130,21 @@ use {
   'nvim-telescope/telescope.nvim',
   requires = { {'nvim-lua/plenary.nvim'} }
 }
-use { 'https://github.com/easymotion/vim-easymotion' }
+use {
+  'phaazon/hop.nvim',
+  branch = 'v2', -- optional but strongly recommended
+  config = function()
+    local hop = require('hop')
+    hop.setup { keys = 'etovxqpdygfblzhckisuran' }
+    local directions = require('hop.hint').HintDirection
+    vim.keymap.set('', 'f', function()
+        hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
+    end, {remap=true})
+    vim.keymap.set('', 'F', function()
+        hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
+    end, {remap=true})
+    end
+}
 --[[
 require('refactoring').setup({
     -- prompt for return type
