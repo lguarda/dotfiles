@@ -68,8 +68,8 @@ local modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
-    myfair.h,
-    myfair.v,
+    awful.layout.suit.fair,
+    awful.layout.suit.fair.horizontal,
     awful.layout.suit.max,
 }
 
@@ -103,9 +103,10 @@ local taglist_buttons = gears.table.join(
 
 local tasklist_buttons = gears.table.join(
     awful.button({ }, 1, function (c)
-        if c == client.focus then
-            c.minimized = true
-        else
+        --if c == client.focus then
+        --    c.minimized = true
+        --else
+        if c ~= client.focus then
             c:emit_signal(
                 "request::activate",
                 "tasklist",
@@ -330,41 +331,14 @@ end
 
 local function create_tab(s, tag, idx)
     local tag_properties = {
-        layout             = awful.layout.suit.tile,
-        layout             = myfair.h,
+        layout             = awful.layout.suit.fair,
         master_fill_policy = "master_width_factor",
         --gap_single_client  = true,
         --gap                = 3,
         screen             = s,
         selected           = idx == 1,
-        -- custom
-        layout_save        = myfair.h,
-        focused            = nil,
     }
     awful.tag.add(tag.name, tag_properties)
-    --[[
-      t:connect_signal("tagged", function(c)
-      local client_list = t:clients()
-      if #client_list > 0 then
-      client.focus = client_list[#client_list]
-      end
-      tag_select_layout(t)
-      end)
-      t:connect_signal("untagged", function()
-      -- when a client is kill or move to another tag focus the first cient
-      -- found in the current tag
-      focus_first_client_in_tag(t)
-      tag_select_layout(t)
-      end)
-      t:connect_signal("tag_unfocused", function()
-      -- save last focused client in tag
-      t.focused = client.focus
-      -- when a client is kill or move to another tag focus the first cient
-      -- found in the current tag
-      focus_first_client_in_tag(t)
-      tag_select_layout(t)
-      end)
-      --]]
 end
 
 awful.screen.connect_for_each_screen(function(s)
@@ -462,7 +436,8 @@ end
 -- {{{ Focus
 local function change_focus_bydirection(direction, rev)
     return awful.key({ modkey }, key_alias[direction], function()
-        if awful.layout.getname() == "max" then
+        local layout = awful.layout.getname()
+        if layout == "max" or layout == "fullscreen" then
             awful.client.focus.byidx(rev and -1 or 1)
         else
             awful.client.focus.bydirection(direction)
@@ -486,6 +461,14 @@ local function move_focused_bydirection(direction, rev)
     )
 end
 -- }}}
+-- {{{ Focus client under mouse
+local function focus_client_under_mouse()
+    local n = mouse.object_under_pointer()
+    if n ~= nil and n ~= client.focus then
+        n:jump_to(false)
+    end
+end
+-- }}}
 -- {{{ Chasing client
 local chasing = {
     client_chasing_width = 600,
@@ -497,11 +480,7 @@ function chasing.focus_client_behind()
     gears.timer( {  timeout = 0.1,
             autostart = true,
             single_shot = true,
-            callback =  function()
-                local n = mouse.object_under_pointer()
-                if n ~= nil and n ~= client.focus then
-                client.focus = n end
-            end
+            callback = focus_client_under_mouse
         } )
 end
 
@@ -635,20 +614,36 @@ local globalkeys = gears.table.join(
     ak("Shift+h", "show help", "awesome", hotkeys_popup.show_help),
     ak("Escape", "go back", "tag", awful.tag.history.restore),
     ak("w", "Set layout to max", "layout", function ()
+            -- save client under mouse
+            local tof = mouse.object_under_pointer()
+            if client.focus.fullscreen then
+                client.focus.fullscreen = false
+            end
             awful.layout.set(awful.layout.suit.max)
+            -- jump to the client that was under the mouse after changing to max
+            tof:jump_to(false)
         end
     ),
     ak("e", "Toggle fair layout horizontal and vertiacal", "layout", function ()
-            if awful.layout.getname() == "fairh" then
-                awful.layout.set(myfair.v)
+            if client.focus.fullscreen then
+                client.focus.fullscreen = false
+                return
+            end
+            if awful.layout.getname() == "fairv" then
+                awful.layout.set(awful.layout.suit.fair.horizontal)
             else
-                awful.layout.set(myfair.h)
+                awful.layout.set(awful.layout.suit.fair)
             end
         end
     ),
+    ak("Shift+v", "Paste clipboard content with keyoard emulation", "Development", aw.cba(awful.spawn.with_shell, "sleep 0.5; xdotool type $(xclip -o -selection clipboard)")),
     -- media keys
     akr("XF86MonBrightnessUp", "Increase Brigtness", "Media", aw.cba(backlight_ctrl, 10)),
     akr("XF86MonBrightnessDown", "Decrease Brigtness", "Media", aw.cba(backlight_ctrl, -10)),
+    akr("XF86AudioRaiseVolume", "Mute microphone", "Media", aw.cba(awful.spawn, "pactl set-sink-volume 0 +5% #decrease sound volume")),
+    akr("XF86AudioLowerVolume", "Mute microphone", "Media", aw.cba(awful.spawn, "pactl set-sink-volume 0 -5% #decrease sound volume")),
+    akr("XF86AudioMicMute", "Mute microphone", "Media", aw.cba(awful.spawn, "pactl set-source-mute 1 toggle")),
+    akr("XF86AudioMute", "Mute speaker", "Media", aw.cba(awful.spawn, "pactl set-sink-mute 0 toggle")),
     -- Standard program
     ak("Return", "open a terminal", "launcher", aw.cba(awful.spawn, terminal)),
     ak("Shift+r", "reload awesome", "awesome", awesome.restart),
@@ -749,8 +744,11 @@ add_key_modes('globalkeys', globalkeys)
 local clientkeys = gears.table.join(
     ak("f", "toggle fullscreen", "client",
     function (c)
-        c.fullscreen = not c.fullscreen
-        c:raise()
+        if awful.layout.getname() == "fullscreen" then
+            awful.layout.set(awful.layout.suit.fair)
+        else
+            awful.layout.set(awful.layout.suit.max.fullscreen)
+        end
     end
     ),
     ak("Shift+q", "Close", "client", function (c) c:kill() end),
@@ -819,7 +817,6 @@ local floating_client_rule = {
     }
 }
 
-
 -- Rules to apply to new clients (through the "manage" signal).
 awful.rules.rules = {
     default_rule,
@@ -879,10 +876,34 @@ client.connect_signal("property::floating", function(c)
 end)
 
 client.connect_signal("mouse::enter", function(c)
-    c:emit_signal("request::activate", "mouse_enter", { raise = true })
+    c:emit_signal("request::activate", "mouse_enter", { raise = false })
 end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
+local function border_control(t, only_one)
+    local cs = t:clients()
+    local layout_name = awful.tag.getproperty(t, "layout").name
+    if only_one or layout_name == "fullscreen" or layout_name == 'max'  then
+        for _, c in ipairs(cs) do
+            c.border_width = 0
+        end
+    else
+        for _, c in ipairs(cs) do
+            if c.floating == false then
+                c.border_width = beautiful.border_width -- your border width
+            end
+        end
+    end
+end
+-- No borders when rearranging only 1 non-floating or maximized client
+screen.connect_signal("arrange", function (s)
+    border_control(s.selected_tag, #s.tiled_clients == 1)
+end)
+
+--tag.connect_signal("property::layout", function(t)
+--end)
+
 -- }}}
 -- vim: fdm=marker
