@@ -83,7 +83,7 @@
     ;textconv = jq "." --sort-keys
 [user]
     email = leoman037@live.fr
-    name = lguard
+    name = lguarda
 [push]
     default = current
 [submodule]
