@@ -24,8 +24,8 @@
     yolo="!f(){ git commit -m \"$(curl -s http://whatthecommit.com/index.txt)\"; }; f"
     rho= "!f(){ git reset --hard \"origin/$(git rev-parse --abbrev-ref HEAD)\"; }; f"
     dio= "!f(){ git diff \"origin/$(git rev-parse --abbrev-ref HEAD)\"; }; f"
-    fc = "!f(){ nvim +/HEAD -p $(git diff --relative --name-only --diff-filter=U); }; f"
     brename = "!f() { git rev-parse --abbrev-ref HEAD > /tmp/git_branch_rename && vim /tmp/git_branch_rename && git branch -m \"$(cat /tmp/git_branch_rename)\"; }; f"
+    amendauthor = "!f() { git amend --author \"$(git config user.name) <$(git config user.email)>\" --no-edit; }; f"
 
     ; use git cut {commit sha} {directory1} {file2} {etc}
     cut = "!f(){ cd ${GIT_PREFIX:-.}; sha=$1;shift; git show --binary ${sha} $@ > /tmp/patch.patch; }; f"
@@ -35,8 +35,8 @@
     cutshow = "!f(){ less /tmp/patch.patch; }; f"
 
     ; Edit current commit as patch and create a new commit with what's remain in the patch
-    dsplitp = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && nvim /tmp/patch.patch && git cutapplyr && git cutapply; }; f"
-    ddeletep = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && nvim /tmp/patch.patch && git cutapplyrd; }; f"
+    dsplitp = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && $(git config core.editor) /tmp/patch.patch && git cutapplyr && git cutapply; }; f"
+    ddeletep = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && $(git config core.editor) /tmp/patch.patch && git cutapplyrd; }; f"
 
     ; use git dcherry {commit sha} {directory1} {file2} {etc}
     ; This is like cherry pick but you can select directory and files
@@ -50,7 +50,7 @@
 
     ; use git massrename sha1 sha2
     ; This will apply all commit from sha1(first commit) to sha2(last commit) to your current branch but before you can edit all the commit as patch
-    ;massrename = "!f(){ cd ${GIT_PREFIX:-.}; git format-patch HEAD..$1 --stdout > /tmp/patch.patch; nvim /tmp/patch.patch; git am /tmp/patch.patch; }; f"
+    ;massrename = "!f(){ cd ${GIT_PREFIX:-.}; git format-patch HEAD..$1 --stdout > /tmp/patch.patch; $(git config core.editor) /tmp/patch.patch; git am /tmp/patch.patch; }; f"
     massrename = "!f(){ cd ${GIT_PREFIX:-.}; git_mass_rename.sh $1; }; f"
 
     grog = log --graph --abbrev-commit --decorate --all --format=format:\"%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
@@ -60,7 +60,7 @@
          BRANCHE_NAME=$(echo $1 | sed 's/origin\\///') && \
          PR_NUMBER=$(gh pr view --json number --jq '.number' $BRANCHE_NAME) && \
          git merge --no-commit $1 && \
-         DEF_MSG=$(cat $(git rev-parse --show-toplevel)/.git/MERGE_MSG) && \
+         DEF_MSG=$(cat $(git rev-parse --show-toplevel)/.git/MERGE_MSG || true) && \
          printf '%s\n\nPR #%s\n\n%s' \"$DEF_MSG\" $PR_NUMBER > temp_merge_msg && \
          git commit -eF temp_merge_msg; rm -f temp_merge_msg;}; f"
 
