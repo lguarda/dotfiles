@@ -21,6 +21,7 @@ gcc -dM -E -x c++  /dev/null | grep -F __cplusplus
 ```
 
 ### ssh
+
 From:~?
 Supported escape sequences:
  ~.   - terminate connection (and any multiplexed sessions)
@@ -34,9 +35,8 @@ Supported escape sequences:
  ~?   - this message
  ~~   - send the escape character by typing it twice
 
-```
 
-[###](###) git
+### git bisec
 ```bash
 #clone specific branch without history
 git clone --depth 1  --branch=$branch git@github.com:$repo $name
@@ -47,15 +47,25 @@ git bisect start
 git bisect bad
 git bisec good HEAD~100 # Or the targeted commit
 git bisect run sh -c '{command that return 1/0 in case of sucess/fail}'
+```
 
-# apply patch with commit aka: checrry pick across local repository
+### git bisect du pauvre
+How to git bisect a but within a single commit
+```bash
+while true ; do echo -e "y\nq\n" | git checkout -p {COMMIT} ; {COMMMAND} | grep {PATTERN} && break; done 
+```
+
+### git apply patch with commit aka: checrry pick across local repository
+```bash
 # inside repo1
 git format-patch --stdout HEAD~3 > repo2/patch
 
 # in repo2
 git am patch
+```
 
-# remote clone from a trusted machine
+### git remote clone from a trusted machine
+```bash
 ssh-add {idrsa_git}
 ssh -A {remote_host}
 #or put this in conf
@@ -72,6 +82,12 @@ git clone || git fetch --all || git submodule update --init
 git remote set-url origin $(git config --get remote.origin.url | perl -ne '/(github.com)[:\/]+(.+?\/.+)/g && print "https://$1/$2\n"')
 # change remote url to ssh
 git remote set-url origin $(git config --get remote.origin.url | perl -ne '/(github.com)[:\/]+(.+?\/.+)/g && print "git\@$1:$2.git\n"')
+```
+
+### bash
+```bash
+# debug bash script line by line without modifying the script
+bash -e <(echo 'trap read debug' && cat ./test.sh)
 ```
 
 ### editcap
@@ -93,6 +109,14 @@ tshark -r input.pcap -Y "!(ip.addr == 211.111.1.1/16 && ip.dst == 212.111.1.1/16
 # -W 3 -G 60 pcap roation occur every 60 second 3 time
 # -z this option enable postrotate command in this case the pcap is gziped
 tcpdump -i wlp58s0 -w /tmp/trace-%m-%d-%H-%M-%S-%s -W 3 -G 60 -z gzip
+```
+
+### sox
+Nice usage of sox is to normalise sound level of wav file
+it can also be used on mp3 with libsoxmp3 somthing
+```bash
+# here used for batch processing files
+for file in *.wav; do sox "$file" "n_$file" norm -0.1; done
 ```
 
 ### awk
@@ -413,6 +437,14 @@ Then edit configuration.nix to setup boot
     { name = "crypted"; device = "/dev/sda2"; preLVM = true; }
   ];
 }
+```
+### deb-pkg
+How to edit debian package
+```bash
+dpkg-deb -R package.deb dir
+# make some modification to the raw directory
+# than repackage
+dpkg-deb -b dir package.deb
 ```
 ## program
 ### virtualization
