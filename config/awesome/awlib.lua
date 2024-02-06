@@ -1,5 +1,15 @@
+local naughty = require("naughty")
 local aw = {}
 
+local home_dir = os.getenv('HOME')
+
+function aw.path(path)
+    return path:gsub("~", home_dir)
+end
+
+-- This helper transalte this
+-- aw.cba(print, "lol") ->
+-- function() print("lol") end
 function aw.cba(f, ...)
     local args = {...}
     return function() f(table.unpack(args)) end
@@ -45,6 +55,13 @@ function aw.array_merge(a1, ...)
         end
     end
     return a1
+end
+
+function aw.print(text)
+    naughty.notify({ preset = naughty.config.presets.critical,
+        title = "debug:",
+        text = text
+    })
 end
 
 return aw

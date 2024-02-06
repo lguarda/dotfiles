@@ -1,5 +1,3 @@
-local naughty = require("naughty")
-
 local function do_fair_only(p, horizontal)
     local wa = p.workarea
     local cls = p.clients
@@ -44,8 +42,6 @@ end
 ---------------------------------------------------------------------------
 
 -- Grab environment we need
-local ipairs = ipairs
-local math = math
 
 --- The fairh layout layoutbox icon.
 -- @beautiful beautiful.layout_fairh

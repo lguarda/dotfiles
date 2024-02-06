@@ -55,7 +55,7 @@ local home_dir = os.getenv('HOME')
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init(gears.filesystem.get_themes_dir() .. "zenburn/theme.lua")
 -- This is used later as the default terminal and editor to run.
-local terminal = "gnome-terminal "
+local terminal = "gnome-terminal"
 local editor = os.getenv("EDITOR") or "nvim"
 local editor_cmd = terminal .. " -e " .. editor
 
@@ -136,13 +136,85 @@ local function set_wallpaper(s)
     end
 end
 
-local inspect = require 'inspect'
+--local function debug_popup(...)
+--    naughty.notify({ preset = naughty.config.presets.critical,
+--        title = "Oops, an error happened!",
+--        text = inspect({...})
+--    })
+--end
 
-local function debug_popup(...)
+local function debug_popup(text)
     naughty.notify({ preset = naughty.config.presets.critical,
-        title = "Oops, an error happened!",
-        text = inspect({...})
+        title = "debug:",
+        text = text
     })
+end
+
+local function debug_popup_client()
+    local properties_list = {
+        "window",
+        "name",
+        "skip_taskbar",
+        "type",
+        "class",
+        "instance",
+        "pid",
+        "role",
+        "machine",
+        "icon_name",
+        "icon",
+        "icon_sizes",
+        "screen",
+        "hidden",
+        "minimized",
+        "size_hints_honor",
+        "border_width",
+        "border_color",
+        "urgent",
+        "content",
+        "opacity",
+        "ontop",
+        "above",
+        "below",
+        "fullscreen",
+        "maximized",
+        "maximized_horizontal",
+        "maximized_vertical",
+        "transient_for",
+        "group_window",
+        "leader_window",
+        "size_hints",
+        "motif_wm_hints",
+        "sticky",
+        "modal",
+        "focusable",
+        "shape_bounding",
+        "shape_clip",
+        "shape_input",
+        "client_shape_bounding",
+        "client_shape_clip",
+        "startup_id",
+        "valid",
+        "first_tag",
+        "marked",
+        "is_fixed",
+        "immobilized",
+        "immobilized",
+        "floating",
+        "x",
+        "y",
+        "width",
+        "height",
+        "dockable",
+        "requests_no_titlebar",
+        "shape",
+    }
+    local out = {}
+    local c = client.focus
+    for _,key in ipairs(properties_list) do
+        out[key] = c[key]
+    end
+    --debug_popup(out)
 end
 
 -- Helper functions for sane(er) keyboard resizing in layout.suit.tile.* modes
@@ -184,6 +256,8 @@ local function add_key_modes(name, bindings)
     key_modes[name] = bindings
 end
 
+
+
 local function signal_key_bind_mode(text, visible, key_mode)
     key_bind_text_widget:set_text(text)
     key_bind_mode_widget.visible = visible
@@ -204,36 +278,6 @@ local tag_list = {
     {name="10", key="#" .. 10 + 9 },
 }
 
-local function tag_select_layout(t)
-    local list = t:clients()
-    if #list == 1 then
-        t.layout = awful.layout.suit.max
-    elseif #list > 1 then
-        local no_floating = 0
-        for _,c in pairs(list) do
-            if c.floating == false then
-                no_floating = no_floating + 1
-                if no_floating > 1 then
-                    t.layout = t.layout_save
-                    return
-                end
-            end
-        end
-        t.layout = awful.layout.suit.max
-    end
-end
-
-local function focus_first_client_in_tag(t)
-    local client_list = t:clients()
-    if #client_list > 0 then
-        client.focus = client_list[1]
-        t.focused = client_list[1]
-    end
-    t.focused = nil
-end
-
-local cjson = require 'cjson'
-
 local function ip_widget()
     local wid = awful.widget.watch('/usr/lib/i3blocks/iface/iface', 15, function(widget, stdout)
         if stdout == "" then
@@ -243,34 +287,6 @@ local function ip_widget()
         end
     end)
     --return wibox.container.background(wid, '#00ff00')
-    return wid
-end
-
-local function format_bat(bat_data)
-    local ret = {}
-    for _, bat in pairs(bat_data) do
-        local out = bat.level .. "%"
-
-        if bat.status == "Not Charging" then
-            out = out .. " NOT"
-        elseif bat.status == "Discharging" then
-            out = out .. " DIS"
-        else
-            out = out .. " CHA"
-        end
-        if bat.time  and bat.time ~= cjson.null then
-            out = out .. " " .. bat.time
-        end
-        table.insert(ret, out)
-    end
-    return ret
-end
-
-local function bat_widget()
-    local wid = awful.widget.watch('/home/p1-leo/.local/bin/bat.py', 15, function(widget, stdout)
-        local bat = cjson.decode(stdout)
-        widget:set_text(table.concat(format_bat(bat), " "))
-    end)
     return wid
 end
 
@@ -287,8 +303,9 @@ local vert_sep = wibox.widget {
     color = "#cccccc",
 }
 
-    vert_sep.border_width = 100
-    vert_sep.span_ratio = 0.5
+vert_sep.border_width = 100
+vert_sep.span_ratio = 0.5
+
 local function create_wibar(s)
     -- Create the wibox
     s.mywibox = awful.wibar({ position = "bottom", screen = s, height=28 })
@@ -314,7 +331,7 @@ local function create_wibar(s)
             vert_sep,
             cpu_widget({timeout=3}),
             vert_sep,
-            batteryarc_widget({show_current_level=true, arc_thickness=1}),
+            batteryarc_widget({show_current_level=true, arc_thickness=2}),
             vert_sep,
             ip_widget(),
             vert_sep,
@@ -404,6 +421,8 @@ local function toggle_spawn(cmd, do_hide, rule)
     if c then
         if not c:isvisible() then
             c:move_to_tag(awful.tag.selected(1))
+            -- Refresh ontop if it was change
+            c.ontop = true
         elseif do_hide then
             c:tags {}
         else
@@ -611,6 +630,7 @@ local mode_keys_move = gears.table.join(
 add_key_modes('mode_keys_move', mode_keys_move)
 -- {{{ Global key bind
 local globalkeys = gears.table.join(
+    awful.key({}, "KP_8", function () debug_popup("OMG") end),
     ak("Shift+h", "show help", "awesome", hotkeys_popup.show_help),
     ak("Escape", "go back", "tag", awful.tag.history.restore),
     ak("w", "Set layout to max", "layout", function ()
@@ -640,15 +660,26 @@ local globalkeys = gears.table.join(
     -- media keys
     akr("XF86MonBrightnessUp", "Increase Brigtness", "Media", aw.cba(backlight_ctrl, 10)),
     akr("XF86MonBrightnessDown", "Decrease Brigtness", "Media", aw.cba(backlight_ctrl, -10)),
-    akr("XF86AudioRaiseVolume", "Mute microphone", "Media", aw.cba(awful.spawn, "pactl set-sink-volume 0 +5% #decrease sound volume")),
-    akr("XF86AudioLowerVolume", "Mute microphone", "Media", aw.cba(awful.spawn, "pactl set-sink-volume 0 -5% #decrease sound volume")),
-    akr("XF86AudioMicMute", "Mute microphone", "Media", aw.cba(awful.spawn, "pactl set-source-mute 1 toggle")),
-    akr("XF86AudioMute", "Mute speaker", "Media", aw.cba(awful.spawn, "pactl set-sink-mute 0 toggle")),
+    akr("XF86AudioRaiseVolume", "Raise Volume", "Media", aw.cba(awful.spawn, "pactl set-sink-volume 0 +5% #decrease sound volume")),
+    akr("XF86AudioLowerVolume", "Lower Volume", "Media", aw.cba(awful.spawn, "pactl set-sink-volume 0 -5% #decrease sound volume")),
+
+    akr("KP_Add", "Raise Volume", "Media", aw.cba(awful.spawn, "pactl set-sink-volume 0 +5% #decrease sound volume")),
+    akr("KP_Subtract", "Lower Volume", "Media", aw.cba(awful.spawn, "pactl set-sink-volume 0 -5% #decrease sound volume")),
+
+    akr("XF86AudioMicMute", "Mute microphone", "Media", aw.cba(awful.spawn, "pactl set-source-mute @DEFAULT_SOURCE@ toggle")),
+    akr("XF86AudioMute", "Mute speaker", "Media", aw.cba(awful.spawn, "pactl set-sink-mute @DEFAULT_SINK@ toggle")),
     -- Standard program
     ak("Return", "open a terminal", "launcher", aw.cba(awful.spawn, terminal)),
     ak("Shift+r", "reload awesome", "awesome", awesome.restart),
     ak("Shift+e", "quit awesome", "awesome", awesome.quit),
-    ak("x", "Lock session", "awesome", aw.cba(awful.spawn, "slock")),
+    ak("x", "Lock session", "awesome", function()
+        -- Lock tty switching
+        awful.spawn("physlock -l")
+        awful.spawn.easy_async("slock", function()
+            -- Unlock tty switching
+            awful.spawn("physlock -L")
+            end)
+        end),
     ak("u", "jump to urgent client", "client", awful.client.urgent.jumpto),
     ak("Shift+p", "jump to urgent client", "client", awful.client.urgent.jumpto),
     -- Layout manipulation
@@ -670,21 +701,75 @@ local globalkeys = gears.table.join(
     ak("d", "Pop up the launcher", "launcher",
         aw.cba(awful.spawn, 'rofi -modi drun,run -show drun')
     ),
+    ak("Shift+t", "Debug client", "launcher",
+        function() debug_popup_client() end),
     ak("Shift+s", "Pop up Flameshot", "launcher",
         aw.cba(awful.spawn, ('flameshot gui --path=%s/screenshot'):format(home_dir))),
     --ak("a", "Pop up crocohotkey", "launcher",
     --    aw.cba(awful.spawn, ("%s/.local/bin/toggle.sh %s/.local/bin/ahk.py"):format(home_dir, home_dir))),
     ak("a", "Pop up crocohotkey", "launcher",
-        aw.cba(toggle_spawn, ("%s/.local/bin/ahk.py"):format(home_dir), true, {name="Crocohotkey"})),
+        aw.cba(toggle_spawn, aw.path("~/.local/bin/conf.py"), true, {name="Config"})),
+
     ak("c", "Pop up pavucontrol", "launcher",
         aw.cba(toggle_spawn, 'pavucontrol', true)),
+
+    ak("p", nil, nil,
+        aw.cba(awful.spawn, 'keepmenu -a {USERNAME}')),
+    ak("Shift+p", nil, nil,
+        aw.cba(awful.spawn, 'keepmenu -a {PASSWORD}')),
+
+    akr("#63", "Alert gogole", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/craquer.mp3'))),
+
+    akr("#87", "Alert gogole", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/alert_gogol.mp3'))),
+
+    akr("#88", "Auncun sens", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/aucun_sens.mp3'))),
+
+    akr("#89", "Ba les couille", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/ba_les_couille.mp3'))),
+
+    akr("#83", "Ho non pas ca", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/pas_ca_zinedine.mp3'))),
+
+    akr("#84", "C'est l'heur du duel", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/cest_lheure_du_duel.mp3'))),
+
+    akr("#85", "Great succes", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/ff_success.mp3'))),
+
+    akr("#79", "Perceval", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/.local/bin/play_random_kaa.sh Perceval'))),
+    akr("#80", "Perceval", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/.local/bin/play_random_kaa.sh Karadoc'))),
+    akr("#81", "Kaalot", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/.local/bin/play_random_kaa.sh'))),
+
+    akr("#90", "Perceval", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/kill.sh mpv'))),
+
     ak("s", "Pop up slack", "launcher",
         aw.cba(toggle_spawn, 'slack', true, {class="Slack", })),
     -- Keybind mode
     ak("r", "Change keybind mode to resize", "Keybind mode",
         aw.cba(signal_key_bind_mode, 'resize', true, 'mode_keys_resize')),
     ak("m", "Change keybind mode to move", "Keybind mode",
-        aw.cba(signal_key_bind_mode, 'move', true, 'mode_keys_move'))
+        aw.cba(signal_key_bind_mode, 'move', true, 'mode_keys_move')),
+
+    ak("i", "Dedicated debug call", "Debug", function()
+        -- mouse.coords {
+        --     x = geo.x + math.ceil(geo.width /2),
+        --     y = geo.y + math.ceil(geo.height/2)
+        -- }
+        mouse.coords {
+            x = 0,
+            y = 0
+        }
+        for s in screen do
+            debug_popup(gears.debug.dump_return(s.geometry))
+        end
+    end)
 )
 -- }}}
 -- {{{ Tag key bind
@@ -788,7 +873,9 @@ local default_rule = {
         buttons = clientbuttons,
         screen = awful.screen.preferred,
         placement = awful.placement.no_overlap+awful.placement.no_offscreen,
-        size_hints_honor = false,
+        size_hints_honor = true,
+        --floating = false,
+        --maximized = false,
     }
 }
 
@@ -804,6 +891,7 @@ local floating_client_rule = {
         name = {
             "Event Tester",  -- xev.
             "Crocohotkey",
+            "Config",
         },
         role = {
             "AlarmWindow",  -- Thunderbird's calendar.
@@ -834,20 +922,33 @@ awful.rules.rules = {
     },
     { rule = { class = "Slack" }, properties = {
             placement = function(...) return awful.placement.centered(...)end,
-            height = 1300,
-            width = 2300,
+            height = 700,
+            width = 1200,
             floating = true,
             opacity=0.9,
+            above=true,
             ontop=true
         },
     },
     { rule = { class = "Dragon" }, properties = {
         sticky = true, ontop = true, floating = true, placement = awful.placement.centered }
     },
-
--- Set Firefox to always map on the tag named "2" on screen 1.
--- { rule = { class = "Firefox" },
---   properties = { screen = 1, tag = "2" } },
+    { rule = { class = "VirtualBox Machine" }, properties = {
+        tag = "10"
+        }
+    },
+    { rule = { class = "org.gnome.Nautilus" }, properties = {
+        floating = false,
+        maximized = false,
+        }
+    },
+    { rule = { class = "gnome-terminal-server" }, properties = {
+        size_hints_honor = false
+        }
+    },
+    { rule = { class = "firefox" },
+        properties = { maximized = false }
+    },
 }
 -- }}}
 -- {{{ Signals
@@ -879,7 +980,7 @@ client.connect_signal("mouse::enter", function(c)
     c:emit_signal("request::activate", "mouse_enter", { raise = false })
 end)
 
-client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
+client.connect_signal("focus", function(c) c.border_color = "#4287f5" end )--beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 
 local function border_control(t, only_one)
