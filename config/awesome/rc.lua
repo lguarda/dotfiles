@@ -23,8 +23,6 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 
 local aw = require 'awlib'
 
-local myfair = require "fair"
-
 -- }}}
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -633,15 +631,27 @@ local globalkeys = gears.table.join(
     awful.key({}, "KP_8", function () debug_popup("OMG") end),
     ak("Shift+h", "show help", "awesome", hotkeys_popup.show_help),
     ak("Escape", "go back", "tag", awful.tag.history.restore),
+    ak("f", "toggle fullscreen", "client",
+    function ()
+        if awful.layout.getname() == "fullscreen" then
+            awful.layout.set(awful.layout.suit.fair)
+        else
+            awful.layout.set(awful.layout.suit.max.fullscreen)
+        end
+    end
+    ),
     ak("w", "Set layout to max", "layout", function ()
             -- save client under mouse
             local tof = mouse.object_under_pointer()
-            if client.focus.fullscreen then
-                client.focus.fullscreen = false
+            local c = client.focus
+            if c and c.fullscreen then
+                c.fullscreen = false
             end
             awful.layout.set(awful.layout.suit.max)
             -- jump to the client that was under the mouse after changing to max
-            tof:jump_to(false)
+            if tof then
+                tof:jump_to(false)
+            end
         end
     ),
     ak("e", "Toggle fair layout horizontal and vertiacal", "layout", function ()
@@ -704,11 +714,11 @@ local globalkeys = gears.table.join(
     ak("Shift+t", "Debug client", "launcher",
         function() debug_popup_client() end),
     ak("Shift+s", "Pop up Flameshot", "launcher",
-        aw.cba(awful.spawn, ('flameshot gui --path=%s/screenshot'):format(home_dir))),
+        aw.cba(awful.spawn, ('flameshot gui --path=%s/Pictures/screenshot/'):format(home_dir))),
     --ak("a", "Pop up crocohotkey", "launcher",
     --    aw.cba(awful.spawn, ("%s/.local/bin/toggle.sh %s/.local/bin/ahk.py"):format(home_dir, home_dir))),
     ak("a", "Pop up crocohotkey", "launcher",
-        aw.cba(toggle_spawn, aw.path("~/.local/bin/conf.py"), true, {name="Config"})),
+        aw.cba(toggle_spawn, aw.path("~/clone/crocohotkey/src/crocoui.py"), true, {name="Config"})),
 
     ak("c", "Pop up pavucontrol", "launcher",
         aw.cba(toggle_spawn, 'pavucontrol', true)),
@@ -718,26 +728,29 @@ local globalkeys = gears.table.join(
     ak("Shift+p", nil, nil,
         aw.cba(awful.spawn, 'keepmenu -a {PASSWORD}')),
 
+    akr("#106", "Alert gogole", "Sound Box",
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/emmerde_maison.mp3'))),
+
     akr("#63", "Alert gogole", "Sound Box",
-        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/craquer.mp3'))),
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/craquer.mp3'))),
 
     akr("#87", "Alert gogole", "Sound Box",
-        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/alert_gogol.mp3'))),
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/alert_gogol.mp3'))),
 
     akr("#88", "Auncun sens", "Sound Box",
-        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/aucun_sens.mp3'))),
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/aucun_sens.mp3'))),
 
     akr("#89", "Ba les couille", "Sound Box",
-        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/ba_les_couille.mp3'))),
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/ba_les_couille.mp3'))),
 
     akr("#83", "Ho non pas ca", "Sound Box",
-        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/pas_ca_zinedine.mp3'))),
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/pas_ca_zinedine.mp3'))),
 
     akr("#84", "C'est l'heur du duel", "Sound Box",
-        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/cest_lheure_du_duel.mp3'))),
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/cest_lheure_du_duel.mp3'))),
 
     akr("#85", "Great succes", "Sound Box",
-        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/over.sh mpv ~/Music/sound_box/ff_success.mp3'))),
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/ff_success.mp3'))),
 
     akr("#79", "Perceval", "Sound Box",
         aw.cba(awful.spawn, aw.path('~/.local/bin/play_random_kaa.sh Perceval'))),
@@ -747,7 +760,7 @@ local globalkeys = gears.table.join(
         aw.cba(awful.spawn, aw.path('~/.local/bin/play_random_kaa.sh'))),
 
     akr("#90", "Perceval", "Sound Box",
-        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/kill.sh mpv'))),
+        aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/kill.sh mpv'))),
 
     ak("s", "Pop up slack", "launcher",
         aw.cba(toggle_spawn, 'slack', true, {class="Slack", })),
@@ -827,15 +840,6 @@ end
 add_key_modes('globalkeys', globalkeys)
 
 local clientkeys = gears.table.join(
-    ak("f", "toggle fullscreen", "client",
-    function (c)
-        if awful.layout.getname() == "fullscreen" then
-            awful.layout.set(awful.layout.suit.fair)
-        else
-            awful.layout.set(awful.layout.suit.max.fullscreen)
-        end
-    end
-    ),
     ak("Shift+q", "Close", "client", function (c) c:kill() end),
     ak("space", "toggle floating", "client", awful.client.floating.toggle),
     ak("Control+Return", "move to master", "client", function (c) c:swap(awful.client.getmaster()) end),
@@ -875,7 +879,7 @@ local default_rule = {
         placement = awful.placement.no_overlap+awful.placement.no_offscreen,
         size_hints_honor = true,
         --floating = false,
-        --maximized = false,
+        maximized = false,
     }
 }
 
@@ -884,7 +888,7 @@ local floating_client_rule = {
         instance = {
             "copyq",  -- Includes session name in class.
         },
-        class = { "Arandr" },
+        class = { "Arandr", "Blueman-manager"},
 
         -- Note that the name property shown in xprop might be set slightly after creation of the client
         -- and the name shown there might not match defined rules here.
