@@ -11,7 +11,7 @@ end
 -- aw.cba(print, "lol") ->
 -- function() print("lol") end
 function aw.cba(f, ...)
-    local args = {...}
+    local args = { ... }
     return function() f(table.unpack(args)) end
 end
 
@@ -36,21 +36,21 @@ function string:split(delimiter)
     result = {};
     local special_char_set = "().%+*?[^$"
     local escape_delimiter = ''
-    for special_char in special_char_set:gmatch"." do
+    for special_char in special_char_set:gmatch "." do
         if special_char == delimiter then
             escape_delimiter = '%'
         end
     end
     self = self:trim()
-    for match in (self..delimiter):gmatch("(.-)"..escape_delimiter..delimiter) do
+    for match in (self .. delimiter):gmatch("(.-)" .. escape_delimiter .. delimiter) do
         table.insert(result, match);
     end
     return result;
 end
 
 function aw.array_merge(a1, ...)
-    for _, a2 in ipairs({...}) do
-        for _,value in ipairs(a2) do
+    for _, a2 in ipairs({ ... }) do
+        for _, value in ipairs(a2) do
             table.insert(a1, value)
         end
     end
@@ -58,7 +58,8 @@ function aw.array_merge(a1, ...)
 end
 
 function aw.print(text)
-    naughty.notify({ preset = naughty.config.presets.critical,
+    naughty.notify({
+        preset = naughty.config.presets.critical,
         title = "debug:",
         text = text
     })
