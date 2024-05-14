@@ -46,19 +46,24 @@ vim.o.syntax = "on"
 vim.opt.whichwrap:append("<,>,h,l,[,]")               -- Move cursor to next/previous line when reach end and begin of line
 --vim.o.wildmode=longest:full,full   -- Widlmenu option
 vim.o.virtualedit = "onemore"                         -- Allow normal mode to go one more charater at the end
---vim.o.mouse=a                      -- Set mouse for all mode
+vim.o.mouse = ""                                      -- Disable mouse for all mode
+vim.o.mousemoveevent = false
 vim.opt.display:append("uhex,lastline")               -- Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
 --vim.o.undodir=vim.env['HOME']/.vim/undo      -- Undofile location
-vim.o.backupdir = vim.env['HOME'] .. '/.vim/backup//' -- List of directories for the backup file, separated with commas.
+vim.o.backupdir = vim.env["HOME"] .. "/.vim/backup//" -- List of directories for the backup file, separated with commas.
 --vim.o.completeopt=menuone,menu,longest,preview -- Change <ctrl+n> behavior see :h completeopt
+--
+--treesiteer fold is completely shitty idk why
+--vim.opt.foldmethod = "expr"
+--vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+-- The folowing option break the fold idk why see the autocommand
+--vim.opt.foldlevelstart = 99
 -- }}}
--- {{{ Auto command
-vim.api.nvim_create_autocmd("VimEnter", {
-    callback = function()
-        if vim.fn.expand("%") == "init.lua" then
-            vim.opt.foldmethod = "marker"
-        end
-    end,
+-- {{{ custom filetype action
+
+vim.api.nvim_create_autocmd({ "BufReadPost", "FileReadPost" }, {
+    pattern = "*",
+    command = "normal zR"
 })
 
 vim.api.nvim_create_autocmd("VimEnter", {
@@ -71,7 +76,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
     pattern = "COMMIT_EDITMSG",
-    command = "set spell"
+    command = "set spell",
 })
 
 vim.api.nvim_create_autocmd("BufRead", {
@@ -79,41 +84,60 @@ vim.api.nvim_create_autocmd("BufRead", {
     command = "set filetype=python",
 })
 
+-- This is used to have timestamped backup file
 vim.api.nvim_create_autocmd("VimEnter", {
     pattern = "*",
     command = "let &bex = '-' . strftime(\"%Y%m%d%H%M\") . '~'",
 })
+-- }}}
+-- {{{ Auto command
 -- {{{ Wrong whitespace
-vim.cmd([[
-" red highlight color for every whitechar issue
-highlight ExtraCarriageReturn ctermbg=red guibg=red
-highlight ExtraWhitespace ctermbg=red guibg=red
-highlight ExtraSpaceDwich ctermbg=red guibg=red
-highlight NonBreakSpace ctermbg=yellow guibg=yellow
-highlight EmptyChar ctermfg=red ctermbg=red guibg=red guifg=red
-highlight currawong ctermbg=darkred guibg=darkred
-]])
-
 local wrongwhitespace = vim.api.nvim_create_augroup("wrongwhitespace", { clear = true })
 local ac = vim.api.nvim_create_autocmd
--- Highlight white space at end of line
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('ExtraWhitespace', '\\s\\+$')" })
--- Highlight mixed tab and space
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('ExtraSpaceDwich', ' \\t\\|\\t ')" })
--- Highlight windows \r
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('ExtraCarriageReturn', '\\r')" })
--- Highlight non breaking space
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('NonBreakSpace', ' ')" })
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('EmptyChar', ' ')" })
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('EmptyChar', ' ')" })
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('EmptyChar', ' ')" })
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('EmptyChar', ' ')" })
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('EmptyChar', ' ')" })
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('EmptyChar', ' ')" })
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('EmptyChar', ' ')" })
-ac("BufWinEnter", { group = wrongwhitespace, command = "exec matchadd('EmptyChar', '　')" })
---}}}
---}}}
+ac("BufWinEnter", {
+    group = wrongwhitespace,
+    callback = function()
+        local bname = vim.api.nvim_buf_get_name(0)
+        if bname == "" then
+            return
+        end
+        -- red highlight color for every whitechar issue
+        vim.cmd.highlight("ExtraCarriageReturn", "ctermbg=red", "guibg=red")
+        vim.cmd.highlight("ExtraWhitespace", "ctermbg=red", "guibg=red")
+        vim.cmd.highlight("ExtraSpaceDwich", "ctermbg=red", "guibg=red")
+        vim.cmd.highlight("NonBreakSpace", "ctermbg=yellow", "guibg=yellow")
+        vim.cmd.highlight("EmptyChar", "ctermfg=red", "ctermbg=red", "guibg=red", "guifg=red")
+        vim.cmd.highlight("currawong", "ctermbg=darkred", "guibg=darkred")
+
+        vim.fn.matchadd("ExtraWhitespace", "\\s\\+$")
+        -- Highlight mixed tab and space
+        vim.fn.matchadd("ExtraSpaceDwich", " \\t\\|\\t ")
+        -- Highlight windows \r
+        vim.fn.matchadd("ExtraCarriageReturn", "\\r")
+        -- Highlight non breaking space
+        vim.fn.matchadd("NonBreakSpace", " ")
+        -- Highligth other shitty white space that aren't space
+        vim.fn.matchadd("EmptyChar", " ")
+        vim.fn.matchadd("EmptyChar", " ")
+        vim.fn.matchadd("EmptyChar", " ")
+        vim.fn.matchadd("EmptyChar", " ")
+        vim.fn.matchadd("EmptyChar", " ")
+        vim.fn.matchadd("EmptyChar", " ")
+    end,
+})
+-- }}}
+-- {{{ Terminal specific
+ac("TermOpen", { command = "setlocal nonumber norelativenumber signcolumn=no laststatus=0" })
+ac("TermOpen", { command = "startinsert" })
+-- This one is to avoid typen enter when you ctr+d in terminal
+ac("TermClose", { command = "q" })
+ac("BufEnter", { pattern = "term://*", command = "startinsert" })
+-- }}}
+-- {{{ language specific
+ac("BufWrite", { pattern = "*.puml", command = "silent !plantuml % &" })
+ac("BufWrite", { pattern = "*.dot", command = "silent !dot -O -Tsvg % &" })
+-- }}}
+-- }}}
 -- {{{ Key Map
 local remap = vim.keymap.set
 -- {{{ Nvim
@@ -123,14 +147,16 @@ end, { remap = true })
 remap("n", "<space>r", function()
     require("plenary.reload").reload_module("~/.config/nvim/init.lua") -- replace with your own namespace
 end)
-remap("n", "<Tab>", ":tabnext")
-remap("n", "<S-Tab>", ":tabprevious")
+remap("n", "<Tab>", ":tabnext<CR>")
+remap("n", "<S-Tab>", ":tabprevious<CR>")
 -- }}}
 -- {{{ system ClipBoard
-remap("v", "<M-c>", '"+2yy', { remap = true })
-remap("v", "<M-v>", 'd"+P', { remap = true })
-remap("n", "<M-v>", '"+P', { remap = true })
-remap("i", "<M-v>", '<C-o>"+P', { remap = true })
+remap("v", "<A-c>", '"+y', { remap = true })
+remap("v", "<A-v>", 'd"+P', { remap = true })
+remap("n", "<A-v>", '"+P', { remap = true })
+remap("t", "<A-v>", '<S-ESC>"+PI', { remap = true })
+remap("i", "<A-v>", '<C-o>"+P', { remap = true })
+remap("c", "<A-v>", "<C-r>+", { remap = true })
 -- }}}
 -- {{{ Resize Pane
 remap("n", "<S-right>", ":vertical resize +5<CR>")
@@ -140,37 +166,55 @@ remap("n", "<S-down>", "5<C-w>-")
 -- }}}
 -- {{{ Search and Replace
 remap("v", "<Space>", ":s/\\s\\+$//e<CR>")                             -- "Delete Extra white sapce from selection
-remap("v", "<M-r>", '"hy<ESC>:%s;<C-r>h;<C-r>h;gc<left><left><left>')  -- "Replace all selection
+remap("v", "<A-r>", '"hy<ESC>:%s;<C-r>h;<C-r>h;gc<left><left><left>')  -- "Replace all selection
 remap("v", "<S-r>", '"hy<ESC>:%s/<C-r>h/<C-r>0/gc<left><left><left>')  -- "Replace all selection by last yank
 remap("n", "<space>", ":nohlsearch<CR>")                               -- "Stop hightliting search
-remap("n", "<M-r>", 'yiw:%s/\\<<C-R>"\\>/<C-R>"/gc<left><left><left>') -- "Replace word on cursor
-remap("c", "<M-r><M-r>", '<CR>:%s/<C-R>"/g<left><left>')               -- "Relplace word in yank buffer on all file
-remap("v", "<M-r><M-r>", ':s/<C-R>"/<C-R>"/g<left><left>')             -- "Relplace word in yank buffer on selected zone
+remap("n", "<A-r>", 'yiw:%s/\\<<C-R>"\\>/<C-R>"/gc<left><left><left>') -- "Replace word on cursor
+remap("c", "<A-r><A-r>", '<CR>:%s/<C-R>"/g<left><left>')               -- "Relplace word in yank buffer on all file
+remap("v", "<A-r><A-r>", ':s/<C-R>"/<C-R>"/g<left><left>')             -- "Relplace word in yank buffer on selected zone
 remap("v", "/", '"ay:let @a = "/" . escape(@a, "/")<CR>@a<CR>')        -- "Search selected Text
 -- }}}
 -- {{{ Navigation
 remap("t", "<A-h>", "<C-\\><C-N><C-w>h")
-remap("t", "<A-j>", "<C-\\><C-N><C-w>j")
-remap("t", "<A-k>", "<C-\\><C-N><C-w>k")
-remap("t", "<A-l>", "<C-\\><C-N><C-w>l")
 remap("i", "<A-h>", "<C-\\><C-N><C-w>h")
-remap("i", "<A-j>", "<C-\\><C-N><C-w>j")
-remap("i", "<A-k>", "<C-\\><C-N><C-w>k")
-remap("i", "<A-l>", "<C-\\><C-N><C-w>l")
-remap("n", "<Tab>", ":tabnext<CR>")
-remap("n", "<S-Tab>", ":tabprevious<CR>")
 remap("n", "<A-h>", "<C-w>h")
+
+remap("t", "<A-l>", "<C-\\><C-N><C-w>l")
+remap("i", "<A-l>", "<C-\\><C-N><C-w>l")
 remap("n", "<A-l>", "<C-w>l")
---remap('n', '<A-j>', '<C-w>j')
---remap('n', '<A-k>', '<C-w>k')
+
+remap("i", "<A-j>", "<C-\\><C-N>:tabprevious<CR>")
+remap("n", "<A-j>", ":tabprevious<CR>")
+remap("t", "<A-j>", "<C-\\><C-N>:tabprevious<CR>")
+
+remap("i", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
+remap("t", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
+remap("n", "<A-k>", ":tabnext<CR>")
+-- {{{ Terminal specific
+remap("t", "<S-esc>", "<C-\\><C-n>") -- normal mode
+remap("t", "<MouseMove>", "<NOP>")   -- mouse isn't well handled for now
+-- GUI seems ti send some weird shit with this so we disable it
+remap("t", "<S-BS>", "<nop>")
+remap("t", "<S-D-BS>", "<nop>")
+remap("t", "<S-A-BS>", "<nop>")
+remap("t", "<S-CR>", "<nop>")
+remap("t", "<S-D-CR>", "<nop>")
+remap("t", "<S-A-CR>", "<nop>")
+remap("t", "<S-space>", "<nop>")
+remap("t", "<S-A-space>", "<nop>")
+remap("t", "<S-D-space>", "<nop>")
 -- }}}
+-- }}}
+vim.api.nvim_create_user_command("OpenscadOpen", function()
+    vim.fn.execute(("!openscad %s &"):format(vim.fn.expand("%p")))
+end, {})
 -- {{{ Formating
 local function toggle_conf(scope, conf)
     local opt_type = type(vim[scope][conf])
     local old_value
-    if opt_type == 'table' then
+    if opt_type == "table" then
         old_value = vim[scope][conf]:get()
-    elseif opt_type == 'boolean' then
+    elseif opt_type == "boolean" then
         old_value = vim[scope][conf]
     else
         error(("%s not handled when toggle conf"):format(opt_type))
@@ -186,12 +230,12 @@ remap("n", "<space>w", function()
 end) -- "Toggle expandtab
 
 -- Move text around
-remap("n", "<A-k>", '"mddk"mP==') -- move current line up
-remap("n", "<A-j>", '"mdd"mp==') -- move current line down
+remap("n", "<A-k>", '"mddk"mP==')       -- move current line up
+remap("n", "<A-j>", '"mdd"mp==')        -- move current line down
 remap("v", "<A-k>", ":m '<-2<CR>gv=gv") -- move selecion up
 remap("v", "<A-j>", ":m '>+1<CR>gv=gv") -- move selecion down
-remap("v", "<Tab>", ">gv") -- indent up
-remap("v", "<S-Tab>", "<gv") -- indent down
+remap("v", "<Tab>", ">gv")              -- indent up
+remap("v", "<S-Tab>", "<gv")            -- indent down
 -- }}}
 --{{{ Action
 remap("n", "<space>x", "<cmd>!chmod +x %<CR>", { silent = true })
@@ -199,9 +243,37 @@ remap("n", "x", '"_x', { silent = true })
 remap("n", "X", '"_X', { silent = true })
 remap("n", "<S-z><S-s>", ":execute 'silent! write !sudo tee % >/dev/null' <bar> edit!<CR>")
 remap("v", "@", ":normal @r<CR>")
-remap("n" , "-<S-o>", ":vertical sbuffer 2<CR>")
+remap("n", "-<S-o>", ":vertical sbuffer 2<CR>")
 --}}}
-remap("n", "<M-y>", 'qaq:g/<C-R>//y A<CR>:let @a=@"<CR>', {})
+-- {{{ Gui
+local default_font = "Mononoki Nerd Font"
+local default_font_size = 9
+local font_size = default_font_size
+
+local function set_font_size()
+    print()
+    vim.o.guifont = ("%s:h%s"):format(default_font, font_size)
+end
+
+local function mod_font_size(delta)
+    font_size = font_size + delta
+    set_font_size()
+end
+set_font_size()
+
+remap("n", "<c-->", function()
+    mod_font_size(-1)
+end)
+remap("n", "<c-=>", function()
+    mod_font_size(1)
+end)
+remap("t", "<c-->", function()
+    mod_font_size(-1)
+end)
+remap("t", "<c-=>", function()
+    mod_font_size(1)
+end)
+-- }}}
 -- }}}
 -- {{{ Ensure lazy
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -220,57 +292,22 @@ vim.opt.rtp:prepend(lazypath)
 --}}}
 --{{{ lazy plugin list
 require("lazy").setup({
-    {
-        "iamcco/markdown-preview.nvim",
-        config = function()
-            vim.fn["mkdp#util#install"]()
-        end,
-    },
-    {
-        "rebelot/kanagawa.nvim",
-        priority = 1000,
-        config = function()
-            vim.cmd.colorscheme("kanagawa-dragon")
-            vim.cmd("hi LineNr guibg=none ctermbg=none")
-            vim.cmd("hi SignColumn guibg=none ctermbg=none")
-            vim.cmd("hi GitSignsAdd guibg=none ctermbg=none")
-            vim.cmd("hi GitSignsChange guibg=none ctermbg=none")
-            vim.cmd("hi GitSignsDelete guibg=none ctermbg=none")
-        end,
-    },
-    { "vim-scripts/a.vim" },
-    { "jakemason/ouroboros", dependencies = "nvim-lua/plenary.nvim" },
-    --{ "ellisonleao/glow.nvim", config = true, cmd = "Glow" },
-    "fidian/hexmode",
+    "aklt/plantuml-syntax",
+    "subnut/nvim-ghost.nvim",
     "godlygeek/tabular",
-    "mbbill/undotree",
-    "tpope/vim-fugitive",
+    "fidian/hexmode",
     {
-        --"ThePrimeagen/refactoring.nvim",
-        "lguarda/refactoring.nvim",
-        dependencies = {
-            { "nvim-lua/plenary.nvim" },
-            { "nvim-treesitter/nvim-treesitter" },
-            { "nvim-treesitter/playground" },
-        },
+        "nvim-treesitter/nvim-treesitter",
         config = function()
-            local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-            parser_config.groovy = {
-                install_info = {
-                    url = "~/projects/tree-sitter-zimbu",   -- local path or git repo
-                    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
-                },
-                filetype = "Jenkinsfile",                   -- if filetype does not match the parser name
-            }
             require("nvim-treesitter.configs").setup({
                 highlight = {
                     enable = true,
-                    additional_vim_regex_highlighting = true, -- <= THIS LINE is the magic!
+                    -- this will enable highlight with set spell for example
+                    --additional_vim_regex_highlighting = true,
                 },
                 ensure_installed = {
                     "c",
                     "lua",
-                    "teal",
                     "vim",
                     "query",
                     "regex",
@@ -284,28 +321,10 @@ require("lazy").setup({
                     "gitcommit",
                     "gitignore",
                 },
-                playground = {
-                    enable = true,
-                    disable = {},
-                    updatetime = 25,         -- Debounced time for highlighting nodes in the playground from source code
-                    persist_queries = false, -- Whether the query persists across vim sessions
-                    keybindings = {
-                        toggle_query_editor = "o",
-                        toggle_hl_groups = "i",
-                        toggle_injected_languages = "t",
-                        toggle_anonymous_nodes = "a",
-                        toggle_language_display = "I",
-                        focus_language = "f",
-                        unfocus_language = "F",
-                        update = "R",
-                        goto_node = "<cr>",
-                        show_help = "?",
-                    },
-                },
             })
         end,
     },
-    {
+    { -- {{{ telescope
         "nvim-telescope/telescope.nvim",
         dependencies = "nvim-lua/plenary.nvim",
         config = function()
@@ -330,8 +349,8 @@ require("lazy").setup({
                 },
             })
         end,
-    },
-    {
+    },                 -- }}}
+    {                  --{{{ hop (easyjump)
         "phaazon/hop.nvim",
         branch = "v2", -- optional but strongly recommended
         config = function()
@@ -348,8 +367,8 @@ require("lazy").setup({
                 hop.hint_words()
             end, { remap = true })
         end,
-    },
-    {
+    }, -- }}}
+    {  -- {{{ neotree
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v2.x",
         dependencies = {
@@ -363,7 +382,7 @@ require("lazy").setup({
                 vim.cmd.Neotree(".")
             end, { noremap = true, silent = true })
         end,
-    },
+    }, --}}}
     {
         "wesleimp/stylua.nvim",
         config = function()
@@ -373,7 +392,7 @@ require("lazy").setup({
             end, {})
         end,
     },
-    {
+    { -- {{{ lsp-zero
         "VonHeikemen/lsp-zero.nvim",
         branch = "v2.x",
         dependencies = {
@@ -395,7 +414,8 @@ require("lazy").setup({
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path",
             "hrsh7th/cmp-cmdline",
-            "saadparwaiz1/cmp_luasnip",
+            --'saadparwaiz1/cmp_luasnip',
+            --"rafamadriz/friendly-snippets",
         },
         config = function()
             require("mason").setup()
@@ -409,9 +429,19 @@ require("lazy").setup({
                 lsp.default_keymaps({ buffer = bufnr })
             end)
 
+            local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+            -- An example for configuring `clangd` LSP to use nvim-cmp as a completion engine
+            require('lspconfig').clangd.setup {
+                capabilities = capabilities,
+            }
             -- (Optional) Configure lua language server for neovim
-            require("lspconfig").lua_ls.setup(lsp.nvim_lua_ls())
-            require("lspconfig").clangd.setup({})
+            require("lspconfig").lua_ls.setup {
+                capabilities = capabilities,
+            }
+            require("lspconfig").clangd.setup {
+                capabilities = capabilities,
+            }
             require("lspconfig").pylsp.setup({
                 settings = {
                     pylsp = {
@@ -435,10 +465,13 @@ require("lazy").setup({
             -- local cmp_action = require('lsp-zero').cmp_action()
 
             cmp.setup({
-                snippet = {
-                    expand = function(args)
-                        require("luasnip").lsp_expand(args.body)
-                    end,
+                window = {
+                    completion = cmp.config.window.bordered(),
+                    documentation = cmp.config.window.bordered(),
+                },
+                preselect = 'none',
+                completion = {
+                    completeopt = 'menu,menuone,noinsert,noselect'
                 },
                 mapping = {
                     ["<CR>"] = cmp.mapping.confirm({ select = false }),
@@ -446,7 +479,7 @@ require("lazy").setup({
                 sources = cmp.config.sources({
                     { name = "path" },
                     { name = "nvim_lsp" },
-                    { name = "luasnip" }, -- For luasnip users.
+                    --{ name = 'luasnip' }, -- For luasnip users.
                     {
                         name = "buffer",
                         option = {
@@ -458,24 +491,41 @@ require("lazy").setup({
                 }),
             })
         end,
-    },
+    }, -- }}}
     {
-        "lewis6991/gitsigns.nvim",
+        "VDuchauffour/neodark.nvim",
         config = function()
-            require("gitsigns").setup()
+            require("neodark").setup({
+                theme_style = "neodarker",
+            })
         end,
     },
+    "tpope/vim-fugitive",
+    { -- {{{ gitsign
+        "lewis6991/gitsigns.nvim",
+        config = function()
+            require("gitsigns").setup({
+                signs = {
+                    add = { text = "+" },
+                    change = { text = "~" },
+                    delete = { text = "-" },
+                    topdelete = { text = "‾" },
+                    changedelete = { text = "≈" },
+                    untracked = { text = "┆" },
+                },
+            })
+        end,
+    }, --}}}
     {
-        'numToStr/Comment.nvim',
+        "numToStr/Comment.nvim",
         opts = {
             -- add any options here
         },
         lazy = false,
     },
-    "sindrets/diffview.nvim",
 })
 -- }}}
---{{{ Command
+-- {{{ Command
 vim.api.nvim_create_user_command("JsonIndent", function()
     vim.fn.execute(':%!jq "."')
 end, {})
@@ -498,6 +548,5 @@ end, {})
 vim.api.nvim_create_user_command("YamlIndentMimify", function()
     vim.fn.execute(':%!yq -y -c "."')
 end, {})
---}}}
-
--- vim600: et sw=4 ts=4 fdm=marker
+-- }}}
+-- vim700: set sw=4 ts=4 fdm=marker
