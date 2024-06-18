@@ -1,0 +1,41 @@
+dashboard -layout source stack variables !assembly !breakpoints !expressions !history !memory !registers !threads
+dashboard source -style height 0
+dashboard variables -style compact False
+dashboard variables -style sort True
+
+dashboard source -style highlight-line True
+dashboard -style style_selected_1 4
+
+dashboard -style syntax_highlighting 'dracula'
+
+set print object on
+
+define hookpost-up
+  dashboard
+end
+
+define hookpost-down
+  dashboard
+end
+
+define hookpost-frame
+  dashboard
+end
+
+define hook-stop
+  dashboard
+end
+
+define hook-thread
+  dashboard
+end
+
+define reload
+    python gdb.execute("file " + gdb.current_progspace().filename)
+    # clear cache
+    directory
+end
+
+define ptrsize
+    print (size_t)malloc_usable_size($arg0)
+end

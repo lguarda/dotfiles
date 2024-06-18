@@ -1,0 +1,21 @@
+set history save on
+set history size 10000
+set history remove-duplicates 3
+set history filename ~/.gdb_history
+
+set print object on
+
+# refresh screen to avoid weird glitch when the binary output on console
+define hook-next
+    refresh
+end
+
+define reload
+    python gdb.execute("file " + gdb.current_progspace().filename)
+    # clear cache
+    directory
+end
+
+define ptrsize
+    print (size_t)malloc_usable_size($arg0)
+end

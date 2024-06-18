@@ -1,3 +1,7 @@
+-- {{{ Variables
+local home = vim.env["HOME"]
+local backupdir = home .. "/.vim/backup//"
+-- }}}
 -- {{{ Settings
 -- number settings
 vim.o.scrolloff = 10     -- scroll terminal when cursor is N line from the top or botom
@@ -15,42 +19,43 @@ vim.o.scrolloff = 10     -- scroll terminal when cursor is N line from the top o
 vim.o.timeoutlen = 300   -- scroll terminal when cursor is N line from the top or botom
 
 -- boolean settings
-vim.o.endofline = false     -- No <EOL> will be written for the last line in the file
-vim.o.number = true         -- Display line number
-vim.o.relativenumber = true -- Display line number
-vim.o.cursorline = true     -- Highlight current line
-vim.o.expandtab = true      -- Use muliple space instead of tab
-vim.o.autoindent = true     -- Copy indent from current line when starting a new line
-vim.o.smartindent = true    -- Do smart autoindenting when starting a new line
-vim.o.autoread = true       -- Change file when editing from the outside
-vim.o.hlsearch = true       -- Highligth search
-vim.o.ignorecase = true     -- Case insensitive
-vim.o.smartcase = true      -- Override the 'ignorecase' option if the search pattern contains upper case characters
-vim.o.wildmenu = true       -- Pop menu when autocomplete command
-vim.o.wildignorecase = true -- Ignore case for command completion
-vim.o.infercase = true      -- IDK just testing this option
-vim.o.autochdir = true      -- Auto change directories of file
-vim.o.wrap = false          -- Don't warp long line
-vim.o.linebreak = true      -- Break at a word boundary
---vim.o.lazyredraw = true                  -- Redraw only when we need to.
-vim.o.incsearch = true      -- While typing a search command, show where the pattern is
-vim.o.swapfile = false      -- Don't use swapfile for the buffer
-vim.bo.swapfile = false     -- Don't use swapfile for the buffer
-vim.o.ruler = true          -- Show the line and column number of the cursor position
-vim.o.undofile = true       -- Use undofile
-vim.o.backup = true         -- Make a backup before overwriting a file.
-vim.o.list = true           -- Enable listchars
---vim.o.conceallevel = 2
-
+vim.o.endofline = false                 -- No <EOL> will be written for the last line in the file
+vim.o.number = true                     -- Display line number
+vim.o.relativenumber = true             -- Display line number
+vim.o.cursorline = true                 -- Highlight current line
+vim.o.expandtab = true                  -- Use muliple space instead of tab
+vim.o.autoindent = true                 -- Copy indent from current line when starting a new line
+vim.o.smartindent = true                -- Do smart autoindenting when starting a new line
+vim.o.autoread = true                   -- Change file when editing from the outside
+vim.o.hlsearch = true                   -- Highligth search
+vim.o.ignorecase = true                 -- Case insensitive
+vim.o.smartcase = true                  -- Override the 'ignorecase' option if the search pattern contains upper case characters
+vim.o.wildmenu = true                   -- Pop menu when autocomplete command
+vim.o.wildignorecase = true             -- Ignore case for command completion
+vim.o.infercase = true                  -- IDK just testing this option
+vim.o.autochdir = true                  -- Auto change directories of file
+vim.o.wrap = false                      -- Don't warp long line
+vim.o.linebreak = true                  -- Break at a word boundary
+vim.o.incsearch = true                  -- While typing a search command, show where the pattern is
+vim.o.swapfile = false                  -- Don't use swapfile for the buffer
+vim.bo.swapfile = false                 -- Don't use swapfile for the buffer
+vim.o.ruler = true                      -- Show the line and column number of the cursor position
+vim.o.undofile = true                   -- Use undofile
+vim.o.backup = true                     -- Make a backup before overwriting a file.
+vim.o.list = true                       -- Enable listchars
+vim.o.fixendofline = false              -- Don't automaticaly add new line at end of file
 vim.o.syntax = "on"
-vim.opt.whichwrap:append("<,>,h,l,[,]")               -- Move cursor to next/previous line when reach end and begin of line
---vim.o.wildmode=longest:full,full   -- Widlmenu option
-vim.o.virtualedit = "onemore"                         -- Allow normal mode to go one more charater at the end
-vim.o.mouse = ""                                      -- Disable mouse for all mode
+vim.opt.whichwrap:append("<,>,h,l,[,]") -- Move cursor to next/previous line when reach end and begin of line
+vim.o.virtualedit = "onemore"           -- Allow normal mode to go one more charater at the end
+vim.o.mouse = ""                        -- Disable mouse for all mode
 vim.o.mousemoveevent = false
-vim.opt.display:append("uhex,lastline")               -- Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
+vim.opt.display:append("uhex,lastline") -- Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
+vim.o.backupdir = backupdir             -- List of directories for the backup file, separated with commas.
+
 --vim.o.undodir=vim.env['HOME']/.vim/undo      -- Undofile location
-vim.o.backupdir = vim.env["HOME"] .. "/.vim/backup//" -- List of directories for the backup file, separated with commas.
+--vim.o.conceallevel = 2
+--vim.o.lazyredraw = true                  -- Redraw only when we need to.
+--vim.o.wildmode=longest:full,full   -- Widlmenu option
 --vim.o.completeopt=menuone,menu,longest,preview -- Change <ctrl+n> behavior see :h completeopt
 --
 --treesiteer fold is completely shitty idk why
@@ -127,10 +132,31 @@ ac("BufWinEnter", {
 })
 -- }}}
 -- {{{ Terminal specific
+local function is_last_window()
+    -- check for last tab
+    if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+        return false
+    end
+
+    -- check for last split
+    local counter = 0
+
+    for i = 0, vim.fn.bufnr("$") do
+        counter = counter + vim.fn.buflisted(i)
+    end
+
+    return counter <= 1
+end
 ac("TermOpen", { command = "setlocal nonumber norelativenumber signcolumn=no laststatus=0" })
 ac("TermOpen", { command = "startinsert" })
 -- This one is to avoid typen enter when you ctr+d in terminal
-ac("TermClose", { command = "q" })
+ac("TermClose", {
+    callback = function()
+        if is_last_window() then
+            vim.cmd("q")
+        end
+    end
+})
 ac("BufEnter", { pattern = "term://*", command = "startinsert" })
 -- }}}
 -- {{{ language specific
@@ -153,6 +179,7 @@ remap("n", "<S-Tab>", ":tabprevious<CR>")
 -- {{{ system ClipBoard
 remap("v", "<A-c>", '"+y', { remap = true })
 remap("v", "<A-v>", 'd"+P', { remap = true })
+remap("n", "<A-c>", 'V"+y', { remap = true })
 remap("n", "<A-v>", '"+P', { remap = true })
 remap("t", "<A-v>", '<S-ESC>"+PI', { remap = true })
 remap("i", "<A-v>", '<C-o>"+P', { remap = true })
@@ -244,10 +271,11 @@ remap("n", "X", '"_X', { silent = true })
 remap("n", "<S-z><S-s>", ":execute 'silent! write !sudo tee % >/dev/null' <bar> edit!<CR>")
 remap("v", "@", ":normal @r<CR>")
 remap("n", "-<S-o>", ":vertical sbuffer 2<CR>")
+
 --}}}
 -- {{{ Gui
 local default_font = "Mononoki Nerd Font"
-local default_font_size = 9
+local default_font_size = 8
 local font_size = default_font_size
 
 local function set_font_size()
@@ -273,6 +301,10 @@ end)
 remap("t", "<c-=>", function()
     mod_font_size(1)
 end)
+
+-- neovide option
+vim.g.neovide_scroll_animation_length = 0
+
 -- }}}
 -- }}}
 -- {{{ Ensure lazy
@@ -288,12 +320,36 @@ if not vim.loop.fs_stat(lazypath) then
     })
 end
 
+if vim.g.started_by_firenvim == true then
+    vim.o.laststatus = 0
+    vim.o.number = false
+    vim.o.relativenumber = false
+end
+vim.g.firenvim_config = {
+    localSettings =
+    {
+        ['.*'] = {
+            takeover = 'never'
+        }
+    }
+}
+
 vim.opt.rtp:prepend(lazypath)
 --}}}
 --{{{ lazy plugin list
 require("lazy").setup({
+    {
+        'glacambre/firenvim',
+        -- Lazy load firenvim
+        -- Explanation: https://github.com/folke/lazy.nvim/discussions/463#discussioncomment-4819297
+        lazy = not vim.g.started_by_firenvim,
+        build = function()
+            vim.fn["firenvim#install"](0)
+        end,
+        config = function()
+        end
+    },
     "aklt/plantuml-syntax",
-    "subnut/nvim-ghost.nvim",
     "godlygeek/tabular",
     "fidian/hexmode",
     {
@@ -331,7 +387,10 @@ require("lazy").setup({
             local builtin = require("telescope.builtin")
             vim.keymap.set("n", "<space>fo", builtin.oldfiles, {})
             vim.keymap.set("n", "<space>ff", builtin.find_files, {})
-            vim.keymap.set("n", "<space>fg", builtin.git_files, {})
+            vim.keymap.set("n", "<space>fg", function()
+                builtin.git_files({ recurse_submodules = true })
+            end
+            , {})
             vim.keymap.set("n", "<space>g", function()
                 builtin.grep_string({ search = vim.fn.input("Grep > ") })
             end)
@@ -349,10 +408,10 @@ require("lazy").setup({
                 },
             })
         end,
-    },                 -- }}}
-    {                  --{{{ hop (easyjump)
-        "phaazon/hop.nvim",
-        branch = "v2", -- optional but strongly recommended
+    }, -- }}}
+    {  -- {{{ hop
+        'smoka7/hop.nvim',
+        version = "*",
         config = function()
             local hop = require("hop")
             hop.setup({ keys = "etovxqpdygfblzhckisuran" })
@@ -526,6 +585,30 @@ require("lazy").setup({
 })
 -- }}}
 -- {{{ Command
+
+local function gdb_addr()
+    local str = vim.fn.expand("%") .. ":" .. vim.fn.line(".")
+    vim.fn.setreg("+", str)
+    vim.fn.setreg('"', str)
+    print(("%s copied to clipbboard !"):format(str))
+end
+
+vim.api.nvim_create_user_command("GdbAddr", function()
+    gdb_addr()
+end, {})
+
+local function merge_tab()
+    local buff_list = vim.fn.tabpagebuflist()
+    vim.cmd("tabclose")
+    for _, bn in pairs(buff_list) do
+        vim.cmd("vertical sbuffer " .. tostring(bn))
+    end
+    vim.cmd("wincmd =")
+end
+vim.api.nvim_create_user_command("MergeTab", function()
+    merge_tab()
+end, {})
+
 vim.api.nvim_create_user_command("JsonIndent", function()
     vim.fn.execute(':%!jq "."')
 end, {})
