@@ -201,7 +201,7 @@ local async_spawn_with_shell = asaw.build_from_cb_based_async(awful.spawn.easy_a
 local function create_matcher_any(properties)
     return function(c)
         for key, value in pairs(properties) do
-            if c[key] == value then
+            if c[key]:find(value) then
                 return true
             end
         end
@@ -622,6 +622,7 @@ local cpu_widget = require("awesome-wm-widgets.cpu-widget.cpu-widget")
 local fs_widget = require("awesome-wm-widgets.fs-widget.fs-widget")
 local volume_widget = require('awesome-wm-widgets.volume-widget.volume')
 local net_speed_widget = require("awesome-wm-widgets.net-speed-widget.net-speed")
+local ram_widget = require("awesome-wm-widgets.ram-widget.ram-widget")
 
 local vert_sep = wibox.widget {
     widget = wibox.widget.separator,
@@ -632,6 +633,9 @@ local vert_sep = wibox.widget {
 
 vert_sep.border_width = 100
 vert_sep.span_ratio = 0.5
+
+
+awful.spawn.single_instance("xss-lock " .. aw.path("~/.local/bin/lock.sh"))
 
 local function create_wibar(s)
     -- Create the wibox
@@ -654,6 +658,8 @@ local function create_wibar(s)
             volume_widget(),
             vert_sep,
             fs_widget(),
+            vert_sep,
+            ram_widget({ color_used = "#e63c5b", color_free = "#a8ffb1", color_buf = "#4aa153", timeout = 3 }),
             vert_sep,
             cpu_widget({ timeout = 3 }),
             vert_sep,
@@ -866,18 +872,18 @@ local globalkeys = gears.table.join(
     --ak("a", "Pop up crocohotkey", "launcher",
     --    aw.cba(awful.spawn, ("%s/.local/bin/toggle.sh %s/.local/bin/ahk.py"):format(home_dir, home_dir))),
     ak("a", "Pop up crocohotkey", "launcher",
-        aw.cba(toggle_spawn, aw.path("~/clone/crocohotkey/src/crocoui.py"), true, { name = "Config" }, { border_width = 0 })),
+        aw.cba(toggle_spawn, aw.path("~/clone/crocohotkey/src/crocoui.py"), true, { name = "Config" },
+            { border_width = 0 })),
     --ak("c", "Pop up pavucontrol", "launcher",
     --    aw.cba(toggle_spawn, 'pavucontrol', true)),
     ak("c", "Pop up pavucontrol", "launcher",
         aw.cba(toggle_spawn,
             aw.path(
-            'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- "+term ~/clone/pulsemixer/pulsemixer"'),
+                'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- "+term ~/clone/pulsemixer/pulsemixer"'),
             true, { class = "pulsemixer" }, { border_width = 1 })),
 
     ak("b", "Pop up Blueman", "launcher",
         aw.cba(toggle_spawn, aw.path('blueman-manager '), true, { class = "Blueman-manager" }, { border_width = 0 })),
-
     ak("p", "keepmenu auto type username", "keepmenu",
         aw.cba(awful.spawn, 'keepmenu -a {USERNAME}')),
     ak("Shift+p", "keepmenu auto type username", "keepmenu",
@@ -910,7 +916,9 @@ local globalkeys = gears.table.join(
         aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/kill.sh mpv'))),
 
     ak("z", "Pop up slack", "launcher",
-        aw.cba(toggle_spawn, 'sxiv -N zmk /home/leo/Pictures/zmk_layout/layout0.png /home/leo/Pictures/zmk_layout/layout1.png', true, { instance = "zmk" }, { border_width = 0 })),
+        aw.cba(toggle_spawn,
+            'sxiv -N zmk /home/leo/Pictures/zmk_layout/layout0.png /home/leo/Pictures/zmk_layout/layout1.png', true,
+            { instance = "zmk" }, { border_width = 0 })),
     ak("s", "Pop up slack", "launcher",
         aw.cba(toggle_spawn, 'slack', true, { class = "Slack" }, { border_width = 0 })),
     -- Keybind mode
@@ -918,7 +926,7 @@ local globalkeys = gears.table.join(
         aw.cba(signal_key_bind_mode, 'resize', true, 'mode_keys_resize')),
     ak("m", "Change keybind mode to move", "Keybind mode",
         aw.cba(signal_key_bind_mode, 'move', true, 'mode_keys_move')),
-    ak("i", "Dedicated debug call", "Debug", function()
+    ak("Shift+i", "Dedicated debug call", "Debug", function()
         -- mouse.coords {
         --     x = geo.x + math.ceil(geo.width /2),
         --     y = geo.y + math.ceil(geo.height/2)
@@ -1113,7 +1121,12 @@ ruled.client.connect_signal("request::rules", function()
             },
         },
         {
-            rule = { class = "Dragon-drop" },
+            rule_any = { class = { "Dragon-drop", "Dragon" } },
+            properties = {
+                sticky = true, ontop = true, floating = true, placement = awful.placement.centered }
+        },
+        {
+            rule = { name = "KeePassXC - Browser Access Request" },
             properties = {
                 sticky = true, ontop = true, floating = true, placement = awful.placement.centered }
         },
