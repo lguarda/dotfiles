@@ -85,9 +85,15 @@ git remote set-url origin $(git config --get remote.origin.url | perl -ne '/(git
 ```
 
 ### bash
+debug bash script line by line without modifying the script
 ```bash
-# debug bash script line by line without modifying the script
 bash -e <(echo 'trap read debug' && cat ./test.sh)
+```
+
+Shortcut variable
+```bash
+ME="${0##*/}" # current script name
+MY_DIR="${0%/*}" # current script directory
 ```
 
 ### editcap
@@ -502,6 +508,13 @@ sudo xboxdrv --evdev "/dev/input/event20" --evdev-keymap "BTN_A=a,BTN_B=b,BTN_C=
 ```
 
 ## language
+
+### C/C++
+
+#### asan
+nice resources: https://github.com/google/sanitizers/wiki/AddressSanitizer
+common issue:
+- trace back is to short compile with `-fno-omit-frame-pointer` and/or run the program with ASAN_OPTIONS=fast_unwind_on_malloc=0
 
 ### lua
 
