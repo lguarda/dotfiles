@@ -22,7 +22,6 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 --require("awful.hotkeys_popup.keys")
 
 local aw = require 'awlib'
-local elbat = require 'ext/elbat'
 
 -- }}}
 -- {{{ Error handling
@@ -197,116 +196,6 @@ local async_spawn = asaw.build_from_cb_based_async(awful.spawn.easy_async)
 local async_spawn_with_shell = asaw.build_from_cb_based_async(awful.spawn.easy_async_with_shell)
 
 -- }}}
--- {{{ Toggle spawn
-local function create_matcher_any(properties)
-    return function(c)
-        for key, value in pairs(properties) do
-            if c[key]:find(value) then
-                return true
-            end
-        end
-    end
-end
-
-local function client_find_first(properties)
-    local matcher = create_matcher_any(properties)
-    return awful.client.iterate(matcher)()
-end
-
-local function build_matcher(properties)
-    return function(c)
-        return awful.rules.match(c, properties)
-    end
-end
-
-local toggle_state = {}
-
----Toggle on/off the given client
----@param c table targeted client
----@param cmd string related command
----@param hide boolean if set to false the client is killed instead of being hide
----@param properties? table properties to apply on the client
-local function toggle_client(c, cmd, hide, properties)
-    if not c:isvisible() then
-        c:move_to_tag(awful.tag.selected(1))
-        -- Refresh ontop if it was change
-        c.ontop = true
-        c:jump_to(false)
-        if properties then
-            elbat.t_merge(c, properties)
-        end
-    elseif hide then
-        c:tags {}
-    else
-        if c.pid then
-            awful.spawn { "kill", tostring(c.pid) }
-        else
-            c:kill()
-        end
-        toggle_state[cmd] = nil
-    end
-end
-
----When toggled client is created or found they will be stored within
----`toggle_state` and request::unmanage signal is connected to removed it
----when client is killed.
----@param new_cmd string command related to the new client to toggle
-local function toggle_spawn_attach(cmd, client_match, properties)
-    toggle_state[cmd] = client_match
-    client_match:connect_signal("request::unmanage", function()
-        toggle_state[cmd] = nil
-        if properties then
-            elbat.t_merge(client_match, properties)
-        end
-    end)
-end
-
----Toggle all other client present in `toggle_state` off.
----@param new_cmd string command related to the new client to toggle
-local function toggle_spawn_all_off(new_cmd)
-    for cmd, client_obj in pairs(toggle_state) do
-        if new_cmd ~= cmd then
-            client_obj:tags {}
-        end
-    end
-end
-
----Toggle on and of any client, if it doesn't exist
----the client will be spawn with the given command, all client object
----are within the global variable `toggle_state`.
----All client are mutually exclusive spawn A will hide/kill B.
----@param cmd string the actual command to run
----@param hide boolean if set to false the client is killed instead of being hide
----@param match_properties table dict of properties to match the spawned client
----@param properties? table properties to apply on the client
-local function toggle_spawn(cmd, hide, match_properties, properties)
-    local client_match = toggle_state[cmd]
-    toggle_spawn_all_off(cmd)
-    if not client_match then
-        client_match = client_find_first(match_properties)
-        if client_match then
-            toggle_spawn_attach(cmd, client_match)
-            toggle_client(client_match, cmd, hide, properties)
-            return
-        end
-
-        awful.spawn.single_instance(cmd,
-            properties,
-            build_matcher(match_properties),
-            nil,
-            function(client_match)
-                toggle_spawn_attach(cmd, client_match, properties)
-            end
-        )
-
-        return
-    end
-
-    -- already spawn just toggle it
-    toggle_client(client_match, cmd, hide, properties)
-end
-
--- }}}
 -- {{{ Tag layout
 -- Table of layouts to cover with awful.layout.inc, order matters.
 tag.connect_signal("request::default_layouts", function()
@@ -451,34 +340,6 @@ function chasing.create()
 end
 
 -- }}}
--- {{{ Keybind wrapper
-
----This function is a wrapper to create rawy keybind
----@param keys string example:"Shift+e"
----@param desc string
----@param group string
----@param cb function
-local function akr(keys, desc, group, cb)
-    local mk = keys:split('+')
-    local key = mk[#mk]
-    mk[#mk] = nil
-
-    return awful.key(mk,
-        key,
-        cb,
-        { description = desc, group = group }
-    )
-end
-
----This function is a wrapper to create keybind with the default modkey
----@param keys string example:"Shift+e"
----@param desc string
----@param group string
----@param cb function
-local function ak(keys, desc, group, cb)
-    return akr(modkey .. '+' .. keys, desc, group, cb)
-end
---}}}
 -- {{{ Functional call
 local function backlight_ctrl(nb)
     asaw.run(function()
@@ -566,9 +427,9 @@ local function resize_vertical(factor)
     --end
 end
 
-local key_bind_text_widget = wibox.widget.textbox("")
+key_bind_text_widget = wibox.widget.textbox("")
 
-local key_bind_mode_widget = wibox.widget({
+key_bind_mode_widget = wibox.widget({
     {
         widget = key_bind_text_widget,
     },
@@ -579,18 +440,8 @@ local key_bind_mode_widget = wibox.widget({
     widget  = wibox.container.background
 })
 
-local key_modes = {
-}
-
-local function add_key_modes(name, bindings)
-    key_modes[name] = bindings
-end
-
-local function signal_key_bind_mode(text, visible, key_mode)
-    key_bind_text_widget:set_text(text)
-    key_bind_mode_widget.visible = visible
-    root.keys(key_modes[key_mode])
-end
+local kb_append_bindings = aw.kb_append_bindings
+local kb_swap_mode = aw.kb_swap_mode
 
 local tag_list = {
     { name = "0",  key = "#49" },
@@ -607,7 +458,7 @@ local tag_list = {
 }
 
 local function ip_widget()
-    local wid = awful.widget.watch('/usr/lib/i3blocks/iface/iface', 15, function(widget, stdout)
+    local wid = awful.widget.watch('iface', 15, function(widget, stdout)
         if stdout == "" then
             widget:set_text("down")
         else
@@ -731,7 +582,8 @@ end)
 
 -- }}}
 -- {{{ Key bindings
-
+local ak = aw.ak
+local akr = aw.akr
 local function my_resize(x, y)
     if client.focus.floating then
         client.focus:relative_move(0, 0, x, y)
@@ -752,12 +604,12 @@ local mode_keys_resize = gears.table.join(
     ak(key_alias["right"], "resize", "Mode:resize", aw.cba(my_resize, 10, 0)),
     -- # back to normal
     awful.key({}, "Escape",
-        aw.cba(signal_key_bind_mode, "", false, 'globalkeys'),
+        aw.cba(kb_swap_mode, 'globalkeys'),
         { description = "normal mode", group = "Mode:resize" }
     )
 )
 
-add_key_modes('mode_keys_resize', mode_keys_resize)
+kb_append_bindings('mode_keys_resize', mode_keys_resize)
 
 local function my_move(x, y)
     client.focus:relative_move(x, y, 0, 0)
@@ -770,12 +622,12 @@ local mode_keys_move = gears.table.join(
     ak(key_alias["right"], "move", "Mode:move", aw.cba(my_move, 10, 0)),
     -- # back to normal
     awful.key({}, "Escape",
-        aw.cba(signal_key_bind_mode, "", false, 'globalkeys'),
+        aw.cba(kb_swap_mode, 'globalkeys'),
         { description = "normal mode", group = "Mode:move" }
     )
 )
 
-add_key_modes('mode_keys_move', mode_keys_move)
+kb_append_bindings('mode_keys_move', mode_keys_move)
 -- {{{ Global key bind
 local globalkeys = gears.table.join(
     ak("Shift+h", "show help", "awesome", hotkeys_popup.show_help),
@@ -872,18 +724,18 @@ local globalkeys = gears.table.join(
     --ak("a", "Pop up crocohotkey", "launcher",
     --    aw.cba(awful.spawn, ("%s/.local/bin/toggle.sh %s/.local/bin/ahk.py"):format(home_dir, home_dir))),
     ak("a", "Pop up crocohotkey", "launcher",
-        aw.cba(toggle_spawn, aw.path("~/clone/crocohotkey/src/crocoui.py"), true, { name = "Config" },
+        aw.cba(aw.toggle_spawn, aw.path("~/clone/crocohotkey/src/crocoui.py"), true, { name = "Config" },
             { border_width = 0 })),
     --ak("c", "Pop up pavucontrol", "launcher",
     --    aw.cba(toggle_spawn, 'pavucontrol', true)),
     ak("c", "Pop up pavucontrol", "launcher",
-        aw.cba(toggle_spawn,
+        aw.cba(aw.toggle_spawn,
             aw.path(
                 'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- "+term ~/clone/pulsemixer/pulsemixer"'),
             true, { class = "pulsemixer" }, { border_width = 1 })),
 
     ak("b", "Pop up Blueman", "launcher",
-        aw.cba(toggle_spawn, aw.path('blueman-manager '), true, { class = "Blueman-manager" }, { border_width = 0 })),
+        aw.cba(aw.toggle_spawn, aw.path('blueman-manager '), true, { class = "Blueman-manager" }, { border_width = 0 })),
     ak("p", "keepmenu auto type username", "keepmenu",
         aw.cba(awful.spawn, 'keepmenu -a {USERNAME}')),
     ak("Shift+p", "keepmenu auto type username", "keepmenu",
@@ -916,16 +768,14 @@ local globalkeys = gears.table.join(
         aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/kill.sh mpv'))),
 
     ak("z", "Pop up slack", "launcher",
-        aw.cba(toggle_spawn,
+        aw.cba(aw.toggle_spawn,
             'sxiv -N zmk /home/leo/Pictures/zmk_layout/layout0.png /home/leo/Pictures/zmk_layout/layout1.png', true,
             { instance = "zmk" }, { border_width = 0 })),
-    ak("s", "Pop up slack", "launcher",
-        aw.cba(toggle_spawn, 'slack', true, { class = "Slack" }, { border_width = 0 })),
     -- Keybind mode
     ak("r", "Change keybind mode to resize", "Keybind mode",
-        aw.cba(signal_key_bind_mode, 'resize', true, 'mode_keys_resize')),
+        aw.cba(kb_swap_mode, 'mode_keys_resize', 'resize')),
     ak("m", "Change keybind mode to move", "Keybind mode",
-        aw.cba(signal_key_bind_mode, 'move', true, 'mode_keys_move')),
+        aw.cba(kb_swap_mode, 'mode_keys_move', 'move')),
     ak("Shift+i", "Dedicated debug call", "Debug", function()
         -- mouse.coords {
         --     x = geo.x + math.ceil(geo.width /2),
@@ -993,7 +843,7 @@ for i, tag_setting in ipairs(tag_list) do
     )
 end
 -- }}}
-add_key_modes('globalkeys', globalkeys)
+kb_append_bindings('globalkeys', globalkeys)
 
 local clientkeys = gears.table.join(
     ak("Shift+q", "Close", "client", function(c) c:kill() end),
@@ -1017,8 +867,9 @@ local clientbuttons = gears.table.join(
     end)
 )
 
--- Set keys
-root.keys(globalkeys)
+-- use globalkeys on startup
+aw.kb_swap_mode('globalkeys')
+
 -- }}}
 -- {{{ Rules
 local default_rule = {
@@ -1100,20 +951,6 @@ ruled.client.connect_signal("request::rules", function()
                 end,
                 --height = 700,
                 width = 1400,
-                floating = true,
-                opacity = 0.9,
-                above = true,
-                ontop = true
-            },
-        },
-        {
-            rule = { class = "Slack" },
-            properties = {
-                placement = function(...)
-                    return awful.placement.centered(...)
-                end,
-                height = 700,
-                width = 1200,
                 floating = true,
                 opacity = 0.9,
                 above = true,
@@ -1229,5 +1066,18 @@ screen.connect_signal("arrange", function(s)
     border_control(s.selected_tag, #s.tiled_clients == 1)
 end)
 
+-- }}}
+-- {{{ Use config
+local user_config = gears.filesystem.get_dir("config") .. "/" .. "userconf.lua"
+debug_popup(user_config)
+debug_popup(tostring(gears.filesystem.file_readable(user_config)))
+if gears.filesystem.file_readable(user_config) then
+    local f, err = loadfile(user_config)
+    if err or not f then
+        debug_popup(err)
+    else
+        f()
+    end
+end
 -- }}}
 -- vim: fdm=marker
