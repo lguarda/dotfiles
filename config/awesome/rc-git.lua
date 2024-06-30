@@ -487,6 +487,7 @@ vert_sep.span_ratio = 0.5
 
 
 awful.spawn.single_instance("xss-lock " .. aw.path("~/.local/bin/lock.sh"))
+awful.spawn.single_instance("blueman-applet")
 
 local function create_wibar(s)
     -- Create the wibox
@@ -1069,8 +1070,6 @@ end)
 -- }}}
 -- {{{ Use config
 local user_config = gears.filesystem.get_dir("config") .. "/" .. "userconf.lua"
-debug_popup(user_config)
-debug_popup(tostring(gears.filesystem.file_readable(user_config)))
 if gears.filesystem.file_readable(user_config) then
     local f, err = loadfile(user_config)
     if err or not f then

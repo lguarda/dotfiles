@@ -37,6 +37,20 @@ function aw.cba(f, ...)
     local args = { ... }
     return function() f(table.unpack(args)) end
 end
+
+-- This will call the given function after the given time
+--@param f function
+--@param time delay to wait befor calling f
+function aw.call_in(f, time)
+    gears.timer {
+        timeout     = time,
+        call_now    = false,
+        autostart   = true,
+        single_shot = true,
+        callback    = f
+    }
+end
+
 -- }}}
 -- {{{ Files
 
@@ -117,6 +131,23 @@ function aw.kb_swap_mode(kb_mode, text)
 end
 
 -- }}}
+-- {{{ Client
+function aw.client_apply_properties(c, properties)
+    if not properties then
+        return
+    end
+    -- Some time properties aren't well applied do it twice
+    -- for now fix the issue
+    -- TODO: investigate why
+    for prop, value in pairs(properties) do
+        c[prop] = value
+    end
+    for prop, value in pairs(properties) do
+        c[prop] = value
+    end
+end
+
+-- }}}
 -- {{{ Toggle spawn
 local function create_matcher_any(properties)
     return function(c)
@@ -129,6 +160,9 @@ local function create_matcher_any(properties)
 end
 
 local function client_find_first(properties)
+    if not properties then
+        return
+    end
     local matcher = create_matcher_any(properties)
     return awful.client.iterate(matcher)()
 end
@@ -152,11 +186,8 @@ local function toggle_client(c, cmd, hide, properties)
         -- Refresh ontop if it was change
         c.ontop = true
         c:jump_to(false)
-        if properties then
-            for key, value in pairs(properties) do
-                c[key] = value
-            end
-        end
+        aw.client_apply_properties(c, properties)
+        awful.placement.centered(c)
     elseif hide then
         c:tags {}
     else
@@ -177,10 +208,9 @@ local function toggle_spawn_attach(cmd, client_match, properties)
     toggle_state[cmd] = client_match
     client_match:connect_signal("request::unmanage", function()
         toggle_state[cmd] = nil
-        if properties then
-            gears.table.join(client_match, properties)
-        end
     end)
+    aw.client_apply_properties(client_match, properties)
+    awful.placement.centered(client_match)
 end
 
 ---Toggle all other client present in `toggle_state` off.
@@ -191,6 +221,16 @@ local function toggle_spawn_all_off(new_cmd)
             client_obj:tags {}
         end
     end
+end
+
+
+function aw.detect_next_client(cmd, properties)
+    local function match_next_created_client(c)
+        toggle_spawn_attach(cmd, c, properties)
+        client.disconnect_signal("request::manage", match_next_created_client)
+    end
+
+    client.connect_signal("request::manage", match_next_created_client)
 end
 
 ---Toggle on and of any client, if it doesn't exist
@@ -212,9 +252,17 @@ function aw.toggle_spawn(cmd, hide, match_properties, properties)
             return
         end
 
+        local matcher
+
+        if match_properties then
+            matcher = build_matcher(match_properties)
+        else
+            aw.detect_next_client(cmd, properties)
+        end
+
         awful.spawn.single_instance(cmd,
             properties,
-            build_matcher(match_properties),
+            matcher,
             nil,
             function(client_match)
                 toggle_spawn_attach(cmd, client_match, properties)
