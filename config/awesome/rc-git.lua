@@ -274,6 +274,8 @@ local chasing = {
     client_chasing_height = 400,
 }
 
+---When chasing window has moved simply force focus on
+---the window behind
 function chasing.focus_client_behind()
     gears.timer({
         timeout = 0.1,
@@ -283,6 +285,8 @@ function chasing.focus_client_behind()
     })
 end
 
+---Stop chasing mode for the given client
+---@param c table the client that was in chasing mode
 function chasing.unset_property(c)
     c.floating = false
     c.ontop = false
@@ -292,6 +296,8 @@ function chasing.unset_property(c)
     c.opacity = 1
 end
 
+---Start chasing mode for the given client
+---@param c table the client to set in chasing mode
 function chasing.set_property(c)
     c.floating = true
     c.ontop = true
@@ -357,15 +363,6 @@ local function backlight_ctrl(nb)
             timeout = 0.500,
         }
     end)
-
-    -- asaw.run(function ()
-    --     async_spawn(("xbacklight -inc %d"):format(nb))
-    --     local out  = async_spawn("xbacklight -get")
-    --     naughty.notify {
-    --         text = ("LCD Backlight %d%%"):format(out),
-    --         timeout = 0.500,
-    --     }
-    -- end)
 end
 -- }}}
 -- }}}
@@ -391,9 +388,6 @@ local taglist_buttons = gears.table.join(
 
 local tasklist_buttons = gears.table.join(
     awful.button({}, 1, function(c)
-        --if c == client.focus then
-        --    c.minimized = true
-        --else
         if c ~= client.focus then
             c:emit_signal(
                 "request::activate",
@@ -412,28 +406,12 @@ local tasklist_buttons = gears.table.join(
         awful.client.focus.byidx(-1)
     end))
 
--- Helper functions for sane(er) keyboard resizing in layout.suit.tile.* modes
-local function resize_horizontal(factor)
-    local layout = awful.layout.get(awful.screen.focused())
-    --if layout == awful.layout.suit.tile then
-    awful.client.incwfact(-factor)
-    --end
-end
-
-local function resize_vertical(factor)
-    local layout = awful.layout.get(awful.screen.focused())
-    --if layout == awful.layout.suit.tile then
-    awful.tag.incmwfact(factor)
-    --end
-end
-
 key_bind_text_widget = wibox.widget.textbox("")
 
 key_bind_mode_widget = wibox.widget({
     {
         widget = key_bind_text_widget,
     },
-    --bg = beautiful.bg_normal,
     bg      = '#ff944d',
     fg      = '#000000',
     visible = false,
@@ -535,8 +513,6 @@ local function create_tab(s, tag, idx)
     local tag_properties = {
         layout             = awful.layout.suit.fair,
         master_fill_policy = "master_width_factor",
-        --gap_single_client  = true,
-        --gap                = 3,
         screen             = s,
         selected           = idx == 1,
     }
@@ -545,7 +521,6 @@ end
 
 screen.connect_signal("request::desktop_decoration", function(s)
     -- Each screen has its own tag table.
-    --awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
     for idx, tag in ipairs(tag_list) do
         create_tab(s, tag, idx)
     end
@@ -589,11 +564,7 @@ local function my_resize(x, y)
     if client.focus.floating then
         client.focus:relative_move(0, 0, x, y)
     else
-        if x ~= 0 then
-            resize_vertical(x / 10)
-        else
-            resize_horizontal(y / 10)
-        end
+        aw.print("resize for non floating window NYI")
     end
 end
 
@@ -713,8 +684,6 @@ local globalkeys = gears.table.join(
     move_focused_bydirection("left", true),
     move_focused_bydirection("right"),
 
-    -- dmenu
-    --awful.key({ modkey }, "d", function() menubar.show() end, {description = "Pop up the launcher", group = "launcher"}),
     ak("d", "Pop up the launcher", "launcher",
         aw.cba(awful.spawn, 'rofi -show drun -sorting-method fzf -sort -matching fuzzy')
     ),
@@ -722,13 +691,9 @@ local globalkeys = gears.table.join(
         function() debug_popup_client() end),
     ak("Shift+s", "Pop up Flameshot", "launcher",
         aw.cba(awful.spawn, ('flameshot gui --path=%s/Pictures/screenshot/'):format(home_dir))),
-    --ak("a", "Pop up crocohotkey", "launcher",
-    --    aw.cba(awful.spawn, ("%s/.local/bin/toggle.sh %s/.local/bin/ahk.py"):format(home_dir, home_dir))),
     ak("a", "Pop up crocohotkey", "launcher",
         aw.cba(aw.toggle_spawn, aw.path("~/clone/crocohotkey/src/crocoui.py"), true, { name = "Config" },
             { border_width = 0 })),
-    --ak("c", "Pop up pavucontrol", "launcher",
-    --    aw.cba(toggle_spawn, 'pavucontrol', true)),
     ak("c", "Pop up pavucontrol", "launcher",
         aw.cba(aw.toggle_spawn,
             aw.path(
@@ -777,11 +742,8 @@ local globalkeys = gears.table.join(
         aw.cba(kb_swap_mode, 'mode_keys_resize', 'resize')),
     ak("m", "Change keybind mode to move", "Keybind mode",
         aw.cba(kb_swap_mode, 'mode_keys_move', 'move')),
+    -- Debug
     ak("Shift+i", "Dedicated debug call", "Debug", function()
-        -- mouse.coords {
-        --     x = geo.x + math.ceil(geo.width /2),
-        --     y = geo.y + math.ceil(geo.height/2)
-        -- }
         mouse.coords {
             x = 0,
             y = 0
@@ -886,7 +848,6 @@ local default_rule = {
         screen = awful.screen.preferred,
         placement = awful.placement.no_overlap + awful.placement.no_offscreen,
         size_hints_honor = true,
-        --floating = false,
         maximized = false,
     }
 }
@@ -942,20 +903,6 @@ ruled.client.connect_signal("request::rules", function()
                 opacity = 0.9,
                 ontop = true,
                 border_width = beautiful.border_width,
-            },
-        },
-        {
-            rule = { instance = "zmk" },
-            properties = {
-                placement = function(...)
-                    return awful.placement.centered(...)
-                end,
-                --height = 700,
-                width = 1400,
-                floating = true,
-                opacity = 0.9,
-                above = true,
-                ontop = true
             },
         },
         {
@@ -1027,22 +974,12 @@ naughty.connect_signal("request::display", function(n)
 end)
 -- }}}
 
---client.connect_signal("property::floating", function(c)
---    if c.floating then
---        c.border_width = 0
---        c.ontop = true
---    else
---        c.border_width = beautiful.border_width
---        c.ontop = false
---    end
---end)
-
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
     c:activate { context = "mouse_enter", raise = false }
 end)
 
-client.connect_signal("focus", function(c) c.border_color = "#3b9c43" end) --beautiful.border_focus end)
+client.connect_signal("focus", function(c) c.border_color = "#3b9c43" end)
 client.connect_signal("unfocus", function(c) c.border_color = "#205725" end)
 
 local function border_control(t, only_one)
@@ -1057,7 +994,7 @@ local function border_control(t, only_one)
     else
         for _, c in ipairs(cs) do
             if c.floating == false then
-                c.border_width = beautiful.border_width -- your border width
+                c.border_width = beautiful.border_width
             end
         end
     end

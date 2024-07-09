@@ -56,15 +56,24 @@ end
 
 function aw.file_write(path, content)
     local file, err = io.open(path, "w")
-    if err then
+
+    if not file then
         aw.print(err)
+        return nil
     end
+
     file:write(content)
     file:close()
 end
 
 function aw.file_read(path)
-    local file = io.open(path, "r")
+    local file, err = io.open(path, "r")
+
+    if not file then
+        aw.print(err)
+        return nil
+    end
+
     local ret = file:read("a*")
     file:close()
     return ret
@@ -137,7 +146,7 @@ function aw.client_apply_properties(c, properties)
         return
     end
     -- Some time properties aren't well applied do it twice
-    -- for now fix the issue
+    -- for now fix the issue (it's related width/height and placement)
     -- TODO: investigate why
     for prop, value in pairs(properties) do
         c[prop] = value
