@@ -453,6 +453,13 @@ dpkg-deb -R package.deb dir
 dpkg-deb -b dir package.deb
 ```
 ## program
+### zram
+in debian* run `sudo apt install zram-config`
+than
+in /etc/default/zramswap put `PERCENT=150` or 100 it's a good number
+`sudo systemctl enable --now zram-config`
+TODO: archlinux https://wiki.archlinux.org/title/Zram
+
 ### virtualization
 #### Virtualbox
 ```bash
