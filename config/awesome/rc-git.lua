@@ -938,6 +938,10 @@ ruled.client.connect_signal("request::rules", function()
             rule = { class = "firefox" },
             properties = { maximized = false }
         },
+        {
+            rule = { class = "steam" },
+            properties = { maximized = false }
+        },
     }
 end)
 -- }}}
