@@ -611,6 +611,12 @@ local mode_keys_move = gears.table.join(
     )
 )
 
+local pulsemixer_cmd = aw.path(
+                'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- '
+                .. '+\'lua vim.keymap.set("t", "q", "<nop>")\''
+                .. '+\'lua vim.keymap.set("t", "<esc>", "<nop>")\''
+                .. '+term ~/clone/pulsemixer/pulsemixer')
+
 kb_append_bindings('mode_keys_move', mode_keys_move)
 -- {{{ Global key bind
 local globalkeys = gears.table.join(
@@ -709,9 +715,7 @@ local globalkeys = gears.table.join(
             { border_width = 0 })),
     ak("c", "Pop up pavucontrol", "launcher",
         aw.cba(aw.toggle_spawn,
-            aw.path(
-                'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- "+term ~/clone/pulsemixer/pulsemixer"'),
-                --'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- -l "vim.keymap.set("t", "<S-D-space>", "<nop>")" "+term ~/clone/pulsemixer/pulsemixer"'),
+            pulsemixer_cmd,
             true, { class = "pulsemixer" }, { border_width = 1 })),
     ak("Shift+c", "Pop up pavucontrol", "launcher",
         aw.cba(aw.toggle_spawn, 'pavucontrol', true)),
