@@ -200,8 +200,8 @@ local async_spawn_with_shell = asaw.build_from_cb_based_async(awful.spawn.easy_a
 -- Table of layouts to cover with awful.layout.inc, order matters.
 tag.connect_signal("request::default_layouts", function()
     awful.layout.append_default_layouts({
-        awful.layout.suit.fair,
-        awful.layout.suit.fair.horizontal,
+        awful.layout.suit.tile.left,
+        awful.layout.suit.tile.bottom,
         awful.layout.suit.max,
         awful.layout.suit.corner.nw,
     })
@@ -467,6 +467,18 @@ vert_sep.span_ratio = 0.5
 awful.spawn.single_instance("xss-lock " .. aw.path("~/.local/bin/lock.sh"))
 awful.spawn.single_instance("blueman-applet")
 
+local keybaord_layout = awful.widget.keyboardlayout()
+local current_keyboard_layout = 'us'
+keybaord_layout:connect_signal("button::press", function()
+    if current_keyboard_layout == 'us' then
+        current_keyboard_layout = 'fr'
+    else
+        current_keyboard_layout = 'us'
+    end
+
+    awful.spawn('setxkbmap -option caps:escape ' .. current_keyboard_layout)
+end)
+
 local function create_wibar(s)
     -- Create the wibox
     s.mywibox = awful.wibar({ position = "bottom", screen = s, height = 28 })
@@ -497,7 +509,7 @@ local function create_wibar(s)
             vert_sep,
             ip_widget(),
             vert_sep,
-            awful.widget.keyboardlayout(),
+            keybaord_layout,
             vert_sep,
             wibox.widget.systray(),
             vert_sep,
@@ -511,8 +523,8 @@ end
 -- {{{ Screen
 local function create_tab(s, tag, idx)
     local tag_properties = {
-        layout             = awful.layout.suit.fair,
-        master_fill_policy = "master_width_factor",
+        layout             = awful.layout.suit.tile.left,
+        master_fill_policy = "expand",
         screen             = s,
         selected           = idx == 1,
     }
@@ -563,8 +575,8 @@ local akr = aw.akr
 local function my_resize(x, y)
     if client.focus.floating then
         client.focus:relative_move(0, 0, x, y)
-    else
-        aw.print("resize for non floating window NYI")
+    elseif x ~= 0 then
+        awful.tag.incmwfact(-(x * 0.005))
     end
 end
 
@@ -604,10 +616,11 @@ kb_append_bindings('mode_keys_move', mode_keys_move)
 local globalkeys = gears.table.join(
     ak("Shift+h", "show help", "awesome", hotkeys_popup.show_help),
     ak("Escape", "go back", "tag", awful.tag.history.restore),
+    ak("Shift+o", "move mouse to other screen", "screen", aw.cba(awful.screen.focus_relative, 1)),
     ak("f", "toggle fullscreen", "client",
         function()
             if awful.layout.getname() == "fullscreen" then
-                awful.layout.set(awful.layout.suit.fair)
+                awful.layout.set(awful.layout.suit.tile.left)
             else
                 awful.layout.set(awful.layout.suit.max.fullscreen)
             end
@@ -627,18 +640,18 @@ local globalkeys = gears.table.join(
         end
     end
     ),
-    ak("y", "Toggle fair layout horizontal and vertiacal", "layout", function()
+    ak("y", "Toggle tile layout horizontal and vertiacal", "layout", function()
         awful.layout.set(awful.layout.suit.tile)
     end),
-    ak("e", "Toggle fair layout horizontal and vertiacal", "layout", function()
+    ak("e", "Toggle tile layout horizontal and vertiacal", "layout", function()
         if client.focus.fullscreen then
             client.focus.fullscreen = false
             return
         end
-        if awful.layout.getname() == "fairv" then
-            awful.layout.set(awful.layout.suit.fair.horizontal)
+        if awful.layout.getname() == "tileleft" then
+            awful.layout.set(awful.layout.suit.tile.bottom)
         else
-            awful.layout.set(awful.layout.suit.fair)
+            awful.layout.set(awful.layout.suit.tile.left)
         end
     end
     ),
@@ -698,7 +711,10 @@ local globalkeys = gears.table.join(
         aw.cba(aw.toggle_spawn,
             aw.path(
                 'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- "+term ~/clone/pulsemixer/pulsemixer"'),
+                --'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- -l "vim.keymap.set("t", "<S-D-space>", "<nop>")" "+term ~/clone/pulsemixer/pulsemixer"'),
             true, { class = "pulsemixer" }, { border_width = 1 })),
+    ak("Shift+c", "Pop up pavucontrol", "launcher",
+        aw.cba(aw.toggle_spawn, 'pavucontrol', true)),
 
     ak("b", "Pop up Blueman", "launcher",
         aw.cba(aw.toggle_spawn, aw.path('blueman-manager '), true, { class = "Blueman-manager" }, { border_width = 0 })),
@@ -967,8 +983,9 @@ ruled.notification.connect_signal('request::rules', function()
     ruled.notification.append_rule {
         rule       = {},
         properties = {
-            screen           = awful.screen.preferred,
-            implicit_timeout = 5,
+            screen        = awful.screen.preferred,
+            never_timeout = true,
+            border_color  = '#ff0000'
         }
     }
 end)
