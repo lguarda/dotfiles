@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+dirs=${@:1:($#-1)}
+cmd=${!#}
+
+function run_cmd() {
+    bash -x -c "${cmd}"
+}
+
+function await_one() {
+    inotifywait --recursive --event modify,move,create,delete $1
+}
+
+echo "cmd=${cmd}"
+echo "dirs=${dirs}"
+run_cmd
+while await_one ${dirs}; do
+    run_cmd
+done
