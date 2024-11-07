@@ -611,11 +611,11 @@ local mode_keys_move = gears.table.join(
     )
 )
 
-local pulsemixer_cmd = aw.path(
+local pulsemixer_cmd =
                 'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- '
-                .. '+\'lua vim.keymap.set("t", "q", "<nop>")\''
-                .. '+\'lua vim.keymap.set("t", "<esc>", "<nop>")\''
-                .. '+term ~/clone/pulsemixer/pulsemixer')
+                .. [[ "+lua vim.keymap.set('t', 'q', '<nop>')"]]
+                .. [[ "+lua vim.keymap.set('t', '<esc>', '<nop>')"]]
+                .. ' "+term ~/clone/pulsemixer/pulsemixer"'
 
 kb_append_bindings('mode_keys_move', mode_keys_move)
 -- {{{ Global key bind
