@@ -1,0 +1,86 @@
+syntax on
+set noendofline                  " No <EOL> will be written for the last line in the file
+set showtabline=1                " Enable tabline
+set number                       " Display line number
+set numberwidth=1                " Minimum number column size
+set cursorline                   " Highlight current line
+set tabstop=4                    " Redefine tab display as n space
+set softtabstop=4
+set shiftwidth=4                 " Number of spaces to use for each step of (auto)indent
+set expandtab                    " Use muliple space instead of tab
+set autoindent                   " Copy indent from current line when starting a new line
+set smartindent                  " Do smart autoindenting when starting a new line
+set whichwrap+=<,>,h,l,[,]       " Move cursor to next/previous line when reach end and begin of line
+set autoread                     " Change file when editing from the outside
+set hlsearch                     " Highligth search
+set ignorecase                   " Case insensitive
+set smartcase                    " Override the 'ignorecase' option if the search pattern contains upper case characters
+set laststatus=2                 " Always show status line
+set wildmenu                     " Pop menu when autocomplete command
+set wildmode=longest:full,full   " Widlmenu option
+set autochdir                    " Auto change directories of file
+set nowrap                       " Don't warp long line
+set linebreak                    " Break at a word boundary
+set virtualedit=onemore          " Allow normal mode to go one more charater at the end
+set lazyredraw                   " Redraw only when we need to.
+set incsearch                    " While typing a search command, show where the pattern is
+set noswapfile                   " Don't use swapfile for the buffer
+set pastetoggle=<F2>             " Toggle paste mode vi legacy
+set cmdheight=1                  " Number of screen lines to use for the command-line
+set mouse=a                      " Set mouse for all mode
+set display+=uhex,lastline       " Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
+set history=10000                " A history of ":" commands, and a history of previous search patterns is remembered
+set sidescroll=1                 " The minimal number of columns to scroll horizontally
+set sidescrolloff=10             " scroll terminal when cursor is N line from the left or right
+set scrolloff=10                 " scroll terminal when cursor is N line from the top or botom
+set ruler                        " Show the line and column number of the cursor position
+set undofile                     " Use undofile
+set undodir=$HOME/.vim/undo      " Undofile location
+set backup                       " Make a backup before overwriting a file.
+set backupdir=$HOME/.vim/backup  " List of directories for the backup file, separated with commas.
+set list                         " Enable listchars
+set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$ " set specific char for tab, trailing space, non breaking space, and when the line continue
+set completeopt=menuone,menu,longest,preview " Change <ctrl+n> behavior see :h completeopt
+
+if !isdirectory($HOME . "/.vim/undo")
+    call mkdir($HOME . "/.vim/undo")
+endif
+
+if !isdirectory($HOME . "/.vim/backup")
+    call mkdir($HOME . "/.vim/backup")
+endif
+
+" red highlight color for every whitechar issue
+highlight ExtraCarriageReturn ctermbg=red
+highlight ExtraWhitespace ctermbg=red
+highlight ExtraSpaceDwich ctermbg=red
+highlight NonBreakSpace ctermbg=yellow
+highlight EmptyChar ctermfg=red ctermbg=red
+highlight currawong ctermbg=darkred guibg=darkred
+
+augroup WhitespaceMatch
+autocmd BufWinEnter * exec matchadd('ExtraWhitespace', '\s\+$')| " Highlight white space at end of line
+autocmd BufWinEnter * exec matchadd('ExtraSpaceDwich', ' \t\|\t ')| " Highlight mixed tab and space
+autocmd BufWinEnter * exec matchadd('ExtraCarriageReturn', '\r')| " Highlight windows \r
+autocmd BufWinEnter * exec matchadd('NonBreakSpace', ' ')| " Highlight non breaking space
+
+" highlight every withchar displayable by vim that aren't space
+autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1N
+autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1M
+autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "3M
+autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "4M
+autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "6M
+autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1T
+autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1H
+autocmd BufWinEnter * exec matchadd('EmptyChar', '　')|"IS
+augroup END
+
+" ZZ is the default keybinding for :wq
+" Here i add ZS key bind to save current file as root
+" I find this on slack, here more info on how it's work
+" silent! will disable the command output and therefore no prompt will be displayed
+" write is juste like :w
+" !sudo tee % > /dev/null is use to write the file as root
+" <bar> is to split this command to next execute edit in order to reread the
+" file from vim
+nnoremap <S-z><S-s> :execute 'silent! write !sudo tee % >/dev/null' <bar> edit!<CR>
