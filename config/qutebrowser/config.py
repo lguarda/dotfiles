@@ -5,6 +5,9 @@ config.load_autoconfig()
 # keepassxc integration
 config.bind('<Alt-Shift-u>', 'spawn --userscript qute-keepassxc --key F642ED23246F9615EE30AB9CA340000F06B5AD89', mode='insert')
 config.bind('pw', 'spawn --userscript qute-keepassxc --key F642ED23246F9615EE30AB9CA340000F06B5AD89', mode='normal')
+# open current url in new window
+config.bind('gw', 'open -w {url}', mode='normal')
+# Toggle darkmode
 config.bind('<Shift-D>', 'config-cycle -u {url:domain} colors.webpage.darkmode.enabled', mode='normal')
 # }}}
 # {{{ settings
