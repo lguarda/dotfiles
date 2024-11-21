@@ -933,7 +933,11 @@ ruled.client.connect_signal("request::rules", function()
         {
             rule = { name = "KeePassXC - Browser Access Request" },
             properties = {
-                sticky = true, ontop = true, floating = true, placement = awful.placement.centered }
+                sticky = true, ontop = true, floating = true, placement = awful.placement.centered,
+                callback = function(c)
+                    c:move_to_screen(awful.screen.focused())
+                end
+            }
         },
         {
             rule = { class = "VirtualBox Machine" },
