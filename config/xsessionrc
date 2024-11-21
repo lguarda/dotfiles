@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 
-/usr/bin/xset r rate 180 35
+# Set keyboard repeat rate
+xset r rate 180 35
+# permanantly change repeat rate put this into x11 config
+#Section "InputClass"
+#        Option "AutoRepeat" "200 40"
+#EndSection
+
+# Map caps lock into escape key
+setxkbmap -option caps:escape
+
+# lock.sh physlock + slock
+# physlock prevent all acess to other tty
+xss-lock $HOME/.local/bin/lock.sh &  #--tranfer-sleep-lock
 
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$HOME/.steambin/:$PATH"
