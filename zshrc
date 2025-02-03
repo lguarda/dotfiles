@@ -7,21 +7,16 @@ plugins=(zsh-autosuggestions git autojump fzf vagrant sudo timer)
 source $ZSH/oh-my-zsh.sh
 source /etc/zsh_command_not_found
 
-export EDITOR='nvim'
+export EDITOR='invim -p --remote-wait'
 unalias g
-alias re="readlink -e"
-alias vim="vim_func"
-alias v="vim_func"
+alias re="realpath"
+alias vim="invim -p"
+alias v="invim"
 alias vimdiff="nvim -d"
 alias ff="\$HOME/\`cd \$HOME ;~/.fzf/bin/fzf --height=35 --prompt='~/'\`"
-alias vz="nvim $HOME/.zshrc"
+alias vz="invim -p $HOME/.zshrc"
 alias bc="bc -q"
 alias reset="stty sane"
-alias woof="echo "http://$(ip route get 1.1.1.1 | grep -oP 'src \K\S+'):8080" | qrencode -t ansiutf8 & woof"
-
-function vim_func() {
-    echo $@ | sed -r "s/:([0-9]+)/ +\1/g" | xargs sh -c 'nvim "$@" < /dev/tty' nvim
-}
 
 if [[ -x $(command -v setxkbmap ) ]] ;then setxkbmap  -option caps:escape ; fi
 
