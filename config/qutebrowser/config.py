@@ -1,10 +1,28 @@
+import configparser
+
+from qutebrowser.utils import message
+
 # {{{ Defaults
 config.load_autoconfig()
 # }}}
+# {{{ Load external conf
+cp = configparser.ConfigParser()
+cp.read(f'{config.configdir}/quteconf.ini')
+
+gpg_key = None
+try:
+    gpg_key = cp['default']['keepassxc_gpg']
+except KeyError:
+    message.warning("missing default.keepassxc_gpg in quteconf.ini keepassxc will not work")
+    pass
+# }}}
 # {{{ Bindings
 # keepassxc integration
-config.bind('<Alt-Shift-u>', 'spawn --userscript qute-keepassxc --key F642ED23246F9615EE30AB9CA340000F06B5AD89', mode='insert')
-config.bind('pw', 'spawn --userscript qute-keepassxc --key F642ED23246F9615EE30AB9CA340000F06B5AD89', mode='normal')
+if gpg_key is not None:
+    config.bind('pw', f'spawn --userscript qute-keepassxc --key {gpg_key}', mode='normal')
+else:
+    config.bind('pw', 'message-error "missing default.keepassxc_gpg in quteconf.ini keepassxc will not work"', mode='normal')
+
 # open current url in new window
 config.bind('gw', 'open -w {url}', mode='normal')
 # Toggle darkmode
