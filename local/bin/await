@@ -4,8 +4,9 @@ dirs=${@:1:($#-1)}
 cmd=${!#}
 
 function run_cmd() {
-    date
+    echo "BEGIN CMD $(date)"
     time bash -x -c "${cmd}"
+    echo "END CMD $(date)"
 }
 
 function await_one() {
