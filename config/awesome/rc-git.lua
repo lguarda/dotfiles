@@ -358,10 +358,11 @@ local function backlight_ctrl(nb)
         end
         async_spawn("brightnessctl set " .. val .. "%")
         local bright = async_spawn("brightnessctl get")
-        naughty.notify {
+        _G.backlight_ctrl_notif_id = naughty.notify {
             text = ("LCD Backlight %d%%"):format(math.floor(bright / bright_max * 100)),
             timeout = 0.500,
-        }
+            replaces_id = _G.backlight_ctrl_notif_id,
+        }.id
     end)
 end
 -- }}}
@@ -612,10 +613,10 @@ local mode_keys_move = gears.table.join(
 )
 
 local pulsemixer_cmd =
-                'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- '
-                .. [[ "+lua vim.keymap.set('t', 'q', '<nop>')"]]
-                .. [[ "+lua vim.keymap.set('t', '<esc>', '<nop>')"]]
-                .. ' "+term ~/clone/pulsemixer/pulsemixer"'
+    'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- '
+    .. [[ "+lua vim.keymap.set('t', 'q', '<nop>')"]]
+    .. [[ "+lua vim.keymap.set('t', '<esc>', '<nop>')"]]
+    .. ' "+term ~/clone/pulsemixer/pulsemixer"'
 
 kb_append_bindings('mode_keys_move', mode_keys_move)
 -- {{{ Global key bind
@@ -631,6 +632,19 @@ local globalkeys = gears.table.join(
                 awful.layout.set(awful.layout.suit.max.fullscreen)
             end
         end
+    ),
+    ak("Shift+m", "Toggle maximized", "layout", function()
+        -- save client under mouse
+        local tof = mouse.object_under_pointer()
+        local c = client.focus
+        if c then
+            c.maximized = not c.maximized
+        end
+        -- jump to the client that was under the mouse after changing to max
+        if tof then
+            tof:jump_to(false)
+        end
+    end
     ),
     ak("w", "Set layout to max", "layout", function()
         -- save client under mouse
@@ -664,8 +678,8 @@ local globalkeys = gears.table.join(
     ak("Shift+v", "Paste clipboard content with keyoard emulation", "Development",
         aw.cba(awful.spawn.with_shell, "sleep 0.5; xdotool type $(xclip -o -selection clipboard)")),
     -- media keys
-    akr("XF86MonBrightnessUp", "Increase Brigtness", "Media", aw.cba(backlight_ctrl, 10)),
-    akr("XF86MonBrightnessDown", "Decrease Brigtness", "Media", aw.cba(backlight_ctrl, -10)),
+    akr("XF86MonBrightnessUp", "Increase Brigtness", "Media", aw.cba(backlight_ctrl, 5)),
+    akr("XF86MonBrightnessDown", "Decrease Brigtness", "Media", aw.cba(backlight_ctrl, -5)),
     akr("XF86AudioRaiseVolume", "Raise Volume", "Media",
         aw.cba(awful.spawn, "pactl set-sink-volume 0 +5% #decrease sound volume")),
     akr("XF86AudioLowerVolume", "Lower Volume", "Media",
@@ -946,7 +960,7 @@ ruled.client.connect_signal("request::rules", function()
             }
         },
         {
-            rule = { class = "org.gnome.Nautilus" },
+            rule_any = { class = { "org.gnome.Nautilus", "firefox", "steam", "libreoffice" } },
             properties = {
                 floating = false,
                 maximized = false,
@@ -957,14 +971,6 @@ ruled.client.connect_signal("request::rules", function()
             properties = {
                 size_hints_honor = false
             }
-        },
-        {
-            rule = { class = "firefox" },
-            properties = { maximized = false }
-        },
-        {
-            rule = { class = "steam" },
-            properties = { maximized = false }
         },
     }
 end)
@@ -991,9 +997,9 @@ ruled.notification.connect_signal('request::rules', function()
     ruled.notification.append_rule {
         rule       = {},
         properties = {
-            screen        = awful.screen.preferred,
-            never_timeout = true,
-            border_color  = '#ff0000'
+            screen       = awful.screen.preferred,
+            timeout      = 300,
+            border_color = '#ff0000'
         }
     }
 end)
