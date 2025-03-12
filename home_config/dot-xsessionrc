@@ -4,7 +4,7 @@
 xset r rate 180 35
 # permanantly change repeat rate put this into x11 config
 #Section "InputClass"
-#        Option "AutoRepeat" "200 40"
+#        Option "AutoRepeat" "180 35"
 #EndSection
 
 # Map caps lock into escape key
@@ -12,10 +12,12 @@ setxkbmap -option caps:escape
 
 # lock.sh physlock + slock
 # physlock prevent all acess to other tty
-xss-lock $HOME/.local/bin/lock.sh &  #--tranfer-sleep-lock
+# For now comment this xss-lock should be spawned by window manager
+# xss-lock $HOME/.local/bin/lock.sh &  #--tranfer-sleep-lock
 
+# TODO: maybe this should be setup in zshrc also from a common file
 if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$HOME/.steambin/:$PATH"
+    PATH="$HOME/.local/bin:$PATH"
 fi
 
 XDG_DATA_HOME="$HOME/.local/share"

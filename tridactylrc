@@ -1,9 +1,0 @@
-bind n findnext
-bind N findnext -1
-bind n exclaim_quiet xdotool getactivewindow key F3
-bind N exclaim_quiet xdotool getactivewindow key Shift+F3
-bind J bp
-bind K bn
-bind x bd
-bind X u
-unbind <c-f>

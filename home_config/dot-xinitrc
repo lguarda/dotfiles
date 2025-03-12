@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+#xss-lock $HOME/.local/bin/lock.sh
+
+/usr/bin/xset r rate 180 35
+setxkbmap -option caps:escape
+
+XDG_DATA_HOME="$HOME/.local/share"
+XDG_CONFIG_HOME="$HOME/.config"
+
+PATH=$HOME/.local/bin:/sbin:$PATH
+
+exec awesome
+#exec /home/leo/clone/qtile/bin/qtile start
+

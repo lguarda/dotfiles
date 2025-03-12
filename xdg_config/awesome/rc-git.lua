@@ -623,7 +623,7 @@ kb_append_bindings('mode_keys_move', mode_keys_move)
 local globalkeys = gears.table.join(
     ak("Shift+h", "show help", "awesome", hotkeys_popup.show_help),
     ak("Escape", "go back", "tag", awful.tag.history.restore),
-    ak("Shift+o", "move mouse to other screen", "screen", aw.cba(awful.screen.focus_relative, 1)),
+    ak("o", "move mouse to other screen", "screen", aw.cba(awful.screen.focus_relative, 1)),
     ak("f", "toggle fullscreen", "client",
         function()
             if awful.layout.getname() == "fullscreen" then
@@ -846,7 +846,7 @@ local clientkeys = gears.table.join(
     ak("Shift+q", "Close", "client", function(c) c:kill() end),
     ak("space", "toggle floating", "client", awful.client.floating.toggle),
     ak("Control+Return", "move to master", "client", function(c) c:swap(awful.client.getmaster()) end),
-    ak("o", "move to screen", "client", function(c) c:move_to_screen() end),
+    ak("Shift+o", "move to screen", "client", function(c) c:move_to_screen() end),
     ak("t", "toggle keep on top", "client", function(c) c.ontop = not c.ontop end)
 )
 
@@ -858,10 +858,14 @@ local clientbuttons = gears.table.join(
         c:emit_signal("request::activate", "mouse_click", { raise = true })
         awful.mouse.client.move(c)
     end),
-    awful.button({ modkey }, 3, function(c)
-        c:emit_signal("request::activate", "mouse_click", { raise = true })
+    awful.button({ modkey, "Shift" }, 1, function (c)
+        c:emit_signal("request::activate", "mouse_click", {raise = true})
         awful.mouse.client.resize(c)
     end)
+    --awful.button({ modkey }, 3, function(c)
+    --    c:emit_signal("request::activate", "mouse_click", { raise = true })
+    --    awful.mouse.client.resize(c)
+    --end)
 )
 
 -- use globalkeys on startup
@@ -989,6 +993,12 @@ client.connect_signal("manage", function(c)
         awful.placement.no_offscreen(c)
     end
 end)
+
+--client.connect_signal("request::manage", function (c)
+--    debug_popup(("new client c in tag %s"):format(tostring(c.first_tag)))
+--    --c.first_tag.name = ("%d: %s"):format(c.first_tag.index, c.name)
+--    c.first_tag.icon = c.icon
+--end)
 
 -- {{{ Notifications
 

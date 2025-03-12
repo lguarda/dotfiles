@@ -1,6 +1,5 @@
 #basic bash completion
 "\e[A": history-search-backward
-
 "\e[B": history-search-forward
 
 set completion-ignore-case On
@@ -11,3 +10,9 @@ set show-all-if-unmodified on
 TAB:menu-complete
 # Shift + Tab - backward completion
 "\e[Z": "\e-1\C-i"
+
+# Gdb-dashboard specific
+"\e[18~": "n\n"
+# ctrl + up or down will scroll source code
+"\e[1;5B": "dashboard source scroll 2\n"
+"\e[1;5A": "dashboard source scroll -2\n"

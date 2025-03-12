@@ -1,3 +1,8 @@
+" This is a basic vimrc with some simple QOL that don't change anything from
+" basic vim usage, so it can be put on any server with shared usage without
+" causing any trouble
+
+"{{{ basic config
 syntax on
 set noendofline                  " No <EOL> will be written for the last line in the file
 set showtabline=1                " Enable tabline
@@ -42,13 +47,21 @@ set list                         " Enable listchars
 set listchars=tab:>\ ,nbsp:¬,trail:_,extends:$,precedes:$ " set specific char for tab, trailing space, non breaking space, and when the line continue
 set completeopt=menuone,menu,longest,preview " Change <ctrl+n> behavior see :h completeopt
 
+" store undo in home
 if !isdirectory($HOME . "/.vim/undo")
     call mkdir($HOME . "/.vim/undo")
 endif
 
+" store backup in home
 if !isdirectory($HOME . "/.vim/backup")
     call mkdir($HOME . "/.vim/backup")
 endif
+
+augroup Backup
+    " set backup file prefix with current time at vim startup
+    autocmd VimEnter * let &bex = '-' . strftime("%Y%m%d%H%M") . '~'
+augroup END
+"}}}
 
 " red highlight color for every whitechar issue
 highlight ExtraCarriageReturn ctermbg=red
@@ -64,7 +77,9 @@ autocmd BufWinEnter * exec matchadd('ExtraSpaceDwich', ' \t\|\t ')| " Highlight 
 autocmd BufWinEnter * exec matchadd('ExtraCarriageReturn', '\r')| " Highlight windows \r
 autocmd BufWinEnter * exec matchadd('NonBreakSpace', ' ')| " Highlight non breaking space
 
-" highlight every withchar displayable by vim that aren't space
+" highlight every whitechar displayable by vim that aren't space
+" yes those are all witespace charater it's a bit overkill, but if any of them
+" is present in a file you will directly see it
 autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1N
 autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "1M
 autocmd BufWinEnter * exec matchadd('EmptyChar', ' ')| "3M

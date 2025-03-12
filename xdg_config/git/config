@@ -1,30 +1,41 @@
 [core]
     ;pager = sed 's/\t/>   /g' | less -N
     pager = less -N
-    editor = nvim
+    editor = invim -O --remote-wait
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true    # use n and N to move between diff sections
+
 [alias]
+    fixup = commit --fixup
     su = submodule update
-    ap = -c interactive.diffFilter="git diff --color | sed 's/\t/>   /g'" add -p
-    lg = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an %ad'
-    lgc = log --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an %ad'
-    l  = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
-    lc = log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
-    lfp= log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an'
+    l  = log --all --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an %ad'
+    lc = log       --graph --color=always --format='%C(auto)%h%d %s %C(black)%C(bold)%cr %C(dim magenta)%an %ad'
     fa = fetch --all
     co = checkout
     ss = status -s
     st = !git --no-pager diff --stat
     amend = commit --amend
     rod = rebase -i origin/develop
+    rom = rebase -i origin/master
     rc = rebase --continue
     rl = remote -v
     mv = branch --force ; <branch-name> [<new-tip-commit>]
+    ls-super = "!f(){ git --git-dir=\"$(git rev-parse --show-superproject-working-tree)/.git\" ls-files --recurse-submodules; }; f"
     pu = "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\"; }; f"
     puf= "!f(){ git push origin \"${1-$(git rev-parse --abbrev-ref HEAD)}\" --force-with-lease; }; f"
     yolo="!f(){ git commit -m \"$(curl -s http://whatthecommit.com/index.txt)\"; }; f"
     rho= "!f(){ git reset --hard \"origin/$(git rev-parse --abbrev-ref HEAD)\"; }; f"
     dio= "!f(){ git diff \"origin/$(git rev-parse --abbrev-ref HEAD)\"; }; f"
+
+    ; open $EDITOR to rename current branch
     brename = "!f() { git rev-parse --abbrev-ref HEAD > /tmp/git_branch_rename && vim /tmp/git_branch_rename && git branch -m \"$(cat /tmp/git_branch_rename)\"; }; f"
+
+    ; This will ammend comment with current config author
     amendauthor = "!f() { git amend --author \"$(git config user.name) <$(git config user.email)>\" --no-edit; }; f"
 
     ; use git cut {commit sha} {directory1} {file2} {etc}
@@ -53,26 +64,6 @@
     ;massrename = "!f(){ cd ${GIT_PREFIX:-.}; git format-patch HEAD..$1 --stdout > /tmp/patch.patch; $(git config core.editor) /tmp/patch.patch; git am /tmp/patch.patch; }; f"
     massrename = "!f(){ cd ${GIT_PREFIX:-.}; git_mass_rename.sh $1; }; f"
 
-    grog = log --graph --abbrev-commit --decorate --all --format=format:\"%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
-    fixup = commit --fixup
-
-    mergelog = "!f() { CURRENT=$(git symbolic-ref --short HEAD) && \
-         BRANCHE_NAME=$(echo $1 | sed 's/origin\\///') && \
-         PR_NUMBER=$(gh pr view --json number --jq '.number' $BRANCHE_NAME) && \
-         git merge --no-commit $1 && \
-         DEF_MSG=$(cat $(git rev-parse --show-toplevel)/.git/MERGE_MSG || true) && \
-         printf '%s\n\nPR #%s\n\n%s' \"$DEF_MSG\" $PR_NUMBER > temp_merge_msg && \
-         git commit -eF temp_merge_msg; rm -f temp_merge_msg;}; f"
-
-    mergelogfull = "!f() { CURRENT=$(git symbolic-ref --short HEAD) && \
-         BRANCHE_NAME=$(echo $1 | sed 's/origin\\///') && \
-         PR_NUMBER=$(gh pr view --json number --jq '.number' $BRANCHE_NAME) && \
-         SUMMARY=$(git log --format=format:'%s' $CURRENT..$1) && \
-         git merge --no-commit $1 && \
-         DEF_MSG=$(cat $(git rev-parse --show-toplevel)/.git/MERGE_MSG) && \
-         printf '%s\n\nPR #%s\n\n::SUMMARY::\n%s' \"$DEF_MSG\" $PR_NUMBER \"$SUMMARY\" > temp_merge_msg && \
-         git commit -eF temp_merge_msg; rm -f temp_merge_msg;}; f"
-
 [merge]
     tool = nvim
     renameLimit = 999999
@@ -81,6 +72,8 @@
     cmd = nvim -f -c \"Gdiff\" \"$MERGED\"
 ;[diff "json"]
     ;textconv = jq "." --sort-keys
+[diff]
+    colorMoved = default
 [user]
     email = leoman037@live.fr
     name = lguarda
@@ -90,3 +83,7 @@
     recurse = true
 [rebase]
     autosquash = true
+
+; for custom conf per pc add custom.inc
+[include]
+    path = custom.inc
