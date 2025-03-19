@@ -350,16 +350,15 @@ end
 local function backlight_ctrl(nb)
     asaw.run(function()
         local bright_max = async_spawn("brightnessctl max")
-        local val
-        if nb > 0 then
-            val = "+" .. tostring(nb)
-        else
-            val = tostring(nb * -1) .. "-"
-        end
-        async_spawn("brightnessctl set " .. val .. "%")
         local bright = async_spawn("brightnessctl get")
+        local bright_percent = math.min(100, math.floor(bright / bright_max * 100) + nb)
+        if (bright_percent < 5) then
+            -- prevent to go bellow 0 or the screen can be black
+            bright_percent = 1
+        end
+        async_spawn(("brightnessctl set %d%%"):format(bright_percent))
         _G.backlight_ctrl_notif_id = naughty.notify {
-            text = ("LCD Backlight %d%%"):format(math.floor(bright / bright_max * 100)),
+            text = ("LCD Backlight %d%%"):format(bright_percent),
             timeout = 0.500,
             replaces_id = _G.backlight_ctrl_notif_id,
         }.id
