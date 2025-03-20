@@ -88,7 +88,7 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
 
 -- Enable spell by default on git commit,rebase
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
-    pattern = {"COMMIT_EDITMSG", "git-rebase-todo"},
+    pattern = { "COMMIT_EDITMSG", "git-rebase-todo" },
     command = "set spell",
 })
 
@@ -241,9 +241,12 @@ remap("t", "<S-D-space>", "<nop>")
 -- }}}
 -- {{{ Lsp
 vim.keymap.set('n', 'gK', function()
-  local new_config = not vim.diagnostic.config().virtual_lines
-  vim.diagnostic.config({ virtual_lines = new_config })
+    local new_config = not vim.diagnostic.config().virtual_lines
+    vim.diagnostic.config({ virtual_lines = new_config })
 end, { desc = 'Toggle diagnostic virtual_lines' })
+vim.keymap.set('n', 'gR', function()
+    vim.lsp.buf.rename()
+end, { desc = 'Rename on cursor' })
 -- }}}
 vim.api.nvim_create_user_command("OpenscadOpen", function()
     vim.fn.execute(("!openscad %s &"):format(vim.fn.expand("%p")))
@@ -286,26 +289,26 @@ remap("v", "@", ":normal @r<CR>")
 remap("n", "-<S-o>", ":vertical sbuffer 2<CR>")
 
 local function switch_case()
-  local line, col = table.unpack(vim.api.nvim_win_get_cursor(0))
-  local word = vim.fn.expand('<cword>')
-  local word_start = vim.fn.matchstrpos(vim.fn.getline('.'), '\\k*\\%' .. (col+1) .. 'c\\k*')[2]
+    local line, col = table.unpack(vim.api.nvim_win_get_cursor(0))
+    local word = vim.fn.expand('<cword>')
+    local word_start = vim.fn.matchstrpos(vim.fn.getline('.'), '\\k*\\%' .. (col + 1) .. 'c\\k*')[2]
 
-  -- Detect camelCase
-  if word:find('[a-z][A-Z]') then
-    -- Convert camelCase to snake_case
-    local snake_case_word = word:gsub('([a-z])([A-Z])', '%1_%2'):lower()
-    vim.api.nvim_buf_set_text(0, line - 1, word_start, line - 1, word_start + #word, {snake_case_word})
-  -- Detect snake_case
-  elseif word:find('_[a-z]') then
-    -- Convert snake_case to camelCase
-    local camel_case_word = word:gsub('(_)([a-z])', function(_, l) return l:upper() end)
-    vim.api.nvim_buf_set_text(0, line - 1, word_start, line - 1, word_start + #word, {camel_case_word})
-  else
-    print("Not a snake_case or camelCase word")
-  end
+    -- Detect camelCase
+    if word:find('[a-z][A-Z]') then
+        -- Convert camelCase to snake_case
+        local snake_case_word = word:gsub('([a-z])([A-Z])', '%1_%2'):lower()
+        vim.api.nvim_buf_set_text(0, line - 1, word_start, line - 1, word_start + #word, { snake_case_word })
+        -- Detect snake_case
+    elseif word:find('_[a-z]') then
+        -- Convert snake_case to camelCase
+        local camel_case_word = word:gsub('(_)([a-z])', function(_, l) return l:upper() end)
+        vim.api.nvim_buf_set_text(0, line - 1, word_start, line - 1, word_start + #word, { camel_case_word })
+    else
+        print("Not a snake_case or camelCase word")
+    end
 end
 
-vim.api.nvim_set_keymap('n', '<space>s', '', {noremap = true, silent = true, callback = switch_case})
+vim.api.nvim_set_keymap('n', '<space>s', '', { noremap = true, silent = true, callback = switch_case })
 
 --}}}
 -- {{{ Gui
@@ -362,20 +365,20 @@ require("lazy").setup({
     "https://github.com/mbbill/undotree",
     {
         "https://github.com/nvim-treesitter/nvim-treesitter-context",
-        config = function ()
-            require'treesitter-context'.setup{
-                enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
-                multiwindow = false, -- Enable multiwindow support.
-                max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
-                min_window_height = 0, -- Minimum editor window height to enable context. Values <= 0 mean no limit.
+        config = function()
+            require 'treesitter-context'.setup {
+                enable = true,            -- Enable this plugin (Can be enabled/disabled later via commands)
+                multiwindow = false,      -- Enable multiwindow support.
+                max_lines = 0,            -- How many lines the window should span. Values <= 0 mean no limit.
+                min_window_height = 0,    -- Minimum editor window height to enable context. Values <= 0 mean no limit.
                 line_numbers = true,
                 multiline_threshold = 20, -- Maximum number of lines to show for a single context
-                trim_scope = 'outer', -- Which context lines to discard if `max_lines` is exceeded. Choices: 'inner', 'outer'
-                mode = 'cursor',  -- Line used to calculate context. Choices: 'cursor', 'topline'
+                trim_scope = 'outer',     -- Which context lines to discard if `max_lines` is exceeded. Choices: 'inner', 'outer'
+                mode = 'cursor',          -- Line used to calculate context. Choices: 'cursor', 'topline'
                 -- Separator between context and content. Should be a single character string, like '-'.
                 -- When separator is set, the context will only show up when there are at least 2 lines above cursorline.
                 separator = nil,
-                zindex = 20, -- The Z-index of the context window
+                zindex = 20,     -- The Z-index of the context window
                 on_attach = nil, -- (fun(buf: integer): boolean) return false to disable attaching
             }
         end
@@ -468,7 +471,7 @@ require("lazy").setup({
     }, -- }}}
     {  -- {{{ neotree
         "preservim/nerdtree",
-        config = function ()
+        config = function()
             vim.keymap.set("", "<C-g>", ":NERDTreeToggle<CR>", { noremap = true, silent = true })
             vim.keymap.set("", "<C-x><C-g>", ":NERDTreeFind<CR>", { noremap = true, silent = true })
         end
@@ -500,7 +503,7 @@ require("lazy").setup({
             -- Autocompletion
             "hrsh7th/nvim-cmp",     -- Required
             "hrsh7th/cmp-nvim-lsp", -- Required
-            "L3MON4D3/LuaSnip",     -- Required
+            -- "L3MON4D3/LuaSnip",     -- Required
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path",
             "hrsh7th/cmp-cmdline",
@@ -510,16 +513,16 @@ require("lazy").setup({
         config = function()
             require("mason").setup()
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "clangd", "pylsp" },
+                ensure_installed = { "lua_ls", "clangd", "ruff" }, --"pylsp" },
             })
 
             local lsp = require("lsp-zero").preset({})
 
             lsp.on_attach(function(_, bufnr)
                 lsp.default_keymaps({ buffer = bufnr })
-                vim.keymap.set('n', 'gr', '<cmd>Telescope lsp_references<cr>', {buffer = bufnr})
-                vim.keymap.set('n', 'gd', '<cmd>Telescope lsp_definitions<cr>', {buffer = bufnr})
-                vim.keymap.set('n', 'gD', '<cmd>Telescope lsp_implementations<cr>', {buffer = bufnr})
+                vim.keymap.set('n', 'gr', '<cmd>Telescope lsp_references<cr>', { buffer = bufnr })
+                vim.keymap.set('n', 'gd', '<cmd>Telescope lsp_definitions<cr>', { buffer = bufnr })
+                vim.keymap.set('n', 'gD', '<cmd>Telescope lsp_implementations<cr>', { buffer = bufnr })
             end)
 
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -532,19 +535,12 @@ require("lazy").setup({
             require("lspconfig").lua_ls.setup {
                 capabilities = capabilities,
             }
-            require("lspconfig").pylsp.setup({
-                settings = {
-                    pylsp = {
-                        plugins = {
-                            -- formatter options
-                            black = { enabled = true },
-                            pycodestyle = {
-                                ignore = { "W391", "E501" },
-                                maxLineLength = 200,
-                            },
-                        },
-                    },
-                },
+            require('lspconfig').ruff.setup({
+                init_options = {
+                    settings = {
+                        -- Ruff language server settings go here
+                    }
+                }
             })
             require("lspconfig").rust_analyzer.setup({})
 
@@ -591,7 +587,7 @@ require("lazy").setup({
         end,
     }, -- }}}
     "tpope/vim-fugitive",
-    { -- {{{ gitsign
+    {  -- {{{ gitsign
         "lewis6991/gitsigns.nvim",
         config = function()
             require("gitsigns").setup({
@@ -672,14 +668,14 @@ vim.api.nvim_create_user_command("YamlIndentMimify", function()
     vim.fn.execute(':%!yq -y -c "."')
 end, {})
 
-vim.api.nvim_create_user_command('WipeWindowlessBufs', function ()
-  local bufinfos = vim.fn.getbufinfo({buflisted = true})
-  vim.tbl_map(function (bufinfo)
-    if bufinfo.changed == 0 and (not bufinfo.windows or #bufinfo.windows == 0) then
-      print(('Deleting buffer %d : %s'):format(bufinfo.bufnr, bufinfo.name))
-      vim.api.nvim_buf_delete(bufinfo.bufnr, {force = false, unload = false})
-    end
-  end, bufinfos)
-end, { desc = 'Wipeout all buffers not shown in a window'})
+vim.api.nvim_create_user_command('WipeWindowlessBufs', function()
+    local bufinfos = vim.fn.getbufinfo({ buflisted = true })
+    vim.tbl_map(function(bufinfo)
+        if bufinfo.changed == 0 and (not bufinfo.windows or #bufinfo.windows == 0) then
+            print(('Deleting buffer %d : %s'):format(bufinfo.bufnr, bufinfo.name))
+            vim.api.nvim_buf_delete(bufinfo.bufnr, { force = false, unload = false })
+        end
+    end, bufinfos)
+end, { desc = 'Wipeout all buffers not shown in a window' })
 -- }}}
 -- vim700: set sw=4 ts=4 fdm=marker
