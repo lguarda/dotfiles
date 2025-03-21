@@ -227,16 +227,17 @@ remap("n", "<A-k>", ":tabnext<CR>")
 -- {{{ Terminal specific
 remap("t", "<S-esc>", "<C-\\><C-n>") -- normal mode
 remap("t", "<MouseMove>", "<NOP>")   -- mouse isn't well handled for now
+-- TOREMOVE This seems supported by new nvim when nvim 0.11 is officialy release remove this line
 -- GUI seems ti send some weird shit with this so we disable it
-remap("t", "<S-BS>", "<nop>")
-remap("t", "<S-D-BS>", "<nop>")
-remap("t", "<S-A-BS>", "<nop>")
-remap("t", "<S-CR>", "<nop>")
-remap("t", "<S-D-CR>", "<nop>")
-remap("t", "<S-A-CR>", "<nop>")
-remap("t", "<S-space>", "<nop>")
-remap("t", "<S-A-space>", "<nop>")
-remap("t", "<S-D-space>", "<nop>")
+-- remap("t", "<S-BS>", "<BS>")
+-- remap("t", "<S-D-BS>", "<BS>")
+-- remap("t", "<S-A-BS>", "<BS>")
+-- remap("t", "<S-CR>", "<CR>")
+-- remap("t", "<S-D-CR>", "<nop>")
+-- remap("t", "<S-A-CR>", "<nop>")
+-- remap("t", "<S-space>", "<nop>")
+-- remap("t", "<S-A-space>", "<nop>")
+-- remap("t", "<S-D-space>", "<nop>")
 -- }}}
 -- }}}
 -- {{{ Lsp
@@ -465,7 +466,7 @@ require("lazy").setup({
                 hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
             end, { remap = true })
             vim.keymap.set("", "W", function()
-                hop.hint_words()
+                hop.hint_camel_case()
             end, { remap = true })
         end,
     }, -- }}}

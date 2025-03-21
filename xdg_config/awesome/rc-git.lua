@@ -1019,6 +1019,12 @@ client.connect_signal("manage", function(c)
     end
 end)
 
+-- Force minimized clients to unminimize.
+-- This could prevent some proton game to freeze let's see if stack overflow is right
+client.connect_signal("property::minimized", function(c)
+  c.minimized = false
+end)
+
 --client.connect_signal("request::manage", function (c)
 --    debug_popup(("new client c in tag %s"):format(tostring(c.first_tag)))
 --    --c.first_tag.name = ("%d: %s"):format(c.first_tag.index, c.name)
