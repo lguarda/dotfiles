@@ -129,6 +129,9 @@ local function debug_popup_client()
     }
     local out = {}
     local c = client.focus
+    if c == nil then
+        return
+    end
     for _, key in ipairs(properties_list) do
         out[key] = c[key]
     end
@@ -338,6 +341,9 @@ function chasing.create()
         chasing.focus_client_behind()
     else
         local c = client.focus
+        if c == nil then
+            return
+        end
         chasing.set_property(c)
         c:connect_signal("mouse::enter", chasing.flee_mouse)
         chasing.focus_client_behind()
@@ -372,14 +378,16 @@ end
 local taglist_buttons = gears.table.join(
     awful.button({}, 1, function(t) t:view_only() end),
     awful.button({ modkey }, 1, function(t)
-        if client.focus then
-            client.focus:move_to_tag(t)
+        local c = client.focus
+        if c then
+            c:move_to_tag(t)
         end
     end),
     awful.button({}, 3, awful.tag.viewtoggle),
     awful.button({ modkey }, 3, function(t)
-        if client.focus then
-            client.focus:toggle_tag(t)
+        local c = client.focus
+        if c then
+            c:toggle_tag(t)
         end
     end),
     awful.button({}, 4, function(t) awful.tag.viewnext(t.screen) end),
@@ -573,8 +581,12 @@ end)
 local ak = aw.ak
 local akr = aw.akr
 local function my_resize(x, y)
-    if client.focus.floating then
-        client.focus:relative_move(0, 0, x, y)
+    local c = client.focus
+    if c == nil then
+        return
+    end
+    if c.floating then
+        c:relative_move(0, 0, x, y)
     elseif x ~= 0 then
         awful.tag.incmwfact(-(x * 0.005))
     end
@@ -600,7 +612,11 @@ local mode_keys_resize = gears.table.join(
 kb_append_bindings('mode_keys_resize', mode_keys_resize)
 
 local function my_move(x, y)
-    client.focus:relative_move(x, y, 0, 0)
+    local c = client.focus
+    if c == nil then
+        return
+    end
+    c:relative_move(x, y, 0, 0)
 end
 
 local mode_keys_move = gears.table.join(
@@ -671,8 +687,9 @@ local globalkeys = gears.table.join(
         awful.layout.set(awful.layout.suit.tile)
     end),
     ak("e", "Toggle tile layout horizontal and vertiacal", "layout", function()
-        if client.focus.fullscreen then
-            client.focus.fullscreen = false
+        local c = client.focus
+        if c and c.fullscreen then
+            c.fullscreen = false
             return
         end
         if awful.layout.getname() == "tileleft" then
@@ -813,10 +830,11 @@ local function tag_focus_toggle(id)
 end
 
 local function client_move_to_tag(id)
-    if client.focus then
-        local tag = client.focus.screen.tags[id]
+    local c = client.focus
+    if c then
+        local tag = c.screen.tags[id]
         if tag then
-            client.focus:move_to_tag(tag)
+            c:move_to_tag(tag)
         end
     end
 end

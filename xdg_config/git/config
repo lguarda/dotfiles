@@ -74,6 +74,7 @@
     ;textconv = jq "." --sort-keys
 [diff]
     colorMoved = default
+    algorithm = histogram
 [user]
     email = leoman037@live.fr
     name = lguarda
