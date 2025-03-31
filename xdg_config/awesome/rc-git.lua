@@ -887,10 +887,6 @@ local clientbuttons = gears.table.join(
         c:emit_signal("request::activate", "mouse_click", {raise = true})
         awful.mouse.client.resize(c)
     end)
-    --awful.button({ modkey }, 3, function(c)
-    --    c:emit_signal("request::activate", "mouse_click", { raise = true })
-    --    awful.mouse.client.resize(c)
-    --end)
 )
 
 -- use globalkeys on startup
@@ -1075,9 +1071,20 @@ local function border_control(t, only_one)
         end
     end
 end
--- No borders when rearranging only 1 non-floating or maximized client
-screen.connect_signal("arrange", function(s)
+
+local function disble_border_on_single_window(s)
     border_control(s.selected_tag, #s.tiled_clients == 1)
+end
+
+-- No borders when rearranging only 1 non-floating or maximized client
+tag.connect_signal("property::layout", function(t)
+    disble_border_on_single_window(t.screen)
+end)
+client.connect_signal("request::unmanage", function(c)
+    disble_border_on_single_window(c.screen)
+end)
+client.connect_signal("request::manage", function(c)
+    disble_border_on_single_window(c.screen)
 end)
 
 -- }}}

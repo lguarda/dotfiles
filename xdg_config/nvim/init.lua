@@ -224,9 +224,11 @@ remap("t", "<A-j>", "<C-\\><C-N>:tabprevious<CR>")
 remap("i", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
 remap("t", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
 remap("n", "<A-k>", ":tabnext<CR>")
+-- }}}
 -- {{{ Terminal specific
-remap("t", "<S-esc>", "<C-\\><C-n>") -- normal mode
-remap("t", "<MouseMove>", "<NOP>")   -- mouse isn't well handled for now
+remap("t", "<S-esc>", "<C-\\><C-n>")                                                                   -- normal mode
+remap("t", "<MouseMove>", "<NOP>")                                                                     -- mouse isn't well handled for now
+remap("t", "<c-w><c-l>", "<c-l><c-\\><c-n>:set scrollback=1 | sleep 100m | set scrollback=10000<CR>i") --clear terminal and history
 -- TOREMOVE This seems supported by new nvim when nvim 0.11 is officialy release remove this line
 -- GUI seems ti send some weird shit with this so we disable it
 -- remap("t", "<S-BS>", "<BS>")
@@ -239,7 +241,6 @@ remap("t", "<MouseMove>", "<NOP>")   -- mouse isn't well handled for now
 -- remap("t", "<S-A-space>", "<nop>")
 -- remap("t", "<S-D-space>", "<nop>")
 -- }}}
--- }}}
 -- {{{ Lsp
 vim.keymap.set('n', 'gK', function()
     local new_config = not vim.diagnostic.config().virtual_lines
@@ -249,9 +250,6 @@ vim.keymap.set('n', 'gR', function()
     vim.lsp.buf.rename()
 end, { desc = 'Rename on cursor' })
 -- }}}
-vim.api.nvim_create_user_command("OpenscadOpen", function()
-    vim.fn.execute(("!openscad %s &"):format(vim.fn.expand("%p")))
-end, {})
 -- {{{ Formating
 local function toggle_conf(scope, conf)
     local opt_type = type(vim[scope][conf])
@@ -282,7 +280,8 @@ remap("v", "<Tab>", ">gv")              -- indent up
 remap("v", "<S-Tab>", "<gv")            -- indent down
 -- }}}
 --{{{ Action
-remap("n", "<space>x", "<cmd>!chmod +x %<CR>", { silent = true })
+remap("n", "<space>d", ":w !diff -u % -<CR>")                     -- Show current unsaved modification diff
+remap("n", "<space>x", "<cmd>!chmod +x %<CR>", { silent = true }) -- Make current file executable
 remap("n", "x", '"_x', { silent = true })
 remap("n", "X", '"_X', { silent = true })
 remap("n", "<S-z><S-s>", ":execute 'silent! write !sudo tee % >/dev/null' <bar> edit!<CR>")
@@ -310,6 +309,10 @@ local function switch_case()
 end
 
 vim.api.nvim_set_keymap('n', '<space>s', '', { noremap = true, silent = true, callback = switch_case })
+
+vim.api.nvim_create_user_command("OpenscadOpen", function()
+    vim.fn.execute(("!openscad %s &"):format(vim.fn.expand("%p")))
+end, {})
 
 --}}}
 -- {{{ Gui
@@ -609,6 +612,12 @@ require("lazy").setup({
             -- add any options here
         },
         lazy = false,
+    },
+    {
+        "samjwill/nvim-unception",
+        init = function()
+            vim.g.unception_open_buffer_in_new_tab = true
+        end
     },
 })
 -- }}}
