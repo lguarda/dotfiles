@@ -12,14 +12,14 @@ setopt inc_append_history
 setopt share_history
 unsetopt listambiguous
 
-export EDITOR="invim -p --remote-wait"
-alias vim="invim -p"
+export EDITOR="nvim"
+alias vim="nvim"
 unalias g
 alias cm="cmake . --preset"
 alias cb="cmake --build --preset"
 alias re="realpath"
 alias vimdiff="nvim -d"
-alias vz="invim -p $HOME/.zshrc"
+alias vz="nvim $HOME/.zshrc"
 
 alias gdbdash="ASAN_OPTIONS=detect_leaks=0 gdb -nh -ix ~/.config/gdb/gdbdashinit"
 alias lsan="ASAN_OPTIONS=fast_unwind_on_malloc=0 LSAN_OPTIONS='max_leaks=1'"
