@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-#xss-lock $HOME/.local/bin/lock.sh
+WM=${WM:=awesome}
 
-/usr/bin/xset r rate 180 35
+xset r rate 180 35
 setxkbmap -option caps:escape
 
 XDG_DATA_HOME="$HOME/.local/share"
@@ -10,6 +10,4 @@ XDG_CONFIG_HOME="$HOME/.config"
 
 PATH=$HOME/.local/bin:/sbin:$PATH
 
-exec awesome
-#exec /home/leo/clone/qtile/bin/qtile start
-
+exec $WM >> ~/.cache/awesome/stdout 2>> ~/.cache/awesome/stderr

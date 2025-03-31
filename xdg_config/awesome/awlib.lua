@@ -191,7 +191,9 @@ local toggle_state = {}
 ---@param properties? table properties to apply on the client
 local function toggle_client(c, cmd, hide, properties)
     if not c:isvisible() then
-        c:move_to_tag(awful.tag.selected(1))
+        local s = awful.screen.focused()
+        c:move_to_screen(s)
+        c:tags(s.selected_tags)
         -- Refresh ontop if it was change
         c.ontop = true
         c:jump_to(false)
