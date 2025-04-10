@@ -868,7 +868,7 @@ end
 kb_append_bindings('globalkeys', globalkeys)
 
 local clientkeys = gears.table.join(
-    ak("Shift+q", "Close", "client", function(c) c:kill() end),
+    ak("q", "Close", "client", function(c) c:kill() end),
     ak("space", "toggle floating", "client", awful.client.floating.toggle),
     ak("Control+Return", "move to master", "client", function(c) c:swap(awful.client.getmaster()) end),
     ak("Shift+o", "move to screen", "client", function(c) c:move_to_screen() end),
