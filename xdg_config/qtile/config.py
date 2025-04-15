@@ -2,18 +2,15 @@ from libqtile import bar, layout, qtile, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.backend.wayland import InputConfig
+from libqtile.log_utils import logger
 # from libqtile.utils import guess_terminal
 
-if qtile.core.name == "x11":
-    # Set x11 related stuff
-    cmd_runner = "rofi -show drun -sorting-method fzf -sort -matching fuzzy"
-elif qtile.core.name == "wayland":
-    # Set wayland related stuff
-    cmd_runner = "rofi -show drun -sorting-method fzf -sort -matching fuzzy"
 
-
-def spawncmd():
-    lazy.spawn(cmd_runner)
+@lazy.function
+def spawncmd(qtile):
+    logger.warning("waaazzzzzzzzz")
+    cmd_runner = "rofi -show drun -sorting-method fzf -sort -matching fuzzy"
+    qtile.cmd_spawn(cmd_runner)
 
 
 mod = "mod4"
@@ -158,12 +155,6 @@ screens = [
                 widget.GroupBox(),
                 widget.Prompt(),
                 widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        "launch": ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
-                ),
                 widget.StatusNotifier(),
                 # widget.Systray(),
                 widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
@@ -222,7 +213,7 @@ auto_minimize = False
 
 # When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = {
-    "type:keyboard": InputConfig(kb_repeat_rate="180", kb_repeat_delay="35"),
+    "type:keyboard": InputConfig(kb_repeat_rate=20, kb_repeat_delay=180,kb_options="caps:escape"),
 }
 
 # xcursor theme (string or None) and size (integer) for Wayland backend
