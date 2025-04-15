@@ -1055,6 +1055,9 @@ client.connect_signal("focus", function(c) c.border_color = "#3b9c43" end)
 client.connect_signal("unfocus", function(c) c.border_color = "#205725" end)
 
 local function border_control(t, only_one)
+    if not t then
+        return
+    end
     local cs = t:clients()
     local layout_name = awful.tag.getproperty(t, "layout").name
     if only_one or layout_name == "fullscreen" or layout_name == 'max' then
