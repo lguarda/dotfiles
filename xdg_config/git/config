@@ -1,7 +1,7 @@
 [core]
     ;pager = sed 's/\t/>   /g' | less -N
     pager = less -N
-    editor = invim -O --remote-wait
+    editor = nvim
     pager = delta
 
 [interactive]
