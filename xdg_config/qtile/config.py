@@ -2,19 +2,21 @@ from libqtile import bar, layout, qtile, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 from libqtile.backend.wayland import InputConfig
+from libqtile import hook
 from libqtile.log_utils import logger
-# from libqtile.utils import guess_terminal
 
+import subprocess
+
+@hook.subscribe.startup_once
+def autostart():
+    subprocess.Popen("xwayland-sattelite")
 
 @lazy.function
 def spawncmd(qtile):
-    logger.warning("waaazzzzzzzzz")
     cmd_runner = "rofi -show drun -sorting-method fzf -sort -matching fuzzy"
     qtile.cmd_spawn(cmd_runner)
 
-
 mod = "mod4"
-# terminal = guess_terminal()
 terminal = "neovide -- +term"
 
 keys = [
@@ -76,7 +78,8 @@ keys = [
     ),
     Key([mod, "shift"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "shift"], "e", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "d", spawncmd(), desc="Spawn a command using a prompt widget"),
+    Key([mod, "shift"], "d", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
+    Key([mod], "d", spawncmd(), desc="Spawn a command using rofi"),
 ]
 
 # Add key bindings to switch VTs in Wayland.
@@ -213,7 +216,7 @@ auto_minimize = False
 
 # When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = {
-    "type:keyboard": InputConfig(kb_repeat_rate=20, kb_repeat_delay=180,kb_options="caps:escape"),
+    "type:keyboard": InputConfig(kb_repeat_rate=20, kb_repeat_delay=180, kb_options="caps:escape"),
 }
 
 # xcursor theme (string or None) and size (integer) for Wayland backend
