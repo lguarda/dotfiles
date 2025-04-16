@@ -4,6 +4,8 @@ from libqtile.lazy import lazy
 from libqtile.backend.wayland import InputConfig
 from libqtile import hook
 from libqtile.log_utils import logger
+# from libqtile.log_utils import logger
+# from libqtile.utils import guess_terminal
 
 import subprocess
 
@@ -150,17 +152,33 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
-screens = [
-    Screen(
+
+def addScreen():
+    return Screen(
         bottom=bar.Bar(
             [
-                widget.CurrentLayout(),
+                widget.CurrentScreen(),
+                # widget.CurrentLayout(),
                 widget.GroupBox(),
                 widget.Prompt(),
+                widget.Sep(),
                 widget.WindowName(),
+                widget.Sep(),
+                widget.Volume(),
+                widget.Sep(),
+                widget.DF(),
+                widget.Sep(),
+                widget.Sep(),
+                widget.CPUGraph(),
+                widget.Sep(),
+                widget.MemoryGraph(),
+                widget.Sep(),
+                widget.Battery(),
+                widget.Sep(),
                 widget.StatusNotifier(),
+                widget.Sep(),
                 # widget.Systray(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
+                widget.Clock(format="%V %a %Y-%m-%d %H:%M:%S"),
                 # widget.QuickExit(),
             ],
             24,
@@ -171,7 +189,12 @@ screens = [
         # By default we handle these events delayed to already improve performance, however your system might still be struggling
         # This variable is set to None (no cap) by default, but you can set it to 60 to indicate that you limit it to 60 events per second
         # x11_drag_polling_rate = 60,
-    ),
+    )
+
+
+screens = [
+    (addScreen()),
+    (addScreen()),
 ]
 
 # Drag floating layouts.
@@ -216,7 +239,9 @@ auto_minimize = False
 
 # When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = {
-    "type:keyboard": InputConfig(kb_repeat_rate=20, kb_repeat_delay=180, kb_options="caps:escape"),
+    "type:keyboard": InputConfig(
+        kb_repeat_rate=20, kb_repeat_delay=180, kb_options="caps:escape"
+    ),
 }
 
 # xcursor theme (string or None) and size (integer) for Wayland backend
