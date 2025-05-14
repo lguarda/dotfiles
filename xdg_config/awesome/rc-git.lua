@@ -640,6 +640,7 @@ local pulsemixer_cmd =
     .. [[ "+lua vim.keymap.set('t', 'q', '<nop>')"]]
     .. [[ "+lua vim.keymap.set('t', '<esc>', '<nop>')"]]
     .. ' "+term ~/clone/pulsemixer/pulsemixer"'
+    .. ' "+set wrap"'
 
 kb_append_bindings('mode_keys_move', mode_keys_move)
 -- {{{ Global key bind
@@ -916,7 +917,7 @@ local floating_client_rule = {
         instance = {
             "copyq", -- Includes session name in class.
         },
-        class = { "Arandr", "Blueman-manager" },
+        class = { "Blueman-manager" },
 
         -- Note that the name property shown in xprop might be set slightly after creation of the client
         -- and the name shown there might not match defined rules here.
@@ -942,6 +943,17 @@ ruled.client.connect_signal("request::rules", function()
         default_rule,
         floating_client_rule,
         {
+            rule = { class = "Arandr" },
+            properties = {
+                placement = function(...) return awful.placement.centered(...) end,
+                height = 600,
+                width = 800,
+                floating = true,
+                opacity = 0.9,
+                ontop = true
+            },
+        },
+        {
             rule = { class = "Pavucontrol" },
             properties = {
                 placement = function(...) return awful.placement.centered(...) end,
@@ -956,8 +968,8 @@ ruled.client.connect_signal("request::rules", function()
             rule = { class = "pulsemixer" },
             properties = {
                 placement = function(...) return awful.placement.centered(...) end,
-                height = 500,
-                width = 600,
+                height = 800,
+                width = 1000,
                 floating = true,
                 opacity = 0.9,
                 ontop = true,
@@ -1076,7 +1088,10 @@ local function border_control(t, only_one)
 end
 
 local function disble_border_on_single_window(s)
-    border_control(s.selected_tag, #s.tiled_clients == 1)
+    local tag = s.selected_tag
+    if (tag) then
+        border_control(s.selected_tag, #s.tiled_clients == 1)
+    end
 end
 
 -- No borders when rearranging only 1 non-floating or maximized client

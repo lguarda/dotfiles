@@ -387,12 +387,22 @@ require("lazy").setup({
             }
         end
     },
+    --{
+    --    "scottmckendry/cyberdream.nvim",
+    --    lazy = false,
+    --    priority = 1000,
+    --    config = function()
+    --        require("cyberdream").setup({
+    --        -- Set light or dark variant
+    --        --variant = "light", --
+    --    })
+    --    vim.cmd [[colorscheme cyberdream-light]]
+    --    end
+    --},
     {
-        "VDuchauffour/neodark.nvim",
+        "rebelot/kanagawa.nvim",
         config = function()
-            require("neodark").setup({
-                theme_style = "neodarker",
-            })
+        vim.cmd [[colorscheme kanagawa-wave]]
         end,
     },
     "aklt/plantuml-syntax",
@@ -517,7 +527,7 @@ require("lazy").setup({
         config = function()
             require("mason").setup()
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "clangd", "ruff" }, --"pylsp" },
+                ensure_installed = { "lua_ls", "ruff" }, --"pylsp" },
             })
 
             local lsp = require("lsp-zero").preset({})
