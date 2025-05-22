@@ -39,6 +39,7 @@ config.bind(
     "config-cycle -u {url:domain} colors.webpage.darkmode.enabled",
     mode="normal",
 )
+config.bind("gd", "download-open dragon", mode="normal")
 # }}}
 # {{{ settings
 c.content.blocking.adblock.lists = [
