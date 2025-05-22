@@ -402,7 +402,7 @@ require("lazy").setup({
     {
         "rebelot/kanagawa.nvim",
         config = function()
-        vim.cmd [[colorscheme kanagawa-wave]]
+            vim.cmd [[colorscheme kanagawa-wave]]
         end,
     },
     "aklt/plantuml-syntax",
@@ -624,7 +624,8 @@ require("lazy").setup({
         lazy = false,
     },
     {
-        "samjwill/nvim-unception",
+        -- "samjwill/nvim-unception",
+        "lguarda/nvim-unception",
         init = function()
             vim.g.unception_open_buffer_in_new_tab = true
         end

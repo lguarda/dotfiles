@@ -665,7 +665,7 @@ local globalkeys = gears.table.join(
             c.maximized = not c.maximized
         end
         -- jump to the client that was under the mouse after changing to max
-        if tof then
+        if tof and tof.jump_to then
             tof:jump_to(false)
         end
     end
@@ -679,7 +679,7 @@ local globalkeys = gears.table.join(
         end
         awful.layout.set(awful.layout.suit.max)
         -- jump to the client that was under the mouse after changing to max
-        if tof then
+        if tof and tof.jump_to then
             tof:jump_to(false)
         end
     end
