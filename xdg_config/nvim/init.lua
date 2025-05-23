@@ -134,6 +134,18 @@ ac("BufWinEnter", {
 })
 -- }}}
 -- {{{ Terminal specific
+local function get_buffers(options)
+    local buffers = {}
+
+    for buffer = 1, vim.fn.bufnr('$') do
+        local is_listed = vim.fn.buflisted(buffer) == 1
+        if not (options.listed and is_listed) then
+            table.insert(buffers, buffer)
+        end
+    end
+
+    return buffers
+end
 local function is_last_window()
     -- check for last tab
     if #vim.api.nvim_tabpage_list_wins(0) > 1 then
@@ -141,12 +153,7 @@ local function is_last_window()
     end
 
     -- check for last split
-    local counter = 0
-
-    for i = 0, vim.fn.bufnr("$") do
-        counter = counter + vim.fn.buflisted(i)
-    end
-
+    local counter = #get_buffers({ listed = true })
     return counter <= 1
 end
 ac("TermOpen", { command = "setlocal nonumber norelativenumber signcolumn=no laststatus=0" })
@@ -159,7 +166,7 @@ ac("TermClose", {
         end
     end
 })
--- ac("BufEnter", { pattern = "term://*", command = "startinsert" })
+ac("BufEnter", { pattern = "term://*", command = "startinsert" })
 -- }}}
 -- {{{ language specific
 ac("BufWrite", { pattern = "*.puml", command = "silent !plantuml % &" })
@@ -180,8 +187,8 @@ end, { remap = true })
 remap("n", "<space>r", function()
     require("plenary.reload").reload_module("~/.config/nvim/init.lua") -- replace with your own namespace
 end)
-remap("n", "<Tab>", ":tabnext<CR>")
-remap("n", "<S-Tab>", ":tabprevious<CR>")
+-- remap("n", "<Tab>", ":tabnext<CR>")
+-- remap("n", "<S-Tab>", ":tabprevious<CR>")
 -- }}}
 -- {{{ system ClipBoard
 remap("v", "<A-c>", '"+y', { remap = true })
@@ -272,12 +279,12 @@ remap("n", "<space>w", function()
 end) -- "Toggle expandtab
 
 -- Move text around
-remap("n", "<A-k>", '"mddk"mP==')       -- move current line up
-remap("n", "<A-j>", '"mdd"mp==')        -- move current line down
-remap("v", "<A-k>", ":m '<-2<CR>gv=gv") -- move selecion up
-remap("v", "<A-j>", ":m '>+1<CR>gv=gv") -- move selecion down
-remap("v", "<Tab>", ">gv")              -- indent up
-remap("v", "<S-Tab>", "<gv")            -- indent down
+remap("n", "<S-A-k>", '"mddk"mP==')       -- move current line up
+remap("n", "<S-A-j>", '"mdd"mp==')        -- move current line down
+remap("v", "<S-A-k>", ":m '<-2<CR>gv=gv") -- move selecion up
+remap("v", "<S-A-j>", ":m '>+1<CR>gv=gv") -- move selecion down
+remap("v", "<Tab>", ">gv")                -- indent up
+remap("v", "<S-Tab>", "<gv")              -- indent down
 -- }}}
 --{{{ Action
 remap("n", "<space>d", ":w !diff -u % -<CR>")                     -- Show current unsaved modification diff
@@ -366,7 +373,14 @@ vim.opt.rtp:prepend(lazypath)
 --}}}
 --{{{ lazy plugin list
 require("lazy").setup({
-    "https://github.com/mbbill/undotree",
+    { -- {{{ colorscheme
+        "rebelot/kanagawa.nvim",
+        config = function()
+            vim.cmd [[colorscheme kanagawa-wave]]
+        end,
+    }, -- }}}
+    --{{{ Syntax
+    "aklt/plantuml-syntax",
     {
         "https://github.com/nvim-treesitter/nvim-treesitter-context",
         config = function()
@@ -387,27 +401,6 @@ require("lazy").setup({
             }
         end
     },
-    --{
-    --    "scottmckendry/cyberdream.nvim",
-    --    lazy = false,
-    --    priority = 1000,
-    --    config = function()
-    --        require("cyberdream").setup({
-    --        -- Set light or dark variant
-    --        --variant = "light", --
-    --    })
-    --    vim.cmd [[colorscheme cyberdream-light]]
-    --    end
-    --},
-    {
-        "rebelot/kanagawa.nvim",
-        config = function()
-            vim.cmd [[colorscheme kanagawa-wave]]
-        end,
-    },
-    "aklt/plantuml-syntax",
-    "godlygeek/tabular",
-    "fidian/hexmode",
     {
         "nvim-treesitter/nvim-treesitter",
         config = function()
@@ -436,6 +429,10 @@ require("lazy").setup({
             })
         end,
     },
+    --}}}
+    "https://github.com/mbbill/undotree",
+    "godlygeek/tabular",
+    "fidian/hexmode",
     { -- {{{ telescope
         "nvim-telescope/telescope.nvim",
         dependencies = "nvim-lua/plenary.nvim",
@@ -444,6 +441,10 @@ require("lazy").setup({
             vim.keymap.set("n", "<space>fo", builtin.oldfiles, {})
             vim.keymap.set("n", "<space>ff", builtin.find_files, {})
             vim.keymap.set("n", "<space>fg", function()
+                builtin.git_files({ recurse_submodules = true })
+            end
+            , {})
+            vim.keymap.set("n", "<S-Space>fg", function()
                 builtin.git_files({ recurse_submodules = true })
             end
             , {})
@@ -489,8 +490,8 @@ require("lazy").setup({
             vim.keymap.set("", "<C-g>", ":NERDTreeToggle<CR>", { noremap = true, silent = true })
             vim.keymap.set("", "<C-x><C-g>", ":NERDTreeFind<CR>", { noremap = true, silent = true })
         end
-    }, --}}}
-    {
+    }, -- }}}
+    {  -- {{{ stylua
         "wesleimp/stylua.nvim",
         config = function()
             local stylua = require("stylua")
@@ -498,8 +499,8 @@ require("lazy").setup({
                 stylua.format()
             end, {})
         end,
-    },
-    { -- {{{ lsp-zero
+    }, -- }}}
+    {  -- {{{ lsp-zero
         "VonHeikemen/lsp-zero.nvim",
         branch = "v2.x",
         dependencies = {
@@ -616,21 +617,23 @@ require("lazy").setup({
             })
         end,
     }, --}}}
-    {
+    {  -- {{{ comment
         "numToStr/Comment.nvim",
         opts = {
             -- add any options here
         },
         lazy = false,
-    },
-    {
+    }, -- }}}
+    {  -- {{{ unception
         -- "samjwill/nvim-unception",
         "lguarda/nvim-unception",
         init = function()
             vim.g.unception_open_buffer_in_new_tab = true
+            vim.g.unception_multi_file_open_method = "tab"
         end
-    },
+    }, -- }}}
 })
+
 -- }}}
 -- {{{ Command
 
