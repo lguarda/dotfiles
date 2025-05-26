@@ -40,6 +40,8 @@ config.bind(
     mode="normal",
 )
 config.bind("gd", "download-open dragon", mode="normal")
+config.bind("<Shift-j>", "tab-prev", mode="normal")
+config.bind("<Shift-k>", "tab-next", mode="normal")
 # }}}
 # {{{ settings
 c.content.blocking.adblock.lists = [
