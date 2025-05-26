@@ -628,8 +628,12 @@ require("lazy").setup({
         -- "samjwill/nvim-unception",
         "lguarda/nvim-unception",
         init = function()
-            vim.g.unception_open_buffer_in_new_tab = true
-            vim.g.unception_multi_file_open_method = "tab"
+            if vim.g.unception_open_buffer_in_new_tab == nil then
+                vim.g.unception_open_buffer_in_new_tab = true
+            end
+            if vim.g.unception_multi_file_open_method == nil then
+                vim.g.unception_multi_file_open_method = "tab"
+            end
         end
     }, -- }}}
 })
