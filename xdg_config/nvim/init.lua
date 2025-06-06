@@ -708,6 +708,7 @@ vim.api.nvim_create_user_command("Overlay", function()
     vim.o.relativenumber = false
     vim.o.signcolumn = "auto"
     vim.g.neovide_opacity = 0.7
+    vim.opt.foldmethod = "marker"
 end, {})
 
 vim.api.nvim_create_user_command('WipeWindowlessBufs', function()
