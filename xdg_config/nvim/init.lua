@@ -541,10 +541,12 @@ require("lazy").setup({
             end)
 
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
             -- An example for configuring `clangd` LSP to use nvim-cmp as a completion engine
             require('lspconfig').clangd.setup {
                 capabilities = capabilities,
+                on_init = function(client, _)
+                    client.server_capabilities.semanticTokensProvider = nil  -- turn off semantic tokens
+                end,
             }
             -- (Optional) Configure lua language server for neovim
             require("lspconfig").lua_ls.setup {
