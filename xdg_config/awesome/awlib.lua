@@ -194,11 +194,18 @@ local function toggle_client(c, cmd, hide, properties)
         local s = awful.screen.focused()
         c:move_to_screen(s)
         c:tags(s.selected_tags)
+        --c:move_to_tag(awful.screen.focused().selected_tag)
         -- Refresh ontop if it was change
         c.ontop = true
         c:jump_to(false)
         aw.client_apply_properties(c, properties)
-        awful.placement.centered(c)
+        if c.shape_input then
+            -- toggle_client will also
+            -- reset shape_input this is a little bit hacky
+            -- so i don't need another key bind to do this
+            c.shape_input = nil
+        end
+        --awful.placement.centered(c)
     elseif hide then
         c:tags {}
     else
@@ -221,7 +228,7 @@ local function toggle_spawn_attach(cmd, client_match, properties)
         toggle_state[cmd] = nil
     end)
     aw.client_apply_properties(client_match, properties)
-    awful.placement.centered(client_match)
+    --awful.placement.centered(client_match)
 end
 
 ---Toggle all other client present in `toggle_state` off.
