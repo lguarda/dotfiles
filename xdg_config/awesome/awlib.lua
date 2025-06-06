@@ -19,7 +19,7 @@ function aw.print(text)
     naughty.notify({
         preset = naughty.config.presets.critical,
         title = "debug:",
-        text = tostring(text)
+        text = gears.debug.dump_return(text)
     })
 end
 
@@ -148,9 +148,9 @@ function aw.client_apply_properties(c, properties)
     -- Some time properties aren't well applied do it twice
     -- for now fix the issue (it's related width/height and placement)
     -- TODO: investigate why
-    for prop, value in pairs(properties) do
-        c[prop] = value
-    end
+    -- for prop, value in pairs(properties) do
+    --     c[prop] = value
+    -- end
     for prop, value in pairs(properties) do
         c[prop] = value
     end
@@ -161,7 +161,7 @@ end
 local function create_matcher_any(properties)
     return function(c)
         for key, value in pairs(properties) do
-            if c[key]:find(value) then
+            if c[key] and c[key]:find(value) then
                 return true
             end
         end
@@ -239,6 +239,10 @@ function aw.detect_next_client(cmd, properties)
     local function match_next_created_client(c)
         toggle_spawn_attach(cmd, c, properties)
         client.disconnect_signal("request::manage", match_next_created_client)
+        -- I don't know why but client doesn't always respect properties so for i call this twice
+        -- Adding delay doesn't seems to fix it this need debugging
+        --toggle_spawn_attach(cmd, c, properties)
+        --toggle_spawn_attach(cmd, c, properties)
     end
 
     client.connect_signal("request::manage", match_next_created_client)

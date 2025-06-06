@@ -598,7 +598,6 @@ local mode_keys_resize = gears.table.join(
     akr(key_alias["down"], "resize", "Mode:resize", aw.cba(my_resize, 0, 10)),
     akr(key_alias["left"], "resize", "Mode:resize", aw.cba(my_resize, -10, 0)),
     akr(key_alias["right"], "resize", "Mode:resize", aw.cba(my_resize, 10, 0)),
-
     ak("m", "Change keybind mode to move", "Keybind mode",
         aw.cba(kb_swap_mode, 'mode_keys_move', 'move')),
 
@@ -624,7 +623,6 @@ local mode_keys_move = gears.table.join(
     akr(key_alias["down"], "move", "Mode:move", aw.cba(my_move, 0, 10)),
     akr(key_alias["left"], "move", "Mode:move", aw.cba(my_move, -10, 0)),
     akr(key_alias["right"], "move", "Mode:move", aw.cba(my_move, 10, 0)),
-
     ak("r", "Change keybind mode to resize", "Keybind mode",
         aw.cba(kb_swap_mode, 'mode_keys_resize', 'resize')),
 
