@@ -698,6 +698,18 @@ vim.api.nvim_create_user_command("YamlIndentMimify", function()
     vim.fn.execute(':%!yq -y -c "."')
 end, {})
 
+-- This Command will remove all unnecessary feature
+-- making neovim nice to be used as an overlay window client
+vim.api.nvim_create_user_command("Overlay", function()
+    vim.o.cmdheight = 0
+    vim.o.number = false
+    vim.o.wrap = true
+    vim.o.showtabline = 0
+    vim.o.relativenumber = false
+    vim.o.signcolumn = "auto"
+    vim.g.neovide_opacity = 0.7
+end, {})
+
 vim.api.nvim_create_user_command('WipeWindowlessBufs', function()
     local bufinfos = vim.fn.getbufinfo({ buflisted = true })
     vim.tbl_map(function(bufinfo)
