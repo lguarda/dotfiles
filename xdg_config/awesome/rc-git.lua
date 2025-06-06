@@ -633,6 +633,20 @@ local mode_keys_move = gears.table.join(
     )
 )
 
+local cairo = require("lgi").cairo
+
+---This function will make the shape input in 0x0
+---So it will only be focusable via keybind, the mouse move and click
+---will be applied through the given client
+local function blend_out(c)
+    local img = cairo.ImageSurface(cairo.Format.A1, 0, 0)
+    c.shape_input = img._native
+    img:finish()
+end
+
+local over_editor_cmd = 'neovide --x11-wm-class=overnvim --x11-wm-class-instance=overnvim -- '
+    .. '+term'
+
 local pulsemixer_cmd =
     'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- '
     .. [[ "+lua vim.keymap.set('t', 'q', '<nop>')"]]
@@ -754,6 +768,15 @@ local globalkeys = gears.table.join(
         aw.cba(aw.toggle_spawn,
             pulsemixer_cmd,
             true, { class = "pulsemixer" }, { border_width = 1 })),
+    ak("n", "Pop over over nvim editor", "launcher",
+        aw.cba(aw.toggle_spawn,
+            over_editor_cmd,
+            true, { class = "overnvim" })),
+    ak("Shift+n", "Apply blend out on a client", "launcher",
+        function()
+            local c = client.focus
+            blend_out(c)
+        end),
     ak("Shift+c", "Pop up pavucontrol", "launcher",
         aw.cba(aw.toggle_spawn, 'pavucontrol', true)),
 
@@ -882,8 +905,8 @@ local clientbuttons = gears.table.join(
         c:emit_signal("request::activate", "mouse_click", { raise = true })
         awful.mouse.client.move(c)
     end),
-    awful.button({ modkey, "Shift" }, 1, function (c)
-        c:emit_signal("request::activate", "mouse_click", {raise = true})
+    awful.button({ modkey, "Shift" }, 1, function(c)
+        c:emit_signal("request::activate", "mouse_click", { raise = true })
         awful.mouse.client.resize(c)
     end)
 )
@@ -975,6 +998,17 @@ ruled.client.connect_signal("request::rules", function()
             },
         },
         {
+            rule = { class = "overnvim" },
+            properties = {
+                height = 600,
+                width = 800,
+                floating = true,
+                -- opacity = 0.6,
+                ontop = true,
+                border_width = 0,
+            },
+        },
+        {
             rule_any = { class = { "Dragon-drop", "Dragon" } },
             properties = {
                 sticky = true, ontop = true, floating = true, placement = awful.placement.centered }
@@ -1028,7 +1062,7 @@ end)
 -- Force minimized clients to unminimize.
 -- This could prevent some proton game to freeze let's see if stack overflow is right
 client.connect_signal("property::minimized", function(c)
-  c.minimized = false
+    c.minimized = false
 end)
 
 --client.connect_signal("request::manage", function (c)
