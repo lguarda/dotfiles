@@ -444,7 +444,8 @@ local tag_list = {
 }
 
 local function ip_widget()
-    local wid = awful.widget.watch('iface', 15, function(widget, stdout)
+    local wid = awful.widget.watch("ip -4 route get 8.8.8.8", 15, function(widget, stdout)
+        stdout = string.match(stdout, "src (%d*.%d*.%d*.%d*)")
         if stdout == "" then
             widget:set_text("down")
         else

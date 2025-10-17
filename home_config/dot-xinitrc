@@ -9,5 +9,5 @@ XDG_DATA_HOME="$HOME/.local/share"
 XDG_CONFIG_HOME="$HOME/.config"
 
 PATH=$HOME/.local/bin:/sbin:$PATH
-
+$HOME/.screenlayout/default.sh
 exec $WM >> ~/.cache/awesome/stdout 2>> ~/.cache/awesome/stderr
