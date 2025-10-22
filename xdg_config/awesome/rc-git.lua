@@ -895,7 +895,11 @@ local clientkeys = gears.table.join(
     ak("space", "toggle floating", "client", awful.client.floating.toggle),
     ak("Control+Return", "move to master", "client", function(c) c:swap(awful.client.getmaster()) end),
     ak("Shift+o", "move to screen", "client", function(c) c:move_to_screen() end),
-    ak("t", "toggle keep on top", "client", function(c) c.ontop = not c.ontop end)
+    ak("t", "toggle keep on top", "client", function(c) c.ontop = not c.ontop end),
+    ak("Shift+t", "toggle keep on top + sticky", "client", function(c)
+        c.ontop = not c.ontop
+        c.sticky = not c.sticky
+    end)
 )
 
 local clientbuttons = gears.table.join(
@@ -939,7 +943,7 @@ local floating_client_rule = {
         instance = {
             "copyq", -- Includes session name in class.
         },
-        class = { "Blueman-manager" },
+        class = { "Blueman-manager", "Sxiv", "feh" },
 
         -- Note that the name property shown in xprop might be set slightly after creation of the client
         -- and the name shown there might not match defined rules here.
