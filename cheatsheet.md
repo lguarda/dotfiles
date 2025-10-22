@@ -444,7 +444,10 @@ Then edit configuration.nix to setup boot
   ];
 }
 ```
-### deb-pkg
+### debian
+command line install
+See https://chaos.tomaskral.eu/guides/debian-encrypted-btrfs-root
+#### deb-pkg
 How to edit debian package
 ```bash
 dpkg-deb -R package.deb dir
