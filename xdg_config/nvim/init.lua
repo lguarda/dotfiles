@@ -3,6 +3,11 @@ local vim = vim
 local home = vim.env["HOME"]
 local backupdir = home .. "/.vim/backup//"
 -- }}}
+-- {{{ lua compat
+if table.unpack == nil then
+    table.unpack = unpack
+end
+-- }}}
 -- {{{ Settings
 -- number settings
 vim.o.scrolloff = 10     -- scroll terminal when cursor is N line from the top or botom
@@ -296,7 +301,7 @@ remap("v", "@", ":normal @r<CR>")
 remap("n", "-<S-o>", ":vertical sbuffer 2<CR>")
 
 local function switch_case()
-    local line, col = table.unpack(vim.api.nvim_win_get_cursor(0))
+    local line, col = unpack(vim.api.nvim_win_get_cursor(0))
     local word = vim.fn.expand('<cword>')
     local word_start = vim.fn.matchstrpos(vim.fn.getline('.'), '\\k*\\%' .. (col + 1) .. 'c\\k*')[2]
 
@@ -379,6 +384,11 @@ require("lazy").setup({
             vim.cmd [[colorscheme kanagawa-wave]]
         end,
     }, -- }}}
+    {
+        "scottmckendry/cyberdream.nvim",
+        lazy = false,
+        priority = 1000,
+    },
     --{{{ Syntax
     "aklt/plantuml-syntax",
     {
@@ -500,111 +510,24 @@ require("lazy").setup({
             end, {})
         end,
     }, -- }}}
-    {  -- {{{ lsp-zero
-        "VonHeikemen/lsp-zero.nvim",
-        branch = "v2.x",
+    { -- {{{ lsp/cmp config
+        'neovim/nvim-lspconfig',
         dependencies = {
-            -- LSP Support
-            "neovim/nvim-lspconfig", -- Required
-            {
-                -- Optional
-                "williamboman/mason.nvim",
-                build = function()
-                    pcall(vim.cmd, "MasonUpdate")
-                end,
-            },
-            "williamboman/mason-lspconfig.nvim", -- Optional
-
-            -- Autocompletion
-            "hrsh7th/nvim-cmp",     -- Required
-            "hrsh7th/cmp-nvim-lsp", -- Required
-            -- "L3MON4D3/LuaSnip",     -- Required
-            "hrsh7th/cmp-buffer",
-            "hrsh7th/cmp-path",
-            "hrsh7th/cmp-cmdline",
-            --'saadparwaiz1/cmp_luasnip',
-            --"rafamadriz/friendly-snippets",
+            'williamboman/mason.nvim',
+            'williamboman/mason-lspconfig.nvim',
+            'hrsh7th/nvim-cmp',
+            'hrsh7th/cmp-nvim-lsp',
+            'hrsh7th/cmp-buffer',
+            'hrsh7th/cmp-path',
+            -- 'L3MON4D3/LuaSnip',
         },
         config = function()
-            require("mason").setup()
-            require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "ruff" }, --"pylsp" },
-            })
-
-            local lsp = require("lsp-zero").preset({})
-
-            lsp.on_attach(function(_, bufnr)
-                lsp.default_keymaps({ buffer = bufnr })
-                vim.keymap.set('n', 'gr', '<cmd>Telescope lsp_references<cr>', { buffer = bufnr })
-                vim.keymap.set('n', 'gd', '<cmd>Telescope lsp_definitions<cr>', { buffer = bufnr })
-                vim.keymap.set('n', 'gD', '<cmd>Telescope lsp_implementations<cr>', { buffer = bufnr })
-            end)
-
-            local capabilities = require('cmp_nvim_lsp').default_capabilities()
-            -- An example for configuring `clangd` LSP to use nvim-cmp as a completion engine
-            require('lspconfig').clangd.setup {
-                capabilities = capabilities,
-                on_init = function(client, _)
-                    client.server_capabilities.semanticTokensProvider = nil  -- turn off semantic tokens
-                end,
-            }
-            -- (Optional) Configure lua language server for neovim
-            require("lspconfig").lua_ls.setup {
-                capabilities = capabilities,
-            }
-            require('lspconfig').ruff.setup({
-                init_options = {
-                    settings = {
-                        -- Ruff language server settings go here
-                    }
-                }
-            })
-            require("lspconfig").rust_analyzer.setup({})
-
-            lsp.setup()
-            -- Make sure you setup `cmp` after lsp-zero
-            vim.diagnostic.config({
-                virtual_lines = true,
-                virtual_text = false,
-                signs = true,
-                update_in_insert = false,
-                underline = true,
-                severity_sort = false,
-                float = false,
-            })
-
-            local cmp = require("cmp")
-
-            cmp.setup({
-                window = {
-                    completion = cmp.config.window.bordered(),
-                    documentation = cmp.config.window.bordered(),
-                },
-                preselect = 'none',
-                completion = {
-                    completeopt = 'menu,menuone,noinsert,noselect'
-                },
-                mapping = {
-                    ["<CR>"] = cmp.mapping.confirm({ select = false }),
-                },
-                sources = cmp.config.sources({
-                    { name = "path" },
-                    { name = "nvim_lsp" },
-                    --{ name = 'luasnip' }, -- For luasnip users.
-                    {
-                        name = "buffer",
-                        option = {
-                            get_bufnrs = function()
-                                return vim.api.nvim_list_bufs()
-                            end,
-                        },
-                    },
-                }),
-            })
+            require('lsp')
         end,
     }, -- }}}
+
     "tpope/vim-fugitive",
-    {  -- {{{ gitsign
+    { -- {{{ gitsign
         "lewis6991/gitsigns.nvim",
         config = function()
             require("gitsigns").setup({
