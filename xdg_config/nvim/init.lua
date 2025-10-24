@@ -253,15 +253,6 @@ remap("t", "<c-w><c-l>", "<c-l><c-\\><c-n>:set scrollback=1 | sleep 100m | set s
 -- remap("t", "<S-A-space>", "<nop>")
 -- remap("t", "<S-D-space>", "<nop>")
 -- }}}
--- {{{ Lsp
-vim.keymap.set('n', 'gK', function()
-    local new_config = not vim.diagnostic.config().virtual_lines
-    vim.diagnostic.config({ virtual_lines = new_config })
-end, { desc = 'Toggle diagnostic virtual_lines' })
-vim.keymap.set('n', 'gR', function()
-    vim.lsp.buf.rename()
-end, { desc = 'Rename on cursor' })
--- }}}
 -- {{{ Formating
 local function toggle_conf(scope, conf)
     local opt_type = type(vim[scope][conf])

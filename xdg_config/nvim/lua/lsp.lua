@@ -1,8 +1,13 @@
 require('mason').setup()
 require('mason-lspconfig').setup({
-    ensure_installed = { 'lua_ls', 'typescript-language-server', 'ruff'},
+    ensure_installed = { 'lua_ls', 'ts_ls', 'ruff'},
     automatic_installation = true,
 })
+
+vim.keymap.set('n', 'gK', function()
+    local new_config = not vim.diagnostic.config().virtual_lines
+    vim.diagnostic.config({ virtual_lines = new_config })
+end, { desc = 'Toggle diagnostic virtual_lines' })
 
 local lspconfig = require('lspconfig')
 
@@ -12,7 +17,9 @@ local on_attach = function(_, bufnr)
     map('n', 'gd', vim.lsp.buf.definition, opts)
     map('n', 'K', vim.lsp.buf.hover, opts)
     map('n', 'gr', vim.lsp.buf.references, opts)
+    map('n', 'gR', vim.lsp.buf.rename, opts)
     --map('n', '<leader>rn', vim.lsp.buf.rename, opts)
+    map('n', '<f3>', vim.lsp.buf.format, opts)
     map('n', '<f4>', vim.lsp.buf.code_action, opts)
     --map('n', '[d', vim.diagnostic.goto_prev, opts)
     --map('n', ']d', vim.diagnostic.goto_next, opts)
