@@ -418,6 +418,7 @@ pacman -Ss pkg # apt search pkg
 pacman -Sy # apt update
 pacman -S pkg # apt install pkg
 pacman -Qu pkg # apt --list-upgradable
+pacman -Rsn $(pacman -Qdtq) # remove orphan package use with care
 ```
 ### nixos
 ```bash
