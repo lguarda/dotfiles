@@ -57,6 +57,7 @@ vim.o.mouse = ""                        -- Disable mouse for all mode
 vim.o.mousemoveevent = false
 vim.opt.display:append("uhex,lastline") -- Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
 vim.o.backupdir = backupdir             -- List of directories for the backup file, separated with commas.
+--vim.opt.listchars = { eol = '$'}
 
 --vim.o.undodir=vim.env['HOME']/.vim/undo      -- Undofile location
 --vim.o.conceallevel = 2
@@ -501,7 +502,7 @@ require("lazy").setup({
             end, {})
         end,
     }, -- }}}
-    { -- {{{ lsp/cmp config
+    {  -- {{{ lsp/cmp config
         'neovim/nvim-lspconfig',
         dependencies = {
             'williamboman/mason.nvim',
@@ -552,6 +553,16 @@ require("lazy").setup({
             end
         end
     }, -- }}}
+    {
+        "olimorris/codecompanion.nvim",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "nvim-treesitter/nvim-treesitter",
+        },
+        config = function()
+            require("codecompanion").setup(require("ollama"))
+        end,
+    }
 })
 
 -- }}}

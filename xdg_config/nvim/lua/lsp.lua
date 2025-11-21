@@ -1,6 +1,6 @@
 require('mason').setup()
 require('mason-lspconfig').setup({
-    ensure_installed = { 'lua_ls', 'ts_ls', 'ruff'},
+    ensure_installed = { 'lua_ls', 'ts_ls', 'ruff', 'openscad_lsp'},
     automatic_installation = true,
 })
 
@@ -39,7 +39,17 @@ lspconfig.lua_ls.setup({
     },
 })
 
-lspconfig.tsserver.setup({
+lspconfig.marksman.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+})
+
+lspconfig.openscad_lsp.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+})
+
+lspconfig.ts_ls.setup({
     on_attach = on_attach,
     capabilities = capabilities,
 })
