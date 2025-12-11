@@ -370,6 +370,21 @@ local function backlight_ctrl(nb)
         }.id
     end)
 end
+
+local function get_last_screen_shot()
+    local name_handle = io.popen(("ls -t1 '%s/Pictures/screenshot/' | head -n 1"):format(home_dir))
+    if not name_handle then return end
+    return name_handle:read()
+end
+
+local function screenshot()
+    asaw.run(function()
+        async_spawn(('flameshot gui --path=%s/Pictures/screenshot/'):format(home_dir))
+        local filename = get_last_screen_shot()
+        debug_popup(filename)
+        async_spawn(("dragon '%s/Pictures/screenshot/%s'"):format(home_dir, filename))
+    end)
+end
 -- }}}
 -- }}}
 -- {{{ Wibar
@@ -758,10 +773,21 @@ local globalkeys = gears.table.join(
     ak("d", "Pop up the launcher", "launcher",
         aw.cba(awful.spawn, 'rofi -show drun -sorting-method fzf -sort -matching fuzzy')
     ),
-    ak("Shift+t", "Debug client", "launcher",
+    ak("Shift+d", "Debug client", "launcher",
         function() debug_popup_client() end),
-    ak("Shift+s", "Pop up Flameshot", "launcher",
-        aw.cba(awful.spawn, ('flameshot gui --path=%s/Pictures/screenshot/'):format(home_dir))),
+    --ak("Shift+s", "Pop up Flameshot", "launcher",
+    --    aw.cba(awful.spawn, ('flameshot gui --path=%s/Pictures/screenshot/'):format(home_dir))),
+    ak("Shift+s", "Pop up Flameshot", "launcher", aw.cba(screenshot)),
+    ak("Shift+p", "Open last screenshot", "launcher",
+        function()
+            local name_handle = io.popen(("ls -t1 '%s/Pictures/screenshot/' | head -n 1"):format(home_dir))
+            if not name_handle then return end
+            local filename = name_handle:read()
+            if filename ~= nil then
+                awful.spawn(("feh '%s/Pictures/screenshot/%s'"):format(home_dir, filename))
+            end
+        end
+    ),
     ak("a", "Pop up crocohotkey", "launcher",
         aw.cba(aw.toggle_spawn, aw.path("~/clone/crocohotkey/src/crocoui.py"), true, { name = "Config" },
             { border_width = 0 })),
@@ -785,8 +811,8 @@ local globalkeys = gears.table.join(
         aw.cba(aw.toggle_spawn, aw.path('blueman-manager '), true, { class = "Blueman-manager" }, { border_width = 0 })),
     ak("p", "keepmenu auto type username", "keepmenu",
         aw.cba(awful.spawn, 'keepmenu -a {USERNAME}')),
-    ak("Shift+p", "keepmenu auto type username", "keepmenu",
-        aw.cba(awful.spawn, 'keepmenu -a {PASSWORD}')),
+    --ak("Shift+p", "keepmenu auto type username", "keepmenu",
+    --    aw.cba(awful.spawn, 'keepmenu -a {PASSWORD}')),
 
     akr("#106", "Alert gogole", "Sound Box",
         aw.cba(awful.spawn, aw.path('~/clone/crocohotkey/tools/over.sh mpv ~/music/sound_box/emmerde_maison.mp3'))),
@@ -824,7 +850,7 @@ local globalkeys = gears.table.join(
     ak("m", "Change keybind mode to move", "Keybind mode",
         aw.cba(kb_swap_mode, 'mode_keys_move', 'move')),
     -- Debug
-    ak("Shift+i", "Dedicated debug call", "Debug", function()
+    ak("Shift+d", "Dedicated debug call", "Debug", function()
         mouse.coords {
             x = 0,
             y = 0
@@ -1017,6 +1043,15 @@ ruled.client.connect_signal("request::rules", function()
             rule_any = { class = { "Dragon-drop", "Dragon" } },
             properties = {
                 sticky = true, ontop = true, floating = true, placement = awful.placement.centered }
+        },
+        {
+            rule = { class = "KeePassXC", modal = true },
+            properties = {
+                sticky = true, ontop = true, floating = true, placement = awful.placement.centered,
+                callback = function(c)
+                    c:move_to_screen(awful.screen.focused())
+                end
+            }
         },
         {
             rule = { name = "KeePassXC - Browser Access Request" },
