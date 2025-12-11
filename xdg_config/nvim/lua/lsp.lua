@@ -83,6 +83,11 @@ require("lspconfig").rust_analyzer.setup({
     capabilities = capabilities,
 })
 
+require("lspconfig").jsonls.setup({
+    on_attach = on_attach,
+    capabilities = capabilities,
+})
+
 vim.diagnostic.config({
     --virtual_lines = true,
     virtual_text = false,

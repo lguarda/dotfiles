@@ -237,6 +237,10 @@ remap("t", "<A-j>", "<C-\\><C-N>:tabprevious<CR>")
 remap("i", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
 remap("t", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
 remap("n", "<A-k>", ":tabnext<CR>")
+
+remap("i", "<A-d>", "<C-\\><C-N>:tabclose<CR>")
+remap("n", "<A-d>", ":tabclose<CR>")
+remap("t", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
 -- }}}
 -- {{{ Terminal specific
 remap("t", "<S-esc>", "<C-\\><C-n>")                                                                   -- normal mode
@@ -558,11 +562,15 @@ require("lazy").setup({
         dependencies = {
             "nvim-lua/plenary.nvim",
             "nvim-treesitter/nvim-treesitter",
+            "ravitemer/codecompanion-history.nvim",
+            --
+            "Davidyz/VectorCode",
+            "nvim-lua/plenary.nvim",
         },
         config = function()
             require("codecompanion").setup(require("ollama"))
         end,
-    }
+    },
 })
 
 -- }}}
