@@ -19,10 +19,17 @@ except KeyError:
     pass
 # }}}
 # {{{ Bindings
+# Ctrl+j = down in command-line completion
+config.bind('<Alt-j>', 'completion-item-focus next', mode='command')
+# Ctrl+k = up in command-line completion
+config.bind('<Alt-k>', 'completion-item-focus prev', mode='command')
 # keepassxc integration
 if gpg_key is not None:
     config.bind(
         "pw", f"spawn --userscript qute-keepassxc --key {gpg_key}", mode="normal"
+    )
+    config.bind(
+        "p<Shift-w>", f"spawn --userscript qute-keepassxc --key {gpg_key} --selection", mode="normal"
     )
 else:
     config.bind(
