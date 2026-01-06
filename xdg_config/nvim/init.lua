@@ -110,8 +110,9 @@ local ac = vim.api.nvim_create_autocmd
 ac("BufWinEnter", {
     group = wrongwhitespace,
     callback = function()
-        local bname = vim.api.nvim_buf_get_name(0)
-        if bname == "" then
+        -- Detect non-file
+        if vim.bo.buftype ~= "" then
+            vim.fn.clearmatches()
             return
         end
         -- red highlight color for every whitechar issue
@@ -164,6 +165,12 @@ local function is_last_window()
 end
 ac("TermOpen", { command = "setlocal nonumber norelativenumber signcolumn=no laststatus=0" })
 ac("TermOpen", { command = "startinsert" })
+ac("TermOpen",{
+  callback = function()
+    vim.fn.clearmatches()
+  end,
+})
+
 -- This one is to avoid typen enter when you ctr+d in terminal
 ac("TermClose", {
     callback = function()
