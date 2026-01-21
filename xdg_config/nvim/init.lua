@@ -190,6 +190,15 @@ vim.api.nvim_create_user_command("ShowPuml", function()
     vim.fn.execute(("!sxiv %s &"):format(file))
 end, {})
 -- }}}
+-- {{{ GUI
+-- This is needed so when you close a vim gui like neovide it will really kill everything attached to it
+vim.api.nvim_create_autocmd("VimLeavePre", {
+  callback = function()
+    vim.cmd("silent! bufdo if &buftype=='terminal' | bd! | endif")
+    vim.cmd("qa!")
+  end,
+})
+-- }}}
 -- }}}
 -- {{{ Key Map
 local remap = vim.keymap.set
@@ -361,7 +370,6 @@ end)
 
 -- neovide option
 vim.g.neovide_scroll_animation_length = 0
-
 -- }}}
 -- }}}
 -- {{{ Ensure lazy
