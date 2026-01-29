@@ -664,7 +664,9 @@ vim.api.nvim_create_user_command('WipeWindowlessBufs', function()
     vim.tbl_map(function(bufinfo)
         if bufinfo.changed == 0 and (not bufinfo.windows or #bufinfo.windows == 0) then
             print(('Deleting buffer %d : %s'):format(bufinfo.bufnr, bufinfo.name))
-            vim.api.nvim_buf_delete(bufinfo.bufnr, { force = false, unload = false })
+            -- vim.api.nvim_buf_delete(bufinfo.bufnr, { force = false, unload = true })
+            -- needed for BufDelete event
+            vim.cmd({ cmd = "bdelete", args = { bufinfo.bufnr } })
         end
     end, bufinfos)
 end, { desc = 'Wipeout all buffers not shown in a window' })
