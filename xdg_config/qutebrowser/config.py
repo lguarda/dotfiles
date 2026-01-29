@@ -31,6 +31,12 @@ if gpg_key is not None:
     config.bind(
         "p<Shift-w>", f"spawn --userscript qute-keepassxc --key {gpg_key} --selection", mode="normal"
     )
+    config.bind(
+        "<Mod1-w>", f"spawn --userscript qute-keepassxc --key {gpg_key} --selection", mode="normal"
+    )
+    config.bind(
+        "<Mod1-w>", f"spawn --userscript qute-keepassxc --key {gpg_key} --selection", mode="insert"
+    )
 else:
     config.bind(
         "pw",
