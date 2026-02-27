@@ -572,20 +572,20 @@ require("lazy").setup({
             end
         end
     }, -- }}}
-    {
-        "olimorris/codecompanion.nvim",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            "nvim-treesitter/nvim-treesitter",
-            "ravitemer/codecompanion-history.nvim",
-            --
-            "Davidyz/VectorCode",
-            "nvim-lua/plenary.nvim",
-        },
-        config = function()
-            require("codecompanion").setup(require("ollama"))
-        end,
-    },
+    -- {
+    --     "olimorris/codecompanion.nvim",
+    --     dependencies = {
+    --         "nvim-lua/plenary.nvim",
+    --         "nvim-treesitter/nvim-treesitter",
+    --         "ravitemer/codecompanion-history.nvim",
+    --         --
+    --         "Davidyz/VectorCode",
+    --         "nvim-lua/plenary.nvim",
+    --     },
+    --     config = function()
+    --         require("codecompanion").setup(require("ollama"))
+    --     end,
+    -- },
 })
 
 -- }}}

@@ -663,11 +663,11 @@ end
 local over_editor_cmd = 'neovide --x11-wm-class=overnvim --x11-wm-class-instance=overnvim -- '
     .. '+term'
 
-local pulsemixer_cmd =
-    'neovide --x11-wm-class=pulsemixer --x11-wm-class-instance=pulsemixer -- '
+local audiomixer_cmd =
+    'neovide --x11-wm-class=audiomixer --x11-wm-class-instance=audiomixer -- '
     .. [[ "+lua vim.keymap.set('t', 'q', '<nop>')"]]
     .. [[ "+lua vim.keymap.set('t', '<esc>', '<nop>')"]]
-    .. ' "+term ~/clone/pulsemixer/pulsemixer"'
+    .. ' "+term wiremix --lazy-capture --fps=5"'
     .. ' "+set wrap"'
 
 kb_append_bindings('mode_keys_move', mode_keys_move)
@@ -788,13 +788,23 @@ local globalkeys = gears.table.join(
             end
         end
     ),
+    --ak("Shift+Ctrl+s", "Open last screenshot with Dragon-drop", "launcher",
+    --    function()
+    --        local name_handle = io.popen(("ls -t1 '%s/Pictures/screenshot/' | head -n 1"):format(home_dir))
+    --        if not name_handle then return end
+    --        local filename = name_handle:read()
+    --        if filename ~= nil then
+    --            awful.spawn(("dragon-drop '%s/Pictures/screenshot/%s'"):format(home_dir, filename))
+    --        end
+    --    end
+    --),
     ak("a", "Pop up crocohotkey", "launcher",
         aw.cba(aw.toggle_spawn, aw.path("~/clone/crocohotkey/src/crocoui.py"), true, { name = "Config" },
             { border_width = 0 })),
     ak("c", "Pop up pavucontrol", "launcher",
         aw.cba(aw.toggle_spawn,
-            pulsemixer_cmd,
-            true, { class = "pulsemixer" }, { border_width = 1 })),
+            audiomixer_cmd,
+            true, { class = "audiomixer" }, { border_width = 1 })),
     ak("n", "Pop over over nvim editor", "launcher",
         aw.cba(aw.toggle_spawn,
             over_editor_cmd,
@@ -1017,7 +1027,7 @@ ruled.client.connect_signal("request::rules", function()
             },
         },
         {
-            rule = { class = "pulsemixer" },
+            rule = { class = "audiomixer" },
             properties = {
                 placement = function(...) return awful.placement.centered(...) end,
                 height = 800,

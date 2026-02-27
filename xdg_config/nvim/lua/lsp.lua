@@ -1,6 +1,6 @@
 require('mason').setup()
 require('mason-lspconfig').setup({
-    ensure_installed = { 'lua_ls', 'ts_ls', 'ruff', 'openscad_lsp'},
+    ensure_installed = { 'lua_ls', 'ts_ls', 'ruff', 'openscad_lsp' },
     automatic_installation = true,
 })
 
@@ -35,48 +35,6 @@ vim.api.nvim_create_autocmd("BufDelete", {
         end
     end,
 })
-
--- local last_activity = {}
--- 
--- vim.api.nvim_create_autocmd(
---     { "BufEnter", "TextChanged", "TextChanged" },
---     {
---         callback = function(ev)
---             print(("buff enter %d"):format(ev.buf))
---             -- store last activity
---             for _, client in pairs(vim.lsp.get_clients({ bufnr = ev.buf })) do
---                 last_activity[client.id] = vim.loop.now()
---             end
---             --print(("buff enter %d is needed %s %s"):format(ev.buf, tostring(vim.b[ev.buf].lsp_can_restart), type(ev.buf)))
---             -- restart lsp when cameback after timeout
---             if vim.b[ev.buf].lsp_can_restart then
---                 vim.b[ev.buf].lsp_can_restart = nil
---                 vim.lsp.start(vim.b[ev.buf].lsp_can_restart)
---             end
---         end,
---     }
--- )
--- 
--- -- vim.fn.timer_start(60000, function() -- check each minutes
---  vim.fn.timer_start(5000, function() -- check each minutes
---     local now = vim.loop.now()
---     for _, client in pairs(vim.lsp.get_clients()) do
---         local idle = now - (last_activity[client.id] or now)
---         print(("Last buffer activity for %s is %d"):format(client.name, idle))
--- 
---         -- if idle > 1 * 60 * 1000 then -- 15 minutes
---         if idle > 2000 then -- 15 minutes
---             local buffers = vim.lsp.get_buffers_by_client_id(client.id)
---             print(("Stop lsp server since there's no activity :%s"):format(client.name))
---             for _, buffer in ipairs(buffers) do
---                 print(("tag buffer :%d"):format(buffer, type(buffer)))
---                  vim.b[buffer].lsp_can_restart = client.config
---             end
---             client:stop()
---         end
---     end
--- end, { ["repeat"] = -1 })
-
 
 local lsps = {
     { "lua_ls", {
@@ -125,14 +83,7 @@ vim.diagnostic.config({
 })
 
 local cmp = require('cmp')
--- local luasnip = require('luasnip')
---
 cmp.setup({
-    --snippet = {
-    --    expand = function(args)
-    --        luasnip.lsp_expand(args.body)
-    --    end,
-    --},
     window = {
         completion = cmp.config.window.bordered(),
         documentation = cmp.config.window.bordered(),
@@ -149,7 +100,6 @@ cmp.setup({
     sources = cmp.config.sources({
         { name = "path" },
         { name = "nvim_lsp" },
-        --{ name = 'luasnip' }, -- For luasnip users.
         {
             name = "buffer",
             option = {
