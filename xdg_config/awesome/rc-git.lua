@@ -41,7 +41,7 @@ local home_dir = os.getenv('HOME')
 beautiful.init(gears.filesystem.get_themes_dir() .. "zenburn/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-local terminal = "neovide -- +term"
+local terminal = "systemd-run --user --scope neovide -- +term"
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -660,7 +660,7 @@ local function blend_out(c)
     img:finish()
 end
 
-local over_editor_cmd = 'neovide --x11-wm-class=overnvim --x11-wm-class-instance=overnvim -- '
+local over_editor_cmd = 'systemd-run --user --scope neovide --x11-wm-class=overnvim --x11-wm-class-instance=overnvim -- '
     .. '+term'
 
 local audiomixer_cmd =
