@@ -48,11 +48,13 @@ else:
 config.bind("gw", "open -w {url}", mode="normal")
 # Toggle darkmode
 config.bind(
-    "<Shift-D>",
+    "<Alt-d>",
     "config-cycle -u {url:domain} colors.webpage.darkmode.enabled",
     mode="normal",
 )
 config.bind("gd", "download-open dragon", mode="normal")
+config.bind('<Shift-d>', 'hint links download --rapid')
+# revers default behavior on this
 config.bind("<Shift-j>", "tab-prev", mode="normal")
 config.bind("<Shift-k>", "tab-next", mode="normal")
 # }}}
