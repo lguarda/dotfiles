@@ -30,7 +30,7 @@ vim.api.nvim_create_autocmd("BufDelete", {
             local buffers = vim.lsp.get_buffers_by_client_id(client.id)
             if #buffers == 0 then
                 print(("Stop lsp server since it's not attached to any buffer:%s"):format(client.name))
-                client.stop({ force = false })
+                client:stop({ force = false })
             end
         end
     end,
