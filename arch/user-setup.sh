@@ -1,0 +1,11 @@
+# TODO this doesn't really work maybe because of awesome idk it need tests
+echo '
+XDG_DESKTOP_DR="$HOME/desktop"
+XDG_DOWNLOAD_DIR="$HOME/downloads/"
+XDG_TEMPLATES_DIR="$HOME/templates"
+XDG_PUBLICSHARE_DIR="$HOME/public"
+XDG_DOCUMENTS_DIR="$HOME/documents"
+XDG_MUSIC_DIR="$HOME/music"
+XDG_PICTURES_DIR="$HOME/pictures"
+XDG_VIDEOS_DIR="$HOME/videos"
+' > /tmp/.config/user-dirs.dirs
