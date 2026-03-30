@@ -7,6 +7,9 @@ local gears = require("gears")
 local aw = {}
 local modkey = "Mod4"
 local home_dir = os.getenv('HOME')
+if not table.unpack then -- luajit
+    table.unpack = unpack
+end
 -- }}}
 -- {{{ Fourtous
 function string:split(delimiter)
