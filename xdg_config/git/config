@@ -1,7 +1,7 @@
 [core]
     ;pager = sed 's/\t/>   /g' | less -N
     pager = less -N
-    editor = nvim
+    editor = nvim --cmd 'let g:unception_block_while_host_edits=1'
     pager = delta
 
 [interactive]
@@ -20,8 +20,11 @@
     ss = status -s
     st = !git --no-pager diff --stat
     amend = commit --amend
+    ri = rebase -i
+    rc = rebase --continue
     rod = rebase -i origin/develop
-    rom = rebase -i origin/master
+    ; agnostic default branch rebase origin/main|master
+    rom = "!f(){ git rebase -i origin/$(git symbolic-ref refs/remotes/origin/HEAD | cut -f4 -d/); }; f"
     rc = rebase --continue
     rl = remote -v
     mv = branch --force ; <branch-name> [<new-tip-commit>]
@@ -46,8 +49,8 @@
     cutshow = "!f(){ less /tmp/patch.patch; }; f"
 
     ; Edit current commit as patch and create a new commit with what's remain in the patch
-    dsplitp = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && $(git config core.editor) /tmp/patch.patch && git cutapplyr && git cutapply; }; f"
-    ddeletep = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && $(git config core.editor) /tmp/patch.patch && git cutapplyrd; }; f"
+    dsplitp = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && nvim --cmd 'let g:unception_block_while_host_edits=1' /tmp/patch.patch && git cutapplyr && git cutapply; }; f"
+    ddeletep = "!f(){ cd ${GIT_PREFIX:-.};git cut HEAD $@ && nvim --cmd 'let g:unception_block_while_host_edits=1' /tmp/patch.patch && git cutapplyrd; }; f"
 
     ; use git dcherry {commit sha} {directory1} {file2} {etc}
     ; This is like cherry pick but you can select directory and files
