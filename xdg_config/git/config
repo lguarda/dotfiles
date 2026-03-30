@@ -88,3 +88,5 @@
 ; for custom conf per pc add custom.inc
 [include]
     path = custom.inc
+[init]
+	defaultBranch = main
