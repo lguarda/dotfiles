@@ -36,8 +36,8 @@ function fshow
                 {} FZF-EOF"
 end
 
-bind \cj tv_zoxide
-bind \cf tv_files_insert
+bind \cj fuzzy_jump
+bind \cf fuzzy_files_search
 
 function c  # simple calculator
     math $argv

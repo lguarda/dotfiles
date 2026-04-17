@@ -1,4 +1,4 @@
-function tv_files_insert
+function fuzzy_files_search
     set -l token (commandline -t)
 
     set -f dir "."
@@ -25,4 +25,5 @@ function tv_files_insert
             commandline -i -- "$selected"
         end
     end
+    commandline -f repaint
 end
