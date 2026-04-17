@@ -19,12 +19,23 @@ if type -q zoxide
     zoxide init fish | source
 end
 
-if type -q fzf
-    fzf --fish | source
-end
+# if type -q fzf
+#     fzf --fish | source
+# end
 
 set -gx EDITOR "nvim --cmd 'let g:unception_block_while_host_edits=1'"
-alias fshow="tv git-log"
+#alias fshow="tv git-log"
+
+function fshow
+  git log --graph --color=always \
+      --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
+  fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --bind "ctrl-m:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show % | delta --paging always') << 'FZF-EOF'
+                {} FZF-EOF"
+end
+
 bind \cj tv_zoxide
 bind \cf tv_files_insert
 
