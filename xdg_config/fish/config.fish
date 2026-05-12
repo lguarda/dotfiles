@@ -11,19 +11,19 @@ end
 
 fish_add_path /home/leo/.cargo/bin/
 # Commands to run in interactive sessions can go here
-if type -q tv
-    tv init fish | source
-end
+#if type -q tv
+#    tv init fish | source
+#end
 
 if type -q zoxide
     zoxide init fish | source
 end
 
-# if type -q fzf
-#     fzf --fish | source
-# end
+if type -q fzf
+    fzf --fish | source
+end
 
-set -gx EDITOR "nvim --cmd 'let g:unception_block_while_host_edits=1'"
+set -gx EDITOR "editor.sh"
 #alias fshow="tv git-log"
 
 function fshow
@@ -31,9 +31,17 @@ function fshow
       --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
   fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
       --bind "ctrl-m:execute:
-                (grep -o '[a-f0-9]\{7\}' | head -1 |
-                xargs -I % sh -c 'git show % | delta --paging always') << 'FZF-EOF'
-                {} FZF-EOF"
+                echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show % | delta --paging always'"
+end
+
+function fshowa
+  git log --graph --color=always --all\
+      --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
+  fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --bind "ctrl-m:execute:
+                echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show % | delta --paging always'"
 end
 
 bind \cj fuzzy_jump

@@ -1,5 +1,6 @@
 function fuzzy_files_search
     set -l token (commandline -t)
+    set -l full (commandline)
 
     set -f dir "."
     if test -n "$token"
@@ -16,14 +17,16 @@ function fuzzy_files_search
         end
     end
 
-    set -l selected (tv files $dir)
+    if string match -rq '^\s*(cd|z|zi)\s+' -- $full
+        set mode "d"
+    else
+        set mode "f"
+    end
+    # set -l selected (tv files $dir)
+    set -l selected (fd -LIt $mode "" $dir | fzf --info=inline --height=30% --bind "ctrl-d:reload(fd -LIt d '' $dir)" --bind "ctrl-f:reload(fd -LIt f '' $dir)")
 
     if test -n "$selected"
-        if test -n (commandline -t)
-            commandline -rt -- (path normalize "$token/$selected")
-        else
-            commandline -i -- "$selected"
-        end
+        commandline -rt -- (path normalize "$selected")
     end
     commandline -f repaint
 end

@@ -4,5 +4,6 @@ function fuzzy_jump
     if test -n "$dir"
         cd $dir
     end
+
     commandline -f repaint
 end
