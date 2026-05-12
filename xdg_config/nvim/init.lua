@@ -13,7 +13,6 @@ require('lsp')
 -- }}}
 -- {{{ Settings
 -- number settings
-vim.o.scrolloff = 10     -- scroll terminal when cursor is N line from the top or botom
 vim.o.showtabline = 1    -- Enable tabline
 vim.o.numberwidth = 1    -- Minimum number column size
 vim.o.tabstop = 4        -- Redefine tab display as n space
@@ -47,13 +46,12 @@ vim.o.wrap = false                      -- Don't warp long line
 vim.o.linebreak = true                  -- Break at a word boundary
 vim.o.incsearch = true                  -- While typing a search command, show where the pattern is
 vim.o.swapfile = false                  -- Don't use swapfile for the buffer
-vim.bo.swapfile = false                 -- Don't use swapfile for the buffer
 vim.o.ruler = true                      -- Show the line and column number of the cursor position
 vim.o.undofile = true                   -- Use undofile
 vim.o.backup = true                     -- Make a backup before overwriting a file.
 vim.o.list = true                       -- Enable listchars
 vim.o.fixendofline = false              -- Don't automaticaly add new line at end of file
-vim.o.syntax = "on"
+vim.o.syntax = "off"
 vim.opt.whichwrap:append("<,>,h,l,[,]") -- Move cursor to next/previous line when reach end and begin of line
 vim.o.virtualedit = "onemore"           -- Allow normal mode to go one more charater at the end
 vim.o.mouse = ""                        -- Disable mouse for all mode
@@ -402,11 +400,6 @@ require("lazy").setup({
             vim.cmd [[colorscheme kanagawa-wave]]
         end,
     }, -- }}}
-    {
-        "scottmckendry/cyberdream.nvim",
-        lazy = false,
-        priority = 1000,
-    },
     --{{{ Syntax
     "aklt/plantuml-syntax",
     {
@@ -583,13 +576,6 @@ require("lazy").setup({
             })
         end,
     }, --}}}
-    {  -- {{{ comment
-        "numToStr/Comment.nvim",
-        opts = {
-            -- add any options here
-        },
-        lazy = false,
-    }, -- }}}
     {  -- {{{ unception
         -- "samjwill/nvim-unception",
         "lguarda/nvim-unception",
