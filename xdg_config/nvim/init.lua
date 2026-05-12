@@ -166,10 +166,10 @@ local function is_last_window()
 end
 ac("TermOpen", { command = "setlocal nonumber norelativenumber signcolumn=no laststatus=0" })
 ac("TermOpen", { command = "startinsert" })
-ac("TermOpen",{
-  callback = function()
-    vim.fn.clearmatches()
-  end,
+ac("TermOpen", {
+    callback = function()
+        vim.fn.clearmatches()
+    end,
 })
 
 -- This one is to avoid typen enter when you ctr+d in terminal
@@ -194,10 +194,10 @@ end, {})
 -- {{{ GUI
 -- This is needed so when you close a vim gui like neovide it will really kill everything attached to it
 vim.api.nvim_create_autocmd("VimLeavePre", {
-  callback = function()
-    vim.cmd("silent! bufdo if &buftype=='terminal' | bd! | endif")
-    vim.cmd("qa!")
-  end,
+    callback = function()
+        vim.cmd("silent! bufdo if &buftype=='terminal' | bd! | endif")
+        vim.cmd("qa!")
+    end,
 })
 -- }}}
 -- }}}
