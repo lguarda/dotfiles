@@ -8,7 +8,9 @@ if table.unpack == nil then
     table.unpack = unpack
 end
 -- }}}
+-- {{{ require
 require('lsp')
+-- }}}
 -- {{{ Settings
 -- number settings
 vim.o.scrolloff = 10     -- scroll terminal when cursor is N line from the top or botom
@@ -204,6 +206,7 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 -- {{{ Key Map
 local remap = vim.keymap.set
 -- {{{ Nvim
+vim.keymap.set('i', '<Tab>', '<Tab>', { noremap = true }) -- neovim map this to a weird shit that break neovim so let's unbind it
 remap("", "<space><space>", function()
     vim.cmd.tabedit("~/.config/nvim/init.lua")
 end, { remap = true })
@@ -388,6 +391,9 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 --}}}
+--{{{ packadd
+vim.cmd.packadd("nvim.undotree")
+--}}}
 --{{{ lazy plugin list
 require("lazy").setup({
     { -- {{{ colorscheme
@@ -452,7 +458,6 @@ require("lazy").setup({
         end,
     },
     --}}}
-    "https://github.com/mbbill/undotree",
     "godlygeek/tabular",
     "fidian/hexmode",
     { -- {{{ telescope
