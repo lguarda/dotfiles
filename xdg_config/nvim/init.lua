@@ -8,9 +8,6 @@ if table.unpack == nil then
     table.unpack = unpack
 end
 -- }}}
--- {{{ require
-require('lsp')
--- }}}
 -- {{{ Settings
 -- number settings
 vim.o.showtabline = 1    -- Enable tabline
@@ -556,7 +553,7 @@ require("lazy").setup({
                     },
                 }),
             })
-            --        require('lsp')
+            require('lsp')
         end,
     }, -- }}}
 
