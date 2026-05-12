@@ -1,9 +1,3 @@
-require('mason').setup()
-require('mason-lspconfig').setup({
-    ensure_installed = { 'lua_ls', 'ts_ls', 'ruff', 'openscad_lsp' },
-    automatic_installation = true,
-})
-
 vim.keymap.set('n', 'gK', function()
     local new_config = not vim.diagnostic.config().virtual_lines
     vim.diagnostic.config({ virtual_lines = new_config })
@@ -82,31 +76,3 @@ vim.diagnostic.config({
     float = { border = 'rounded' },
 })
 
-local cmp = require('cmp')
-cmp.setup({
-    window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
-    },
-    preselect = 'none',
-    completion = {
-        completeopt = 'menu,menuone,noinsert,noselect'
-    },
-    mapping = {
-        ["<CR>"] = cmp.mapping.confirm({ select = false }),
-        ['<C-n>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
-        ['<C-p>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
-    },
-    sources = cmp.config.sources({
-        { name = "path" },
-        { name = "nvim_lsp" },
-        {
-            name = "buffer",
-            option = {
-                get_bufnrs = function()
-                    return vim.api.nvim_list_bufs()
-                end,
-            },
-        },
-    }),
-})

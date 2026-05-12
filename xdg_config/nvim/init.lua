@@ -8,6 +8,7 @@ if table.unpack == nil then
     table.unpack = unpack
 end
 -- }}}
+require('lsp')
 -- {{{ Settings
 -- number settings
 vim.o.scrolloff = 10     -- scroll terminal when cursor is N line from the top or botom
@@ -512,16 +513,7 @@ require("lazy").setup({
             vim.keymap.set("", "<C-x><C-g>", ":NERDTreeFind<CR>", { noremap = true, silent = true })
         end
     }, -- }}}
-    {  -- {{{ stylua
-        "wesleimp/stylua.nvim",
-        config = function()
-            local stylua = require("stylua")
-            vim.api.nvim_create_user_command("LuaFormat", function()
-                stylua.format()
-            end, {})
-        end,
-    }, -- }}}
-    {  -- {{{ lsp/cmp config
+    { -- {{{ lsp/cmp config
         'neovim/nvim-lspconfig',
         dependencies = {
             'williamboman/mason.nvim',
@@ -530,10 +522,43 @@ require("lazy").setup({
             'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-buffer',
             'hrsh7th/cmp-path',
-            -- 'L3MON4D3/LuaSnip',
+            --        -- 'L3MON4D3/LuaSnip',
         },
         config = function()
-            require('lsp')
+            require('mason').setup()
+            require('mason-lspconfig').setup({
+                ensure_installed = { 'lua_ls', 'ts_ls', 'ruff', 'openscad_lsp' },
+                automatic_installation = true,
+            })
+            local cmp = require('cmp')
+            cmp.setup({
+                window = {
+                    completion = cmp.config.window.bordered(),
+                    documentation = cmp.config.window.bordered(),
+                },
+                preselect = 'none',
+                completion = {
+                    completeopt = 'menu,menuone,noinsert,noselect'
+                },
+                mapping = {
+                    ["<CR>"] = cmp.mapping.confirm({ select = false }),
+                    ['<C-n>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
+                    ['<C-p>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
+                },
+                sources = cmp.config.sources({
+                    { name = "path" },
+                    { name = "nvim_lsp" },
+                    {
+                        name = "buffer",
+                        option = {
+                            get_bufnrs = function()
+                                return vim.api.nvim_list_bufs()
+                            end,
+                        },
+                    },
+                }),
+            })
+            --        require('lsp')
         end,
     }, -- }}}
 
