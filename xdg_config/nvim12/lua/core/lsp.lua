@@ -1,0 +1,82 @@
+vim.keymap.set('n', 'gK', function()
+    local new_config = not vim.diagnostic.config().virtual_lines
+    vim.diagnostic.config({ virtual_lines = new_config })
+end, { desc = 'Toggle diagnostic virtual_lines' })
+
+vim.api.nvim_create_autocmd("BufDelete", {
+    callback = function(args)
+        local clients = vim.lsp.get_clients()
+        for _, client in ipairs(clients) do
+            local buffers = vim.lsp.get_client_by_id(client.id).attached_buffers()
+            if #buffers == 0 then
+                print(("Stop lsp server since it's not attached to any buffer:%s"):format(client.name))
+                client:stop(false)
+            end
+        end
+    end,
+})
+
+-- enable lsp completion
+vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("UserLspAttach", { clear = true }),
+    callback = function(ev)
+
+        vim.lsp.completion.enable(true, ev.data.client_id, ev.buf)
+
+        local opts = { buffer = ev.buf, silent = true }
+        local map = vim.keymap.set
+        map('n', 'gd', vim.lsp.buf.definition, opts)
+        map('n', 'K', vim.lsp.buf.hover, opts)
+        map('n', 'gr', vim.lsp.buf.references, opts)
+        map('n', 'gR', vim.lsp.buf.rename, opts)
+        --map('n', '<leader>rn', vim.lsp.buf.rename, opts)
+        map('n', '<f3>', vim.lsp.buf.format, opts)
+        map('n', '<f4>', vim.lsp.buf.code_action, opts)
+        --map('n', '[d', vim.diagnostic.goto_prev, opts)
+        --map('n', ']d', vim.diagnostic.goto_next, opts)
+    end,
+})
+
+local lsps = {
+    { "lua_ls", {
+        settings = {
+            Lua = {
+                diagnostics = { globals = { 'vim' } },
+                workspace = { checkThirdParty = false },
+                telemetry = { enable = false },
+            },
+        },
+    }
+    },
+    { "clangd", {
+        cmd = { "clangd", "--header-insertion=never" },
+        on_init = function(client, _)
+            client.server_capabilities.semanticTokensProvider = nil -- turn off semantic tokens
+        end,
+
+    } },
+    { "marksman" },
+    { "openscad_lsp" },
+    { "ts_ls" },
+    { "ruff" },
+    { "rust_analyzer" },
+    { "jsonls" },
+}
+
+for _, lsp in ipairs(lsps) do
+    local name, config = lsp[1], lsp[2]
+    if config then
+        vim.lsp.config(name, config)
+    end
+    vim.lsp.enable(name)
+end
+
+vim.diagnostic.config({
+    --virtual_lines = true,
+    virtual_text = false,
+    signs = true,
+    underline = true,
+    update_in_insert = false,
+    severity_sort = false,
+    float = { border = 'rounded' },
+})
