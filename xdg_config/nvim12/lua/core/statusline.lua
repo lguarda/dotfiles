@@ -25,11 +25,14 @@ local function lsp_status()
             return name
         end)
         :totable()
-    return "[" .. table.concat(names, ", ") .. "]"
+    return ("[%s:%s]"):format(vim.ui.progress_status(), table.concat(names, ", "))
 end
-
+vim.o.cmdheight = 0
+vim.o.showcmd = true
+vim.o.showcmdloc = "statusline"
 function _G.statusline()
     return table.concat({
+        "%S",
         "%f",
         "%h%w%m%r",
         "%=",

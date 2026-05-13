@@ -60,14 +60,13 @@ end
 vim.api.nvim_create_autocmd('TermOpen', {
     desc = "Disable number status line and sign",
     callback = function()
-        vim.wo.statusline = 0
         vim.wo.number = true
         vim.wo.relativenumber = false
         vim.wo.signcolumn= "no"
     end,
 })
 
---ac("TermOpen", { command = "setlocal nonumber norelativenumber signcolumn=no laststatus=0" })
+ac("TermOpen", { command = "setlocal nonumber norelativenumber signcolumn=no" })
 ac("TermOpen", { desc = "Start with insert mode when openging terminal", command = "startinsert" })
 ac("TermOpen", { desc = "Remove matches highlight when openging terminal",
     callback = function()

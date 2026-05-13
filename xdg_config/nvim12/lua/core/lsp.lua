@@ -4,11 +4,11 @@ vim.keymap.set('n', 'gK', function()
 end, { desc = 'Toggle diagnostic virtual_lines' })
 
 vim.api.nvim_create_autocmd("BufDelete", {
-    callback = function(args)
+    callback = function(_)
         local clients = vim.lsp.get_clients()
         for _, client in ipairs(clients) do
-            local buffers = vim.lsp.get_client_by_id(client.id).attached_buffers()
-            if #buffers == 0 then
+            local buffers = vim.lsp.get_client_by_id(client.id).attached_buffers
+            if next(buffers) == nil then
                 print(("Stop lsp server since it's not attached to any buffer:%s"):format(client.name))
                 client:stop(false)
             end

@@ -16,12 +16,12 @@ vim.o.timeoutlen = 300   -- scroll terminal when cursor is N line from the top o
 -- general options
 vim.o.completeopt = "menu,menuone,popup,fuzzy" -- modern completion menu
 
-vim.o.foldenable = true   -- enable fold
-vim.o.foldlevel = 99      -- start editing with all folds opened
-vim.o.foldmethod = "expr" -- use tree-sitter for folding method
+vim.o.foldenable = true                        -- enable fold
+vim.o.foldlevel = 99                           -- start editing with all folds opened
+vim.o.foldmethod = "expr"                      -- use tree-sitter for folding method
 vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 
-vim.g.netrw_banner = 0    -- remove netrw banner for cleaner looking
+vim.g.netrw_banner = 0 -- remove netrw banner for cleaner looking
 
 -- boolean settings
 vim.o.endofline = false                 -- No <EOL> will be written for the last line in the file
@@ -56,6 +56,7 @@ vim.o.virtualedit = "onemore"           -- Allow normal mode to go one more char
 vim.o.mouse = ""                        -- Disable mouse for all mode
 vim.o.mousemoveevent = false
 vim.opt.display:append("uhex,lastline") -- Change the way text is displayed. uhex: Show unprintable characters hexadecimal as <xx>
+vim.o.winborder = "rounded"
 
 
 -- This is used to have timestamped backup file
