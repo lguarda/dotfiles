@@ -30,14 +30,25 @@ end
 vim.o.cmdheight = 0
 vim.o.showcmd = true
 vim.o.showcmdloc = "statusline"
+
+local function mode_str()
+    local modes = {
+        n = 'NORMAL', i = 'INSERT', v = 'VISUAL',
+        V = 'V-LINE', ['\22'] = 'V-BLOCK',
+        c = 'COMMAND', t = 'TERMINAL',
+    }
+    return modes[vim.fn.mode()] or vim.fn.mode()
+end
+
 function _G.statusline()
     return table.concat({
-        "%S",
+        mode_str(),
         "%f",
         "%h%w%m%r",
         "%=",
         lsp_status(),
         " %-14(%l,%c%V%)",
+        "%S",
         "%P",
     }, " ")
 end
