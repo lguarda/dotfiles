@@ -81,4 +81,8 @@ vim.keymap.set("", "<C-g>", "<CMD>lua require('oil').toggle_float()<CR>",
     { desc = "Open parent directory", noremap = true, silent = true })
 
 vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
-require('nvim-treesitter').install { 'rust', 'javascript', 'python', "typescript", "fish", "cpp" }
+require('nvim-treesitter').install { 'rust', 'javascript', 'python', "typescript", "fish", "cpp", "bash" }
+
+vim.pack.add { { src = "https://github.com/catppuccin/nvim", name = "catppuccin" } }
+vim.cmd.colorscheme "catppuccin-mocha"
+
