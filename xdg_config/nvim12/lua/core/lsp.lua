@@ -20,7 +20,6 @@ vim.api.nvim_create_autocmd("BufDelete", {
 vim.api.nvim_create_autocmd("LspAttach", {
     group = vim.api.nvim_create_augroup("UserLspAttach", { clear = true }),
     callback = function(ev)
-
         vim.lsp.completion.enable(true, ev.data.client_id, ev.buf)
 
         local opts = { buffer = ev.buf, silent = true }
@@ -29,7 +28,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
         map('n', 'K', vim.lsp.buf.hover, opts)
         map('n', 'gr', vim.lsp.buf.references, opts)
         map('n', 'gR', vim.lsp.buf.rename, opts)
-        --map('n', '<leader>rn', vim.lsp.buf.rename, opts)
         map('n', '<f3>', vim.lsp.buf.format, opts)
         map('n', '<f4>', vim.lsp.buf.code_action, opts)
         --map('n', '[d', vim.diagnostic.goto_prev, opts)

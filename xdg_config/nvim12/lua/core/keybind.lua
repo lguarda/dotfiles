@@ -65,12 +65,8 @@ local function toggle_conf(scope, conf)
     vim[scope][conf] = not old_value
     print(("%s:%s set to %s"):format(scope, conf, not old_value))
 end
-remap("n", "<space>e", function()
-    toggle_conf("bo", "expandtab")
-end) -- "Toggle expandtab
-remap("n", "<space>w", function()
-    toggle_conf("opt_local", "wrap")
-end) -- "Toggle expandtab
+remap("n", "<space>e", function() toggle_conf("bo", "expandtab") end)   -- "Toggle expandtab
+remap("n", "<space>w", function() toggle_conf("opt_local", "wrap") end) -- "Toggle expandtab
 
 -- Move text around
 remap("n", "<S-A-k>", '"mddk"mP==')       -- move current line up
@@ -85,9 +81,7 @@ remap("n", "<space>d", ":w !diff -u % -<CR>")                     -- Show curren
 remap("n", "<space>x", "<cmd>!chmod +x %<CR>", { silent = true }) -- Make current file executable
 remap("n", "x", '"_x', { silent = true })
 remap("n", "X", '"_X', { silent = true })
-remap("n", "<S-z><S-s>", ":execute 'silent! write !sudo tee % >/dev/null' <bar> edit!<CR>")
 remap("v", "@", ":normal @r<CR>")
-remap("n", "-<S-o>", ":vertical sbuffer 2<CR>")
 
 local function switch_case()
     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -127,16 +121,10 @@ local function mod_font_size(delta)
 end
 set_font_size()
 
-remap("n", "<c-->", function()
+remap({ "n", "t" }, "<c-->", function()
     mod_font_size(-1)
 end)
-remap("n", "<c-=>", function()
-    mod_font_size(1)
-end)
-remap("t", "<c-->", function()
-    mod_font_size(-1)
-end)
-remap("t", "<c-=>", function()
+remap({ "n", "t" }, "<c-=>", function()
     mod_font_size(1)
 end)
 
@@ -144,4 +132,4 @@ end)
 vim.g.neovide_scroll_animation_length = 0
 -- }}}
 
--- vim: set sw=4 ts=4 foldmethod=marker:
+-- vim: set sw=4 ts=4 foldmethod=marker foldlevel=0:

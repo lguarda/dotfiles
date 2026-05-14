@@ -1,4 +1,3 @@
-
 vim.api.nvim_create_user_command("OpenscadOpen", function()
     vim.fn.execute(("!openscad %s &"):format(vim.fn.expand("%p")))
 end, {})

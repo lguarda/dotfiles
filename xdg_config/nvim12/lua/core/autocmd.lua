@@ -112,4 +112,4 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
     end,
 })
 -- }}}
--- vim: set sw=4 ts=4 foldmethod=marker:
+-- vim: set sw=4 ts=4 foldmethod=marker foldlevel=0:

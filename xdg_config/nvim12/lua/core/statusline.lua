@@ -1,15 +1,3 @@
---[[ :h 'statusline'
-This is default statusline value:
-
-```lua
-vim.o.statusline = "%f %h%w%m%r%=%-14.(%l,%c%V%) %P"
-```
-
-below is simple example of custom statusline using neovim APIs
-
-See `:h 'statusline'` for more information about statusline.
-]]
-
 ---Show attached LSP clients in `[name1, name2]` format.
 ---Long server names will be modified. For example, `lua-language-server` will be shorten to `lua-ls`
 ---Returns an empty string if there aren't any attached LSP clients.
@@ -27,15 +15,18 @@ local function lsp_status()
         :totable()
     return ("[%s:%s]"):format(vim.ui.progress_status(), table.concat(names, ", "))
 end
-vim.o.cmdheight = 0
-vim.o.showcmd = true
-vim.o.showcmdloc = "statusline"
 
+---Fake vim mode string base on current mode
+---@return string
 local function mode_str()
     local modes = {
-        n = 'NORMAL', i = 'INSERT', v = 'VISUAL',
-        V = 'V-LINE', ['\22'] = 'V-BLOCK',
-        c = 'COMMAND', t = 'TERMINAL',
+        n = 'NORMAL',
+        i = 'INSERT',
+        v = 'VISUAL',
+        V = 'V-LINE',
+        ['\22'] = 'V-BLOCK',
+        c = 'COMMAND',
+        t = 'TERMINAL',
     }
     return modes[vim.fn.mode()] or vim.fn.mode()
 end
@@ -43,13 +34,13 @@ end
 function _G.statusline()
     return table.concat({
         mode_str(),
-        "%f",
-        "%h%w%m%r",
-        "%=",
+        "%f",              -- current file
+        "%h%w%m%r",        -- change status
+        "%=",              -- separation
         lsp_status(),
-        " %-14(%l,%c%V%)",
-        "%S",
-        "%P",
+        " %-14(%l,%c%V%)", -- buffer line h&v
+        "%S",              -- showcmd content (i use it to count number of line selected)
+        "%P",              -- Percentage through file of displayed window
     }, " ")
 end
 
