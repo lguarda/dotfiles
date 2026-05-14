@@ -237,6 +237,14 @@ remap("v", "<A-r><A-r>", ':s/<C-R>"/<C-R>"/g<left><left>')             -- "Relpl
 remap("v", "/", '"ay:let @a = "/" . escape(@a, "/")<CR>@a<CR>')        -- "Search selected Text
 -- }}}
 -- {{{ Navigation
+for i = 1, 5 do
+    local tabnex = function()
+    vim.cmd(i .. "tabnext")
+  end
+  remap("n", "<A-" .. i .. ">", tabnex)
+  remap("t", "<A-" .. i .. ">", tabnex)
+  remap("i", "<A-" .. i .. ">", tabnex)
+end
 remap("t", "<A-h>", "<C-\\><C-N><C-w>h")
 remap("i", "<A-h>", "<C-\\><C-N><C-w>h")
 remap("n", "<A-h>", "<C-w>h")
@@ -332,11 +340,6 @@ local function switch_case()
 end
 
 vim.api.nvim_set_keymap('n', '<space>s', '', { noremap = true, silent = true, callback = switch_case })
-
-vim.api.nvim_create_user_command("OpenscadOpen", function()
-    vim.fn.execute(("!openscad %s &"):format(vim.fn.expand("%p")))
-end, {})
-
 --}}}
 -- {{{ Gui
 local default_font = "Mononoki Nerd Font"
@@ -604,6 +607,10 @@ require("lazy").setup({
 -- }}}
 -- {{{ Command
 
+vim.api.nvim_create_user_command("OpenscadOpen", function()
+    vim.fn.execute(("!openscad %s &"):format(vim.fn.expand("%p")))
+end, {})
+
 local function gdb_addr()
     local str = vim.fn.expand("%") .. ":" .. vim.fn.line(".")
     vim.fn.setreg("+", str)
@@ -684,4 +691,4 @@ vim.api.nvim_create_user_command('WipeWindowlessBufs', function()
     end, bufinfos)
 end, { desc = 'Wipeout all buffers not shown in a window' })
 -- }}}
--- vim700: set sw=4 ts=4 fdm=marker
+-- vim700: set sw=4 ts=4 fdm=marker:
