@@ -4,11 +4,6 @@ remap('i', '<Tab>', '<Tab>', { noremap = true }) -- neovim map this to a weird s
 remap("", "<space><space>", function()
     vim.cmd.tabedit("~/.config/nvim/init.lua")
 end, { remap = true })
-remap("n", "<space>r", function()
-    require("plenary.reload").reload_module("~/.config/nvim/init.lua") -- replace with your own namespace
-end)
--- remap("n", "<Tab>", ":tabnext<CR>")
--- remap("n", "<S-Tab>", ":tabprevious<CR>")
 -- }}}
 -- {{{ system ClipBoard
 remap("v", "<A-c>", '"+y', { remap = true })
@@ -36,25 +31,20 @@ remap("v", "<A-r><A-r>", ':s/<C-R>"/<C-R>"/g<left><left>')             -- "Relpl
 remap("v", "/", '"ay:let @a = "/" . escape(@a, "/")<CR>@a<CR>')        -- "Search selected Text
 -- }}}
 -- {{{ Navigation
-remap("t", "<A-h>", "<C-\\><C-N><C-w>h")
-remap("i", "<A-h>", "<C-\\><C-N><C-w>h")
-remap("n", "<A-h>", "<C-w>h")
+for i = 1, 5 do
+    local tabnex = function()
+        vim.cmd(i .. "tabnext")
+    end
+    remap({ "n", "t", "i" }, "<A-" .. i .. ">", tabnex)
+end
+remap({ "n", "t", "i" }, "<A-j>", vim.cmd.tabprevious, { desc = "Go to previous tab" })
+remap({ "n", "t", "i" }, "<A-k>", vim.cmd.tabnext, { desc = "Go to next tab" })
+remap({ "n", "t", "i" }, "<A-h>", function() vim.cmd.wincmd("h") end, { desc = "Move to left buffer" })
+remap({ "n", "t", "i" }, "<A-l>", function() vim.cmd.wincmd("l") end, { desc = "Move to right buffer" })
+remap({ "n", "t", "i" }, "<A-d>", vim.cmd.tabclose, { desc = "Close current tab" })
 
-remap("t", "<A-l>", "<C-\\><C-N><C-w>l")
-remap("i", "<A-l>", "<C-\\><C-N><C-w>l")
-remap("n", "<A-l>", "<C-w>l")
+remap("c", "<c-a>", "<c-b>", { desc = "Go to begin cmd line" })
 
-remap("i", "<A-j>", "<C-\\><C-N>:tabprevious<CR>")
-remap("n", "<A-j>", ":tabprevious<CR>")
-remap("t", "<A-j>", "<C-\\><C-N>:tabprevious<CR>")
-
-remap("i", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
-remap("t", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
-remap("n", "<A-k>", ":tabnext<CR>")
-
-remap("i", "<A-d>", "<C-\\><C-N>:tabclose<CR>")
-remap("n", "<A-d>", ":tabclose<CR>")
-remap("t", "<A-k>", "<C-\\><C-N>:tabnext<CR>")
 -- }}}
 -- {{{ Terminal specific
 remap("t", "<S-esc>", "<C-\\><C-n>")                                                                   -- normal mode

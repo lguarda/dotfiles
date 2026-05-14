@@ -43,7 +43,6 @@ vim.o.wrap = false                      -- Don't warp long line
 vim.o.linebreak = true                  -- Break at a word boundary
 vim.o.incsearch = true                  -- While typing a search command, show where the pattern is
 vim.o.swapfile = false                  -- Don't use swapfile for the buffer
-vim.bo.swapfile = false                  -- Don't use swapfile for the buffer
 vim.o.ruler = true                      -- Show the line and column number of the cursor position
 vim.o.undofile = true                   -- Use undofile
 vim.o.backup = true                     -- Make a backup before overwriting a file.

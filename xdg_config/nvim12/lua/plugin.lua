@@ -1,5 +1,5 @@
 vim.pack.add({
-    { src = "/home/leo/clone/nvim-unception" },
+    { src = "https://github.com/lguarda/nvim-unception" },
 })
 
 if vim.g.unception_open_buffer_in_new_tab == nil then
