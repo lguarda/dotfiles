@@ -691,4 +691,60 @@ vim.api.nvim_create_user_command('WipeWindowlessBufs', function()
     end, bufinfos)
 end, { desc = 'Wipeout all buffers not shown in a window' })
 -- }}}
+
+-- Put this in your init.lua
+
+local ns = vim.api.nvim_create_namespace("random_highlights")
+local highlight_count = 0
+
+local function random_color()
+  return string.format("#%06x", math.random(0, 0xFFFFFF))
+end
+
+function _G.HighlightSelectionRandom()
+  local mode = vim.fn.mode()
+
+  if mode ~= "v" and mode ~= "V" then
+    print("Select something first")
+    return
+  end
+
+  local start_pos = vim.fn.getpos("v")
+  local end_pos = vim.fn.getpos(".")
+
+  local start_row = start_pos[2] - 1
+  local start_col = start_pos[3] - 1
+  local end_row = end_pos[2] - 1
+  local end_col = end_pos[3]
+
+  if start_row > end_row or (start_row == end_row and start_col > end_col) then
+    start_row, end_row = end_row, start_row
+    start_col, end_col = end_col - 1, start_col + 1
+  end
+
+  highlight_count = highlight_count + 1
+
+  local group = "RandomHighlight" .. highlight_count
+
+  vim.api.nvim_set_hl(0, group, {
+    bg = random_color(),
+    fg = "#000000",
+  })
+
+  vim.highlight.range(
+    0,
+    ns,
+    group,
+    { start_row, start_col },
+    { end_row, end_col },
+    { inclusive = true }
+  )
+end
+
+-- Keybinding
+vim.keymap.set("v", "<space>i", function()
+  --vim.cmd("normal! <Esc>")
+  HighlightSelectionRandom()
+end, { desc = "Highlight selection with random color" })
+
 -- vim700: set sw=4 ts=4 fdm=marker:

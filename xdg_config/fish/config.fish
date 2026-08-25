@@ -46,6 +46,8 @@ end
 
 bind \cj fuzzy_jump
 bind \cf fuzzy_files_search
+bind up up-or-search
+bind down down-or-search
 
 function c  # simple calculator
     math $argv

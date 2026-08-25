@@ -21,6 +21,7 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- when client with a matching name is opened:
 --require("awful.hotkeys_popup.keys")
 
+require 'notifkb'
 local aw = require 'awlib'
 
 -- }}}
@@ -41,7 +42,7 @@ local home_dir = os.getenv('HOME')
 beautiful.init(gears.filesystem.get_themes_dir() .. "zenburn/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-local terminal = "systemd-run --user --scope neovide -- +term"
+local terminal = "systemd-run --user --scope neovide --srgb -- +term"
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -459,12 +460,13 @@ local tag_list = {
 }
 
 local function ip_widget()
-    local wid = awful.widget.watch("ip -4 route get 8.8.8.8", 15, function(widget, stdout)
+    local wid = awful.widget.watch("ip -4 route get 8.8.8.8", 3, function(widget, stdout)
         stdout = string.match(stdout, "src (%d*.%d*.%d*.%d*)")
-        if stdout == "" then
-            widget:set_text("down")
+        local time = os.date("%H:%M:%S")
+        if stdout == "" or stdout == nil then
+            widget:set_text("down: " .. time)
         else
-            widget:set_text(stdout)
+            widget:set_text(stdout ..": ".. time)
         end
     end)
     return wid
@@ -624,7 +626,27 @@ local mode_keys_resize = gears.table.join(
     )
 )
 
+local mode_keys_notif = gears.table.join(
+    awful.key({}, "j", aw.cba(notif_focus_move, 1),  { description = "focus next notif", group = "Mode:notif" }),
+    awful.key({}, "k", aw.cba(notif_focus_move, -1), { description = "focus prev notif", group = "Mode:notif" }),
+    awful.key({}, "d", aw.cba(notif_delete_focused), { description = "delete focused notif", group = "Mode:notif" }),
+    awful.key({}, "Return", aw.cba(notif_trigger_action), { description = "trigger notif action", group = "Mode:notif" }),
+    awful.key({}, "Escape", 
+    function()
+        kb_swap_mode('globalkeys')
+        notif_set_focus(nil)
+    end, { description = "normal mode", group = "Mode:notif" })
+)
+
+naughty.connect_signal("destroyed", function()
+    if #naughty.active == 0 then
+        notif_set_focus(nil)
+        kb_swap_mode('globalkeys')
+    end
+end)
+
 kb_append_bindings('mode_keys_resize', mode_keys_resize)
+kb_append_bindings('mode_keys_notif', mode_keys_notif)
 
 local function my_move(x, y)
     local c = client.focus
@@ -641,7 +663,6 @@ local mode_keys_move = gears.table.join(
     akr(key_alias["right"], "move", "Mode:move", aw.cba(my_move, 10, 0)),
     ak("r", "Change keybind mode to resize", "Keybind mode",
         aw.cba(kb_swap_mode, 'mode_keys_resize', 'resize')),
-
     -- # back to normal
     awful.key({}, "Escape",
         aw.cba(kb_swap_mode, 'globalkeys'),
@@ -660,11 +681,11 @@ local function blend_out(c)
     img:finish()
 end
 
-local over_editor_cmd = 'systemd-run --user --scope neovide --x11-wm-class=overnvim --x11-wm-class-instance=overnvim -- '
+local over_editor_cmd = 'systemd-run --user --scope neovide --srgb --x11-wm-class=overnvim --x11-wm-class-instance=overnvim -- '
     .. '+term'
 
 local audiomixer_cmd =
-    'neovide --x11-wm-class=audiomixer --x11-wm-class-instance=audiomixer -- '
+    'neovide --srgb --x11-wm-class=audiomixer --x11-wm-class-instance=audiomixer -- '
     .. [[ "+lua vim.keymap.set('t', 'q', '<nop>')"]]
     .. [[ "+lua vim.keymap.set('t', '<esc>', '<nop>')"]]
     .. ' "+term wiremix --lazy-capture --fps=5"'
@@ -859,6 +880,12 @@ local globalkeys = gears.table.join(
         aw.cba(kb_swap_mode, 'mode_keys_resize', 'resize')),
     ak("m", "Change keybind mode to move", "Keybind mode",
         aw.cba(kb_swap_mode, 'mode_keys_move', 'move')),
+    ak("Tab", "Change keybind mode to notifykb", "Keybind mode",
+        function()
+            kb_swap_mode('mode_keys_notif', 'notif')
+            notif_focus_next(1)
+        end
+        ),
     -- Debug
     ak("Shift+d", "Dedicated debug call", "Debug", function()
         mouse.coords {
@@ -1126,10 +1153,17 @@ end)
 ruled.notification.connect_signal('request::rules', function()
     -- All notifications will match this rule.
     ruled.notification.append_rule {
-        rule       = {},
+        except     = { category = "build"},
         properties = {
             screen       = awful.screen.preferred,
             timeout      = 300,
+            border_color = '#ff0000'
+        }
+    }
+    ruled.notification.append_rule {
+        rule     = { category = "build"},
+        properties = {
+            screen       = awful.screen.preferred,
             border_color = '#ff0000'
         }
     }

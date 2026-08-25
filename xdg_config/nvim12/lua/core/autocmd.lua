@@ -57,14 +57,14 @@ local function is_last_window()
     local counter = #get_buffers({ listed = true })
     return counter <= 1
 end
-vim.api.nvim_create_autocmd('TermOpen', {
-    desc = "Disable number status line and sign",
-    callback = function()
-        vim.wo.number = true
-        vim.wo.relativenumber = false
-        vim.wo.signcolumn= "no"
-    end,
-})
+--vim.api.nvim_create_autocmd('TermOpen', {
+--    desc = "Disable number status line and sign",
+--    callback = function()
+--        vim.wo.number = true
+--        vim.wo.relativenumber = false
+--        vim.wo.signcolumn= "no"
+--    end,
+--})
 
 ac("TermOpen", { command = "setlocal nonumber norelativenumber signcolumn=no" })
 ac("TermOpen", { desc = "Start with insert mode when openging terminal", command = "startinsert" })
