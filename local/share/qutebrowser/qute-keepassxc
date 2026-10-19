@@ -1,0 +1,417 @@
+#!/usr/bin/env python3
+
+# This script was first taken from https://github.com/ususdei/qute-keepassxc
+# Qutebrowser userscript to fetch credentials from KeepassXC password database
+# Copyright (c) 2018-2024 Markus Blöchl
+# Released under the MIT License
+
+import sys
+import os
+import socket
+import json
+import base64
+import subprocess
+import argparse
+
+import nacl.utils
+import nacl.public
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Full passwords from KeepassXC")
+    parser.add_argument("url", nargs="?", default=os.environ.get("QUTE_URL"))
+    parser.add_argument(
+        "--totp",
+        action="store_true",
+        help="Fill in current TOTP field instead of username/password",
+    )
+    parser.add_argument(
+        "--selection",
+        action="store_true",
+        help="Fill in current selected field with username or password",
+    )
+    parser.add_argument(
+        "--socket",
+        "-s",
+        default="/run/user/{}/org.keepassxc.KeePassXC.BrowserServer".format(
+            os.getuid()
+        ),
+        help="Path to KeepassXC browser socket",
+    )
+    parser.add_argument(
+        "--key",
+        "-k",
+        default="alice@example.com",
+        help="GPG key to encrypt KeepassXC auth key with",
+    )
+    parser.add_argument(
+        "--insecure", action="store_true", help="Do not encrypt auth key"
+    )
+    return parser.parse_args()
+
+
+class KeepassError(Exception):
+    def __init__(self, code, desc):
+        self.code = code
+        self.description = desc
+
+    def __str__(self):
+        return f"KeepassXC Error [{self.code}]: {self.description}"
+
+
+class KeepassXC:
+    """Wrapper around the KeepassXC socket API"""
+
+    def __init__(self, id=None, *, key, socket_path):
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.id = id
+        self.socket_path = socket_path
+        self.client_key = nacl.public.PrivateKey.generate()
+        self.id_key = nacl.public.PrivateKey.from_seed(key)
+        self.cryptobox = None
+
+    def connect(self):
+        if not os.path.exists(self.socket_path):
+            raise KeepassError(-1, "KeepassXC Browser socket does not exists")
+        self.client_id = base64.b64encode(
+            nacl.utils.random(nacl.public.Box.NONCE_SIZE)
+        ).decode("utf-8")
+        self.sock.connect(self.socket_path)
+
+        self.send_raw_msg(
+            dict(
+                action="change-public-keys",
+                publicKey=base64.b64encode(self.client_key.public_key.encode()).decode(
+                    "utf-8"
+                ),
+                nonce=base64.b64encode(
+                    nacl.utils.random(nacl.public.Box.NONCE_SIZE)
+                ).decode("utf-8"),
+                clientID=self.client_id,
+            )
+        )
+
+        resp = self.recv_raw_msg()
+        assert resp["action"] == "change-public-keys"
+        assert resp["success"] == "true"
+        assert resp["nonce"]
+        self.cryptobox = nacl.public.Box(
+            self.client_key, nacl.public.PublicKey(base64.b64decode(resp["publicKey"]))
+        )
+
+    def get_databasehash(self):
+        self.send_msg(dict(action="get-databasehash"))
+        return self.recv_msg()["hash"]
+
+    def lock_database(self):
+        self.send_msg(dict(action="lock-database"))
+        try:
+            self.recv_msg()
+        except KeepassError as e:
+            if e.code == 1:
+                return True
+            raise
+        return False
+
+    def test_associate(self):
+        if not self.id:
+            return False
+        self.send_msg(
+            dict(
+                action="test-associate",
+                id=self.id,
+                key=base64.b64encode(self.id_key.public_key.encode()).decode("utf-8"),
+            ),
+            triggerUnlock="true",
+        )
+        return self.recv_msg()["success"] == "true"
+
+    def associate(self):
+        self.send_msg(
+            dict(
+                action="associate",
+                key=base64.b64encode(self.client_key.public_key.encode()).decode(
+                    "utf-8"
+                ),
+                idKey=base64.b64encode(self.id_key.public_key.encode()).decode("utf-8"),
+            )
+        )
+        resp = self.recv_msg()
+        self.id = resp["id"]
+
+    def get_logins(self, url):
+        self.send_msg(
+            dict(
+                action="get-logins",
+                url=url,
+                keys=[
+                    {
+                        "id": self.id,
+                        "key": base64.b64encode(self.id_key.public_key.encode()).decode(
+                            "utf-8"
+                        ),
+                    }
+                ],
+            )
+        )
+        return self.recv_msg()["entries"]
+
+    def send_raw_msg(self, msg):
+        self.sock.send(json.dumps(msg).encode("utf-8"))
+
+    def recv_raw_msg(self):
+        return json.loads(self.sock.recv(4096).decode("utf-8"))
+
+    def send_msg(self, msg, **extra):
+        nonce = nacl.utils.random(nacl.public.Box.NONCE_SIZE)
+        self.send_raw_msg(
+            dict(
+                action=msg["action"],
+                message=base64.b64encode(
+                    self.cryptobox.encrypt(
+                        json.dumps(msg).encode("utf-8"), nonce
+                    ).ciphertext
+                ).decode("utf-8"),
+                nonce=base64.b64encode(nonce).decode("utf-8"),
+                clientID=self.client_id,
+                **extra,
+            )
+        )
+
+    def recv_msg(self):
+        resp = self.recv_raw_msg()
+        if "error" in resp:
+            raise KeepassError(resp["errorCode"], resp["error"])
+        assert resp["action"]
+        return json.loads(
+            self.cryptobox.decrypt(
+                base64.b64decode(resp["message"]), base64.b64decode(resp["nonce"])
+            ).decode("utf-8")
+        )
+
+
+class SecretKeyStore:
+    def __init__(self, gpgkey):
+        self.gpgkey = gpgkey
+        if gpgkey is None:
+            self.path = os.path.join(os.environ["QUTE_DATA_DIR"], "keepassxc.key")
+        else:
+            self.path = os.path.join(os.environ["QUTE_DATA_DIR"], "keepassxc.key.gpg")
+
+    def load(self):
+        "Load existing association key from file"
+        if self.gpgkey is None:
+            jsondata = open(self.path, "r").read()
+        else:
+            jsondata = subprocess.check_output(["gpg", "--decrypt", self.path]).decode(
+                "utf-8"
+            )
+        data = json.loads(jsondata)
+        self.id = data["id"]
+        self.key = base64.b64decode(data["key"])
+
+    def create(self):
+        "Create new association key"
+        self.key = nacl.utils.random(32)
+        self.id = None
+
+    def store(self, id):
+        "Store newly created association key in file"
+        self.id = id
+        jsondata = json.dumps(
+            {"id": self.id, "key": base64.b64encode(self.key).decode("utf-8")}
+        )
+        if self.gpgkey is None:
+            open(self.path, "w").write(jsondata)
+        else:
+            subprocess.run(
+                ["gpg", "--encrypt", "-o", self.path, "-r", self.gpgkey],
+                input=jsondata.encode("utf-8"),
+                check=True,
+            )
+
+
+def qute(cmd):
+    with open(os.environ["QUTE_FIFO"], "w") as fifo:
+        fifo.write(cmd)
+        fifo.write("\n")
+        fifo.flush()
+
+
+def error(msg):
+    print(msg, file=sys.stderr)
+    qute('message-error "{}"'.format(msg))
+
+
+def connect_to_keepassxc(args):
+    assert args.key or args.insecure, "Missing GPG key to use for auth key encryption"
+    keystore = SecretKeyStore(args.key)
+    if os.path.isfile(keystore.path):
+        keystore.load()
+        kp = KeepassXC(keystore.id, key=keystore.key, socket_path=args.socket)
+        kp.connect()
+        if not kp.test_associate():
+            error("No KeepassXC association")
+            return None
+    else:
+        keystore.create()
+        kp = KeepassXC(key=keystore.key, socket_path=args.socket)
+        kp.connect()
+        kp.associate()
+        if not kp.test_associate():
+            error("No KeepassXC association")
+            return None
+        keystore.store(kp.id)
+    return kp
+
+def select_account(creds):
+    try:
+        if len(creds) == 1:
+            return creds[0]
+        with open("/tmp/data.json", "w", encoding="utf-8") as f:
+            json.dump(creds, f, ensure_ascii=False, indent=4)
+
+        idx = subprocess.check_output(
+            [
+                "rofi",
+                "-dmenu",
+                "-format",
+                "i",
+                "-matching",
+                "fuzzy",
+                "-p",
+                "Search",
+                "-mesg",
+                "<b>qute-keepassxc</b>: select an account, please!",
+            ],
+            input=b"\n".join(c["name"].encode("utf-8") for c in creds),
+        )
+        idx = int(idx)
+        if idx < 0:
+            return None
+        return creds[idx]
+    except subprocess.CalledProcessError:
+        return None
+    except FileNotFoundError:
+        error("rofi not found. Please install rofi to select from multiple credentials")
+        return creds[0]
+    except Exception as e:
+        error(f"Error while picking account: {e}")
+        return None
+
+def make_js_totp_code(totp):
+    return " ".join(
+        """
+        (function () {
+            var input = document.activeElement;
+            if (!input || input.tagName !== "INPUT") {
+                alert("No TOTP input field selected");
+                return;
+            }
+            input.value = %s;
+            input.dispatchEvent(new Event('input', { 'bubbles': true }));
+            input.dispatchEvent(new Event('change', { 'bubbles': true }));
+        })();
+    """.splitlines()
+    ) % (json.dumps(totp),)
+
+JS_COMMON = """
+function visible(e){var r=e.getBoundingClientRect(),s=getComputedStyle(e);
+ return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none';}
+function allInputs(root){var res=[];(function walk(n){
+ n.querySelectorAll('input').forEach(function(i){res.push(i);});
+ n.querySelectorAll('*').forEach(function(el){if(el.shadowRoot)walk(el.shadowRoot);});})(root);return res;}
+function setVal(el,v){el.focus();
+ Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,v);
+ el.dispatchEvent(new InputEvent('input',{bubbles:true,composed:true,inputType:'insertText',data:v}));
+ el.dispatchEvent(new Event('change',{bubbles:true}));}
+"""
+
+JS_FILL = JS_COMMON + """
+(function(u,p){
+ var all=allInputs(document).filter(visible);
+ var pw=all.filter(function(i){return i.type==='password';});
+ var cand=all.filter(function(i){
+  var r=i.getAttribute('role');
+  return ['text','email','tel',''].indexOf(i.type)>=0&&!i.readOnly&&!i.disabled&&r!=='combobox'&&r!=='searchbox';});
+ function score(i){var s=0,t=[i.autocomplete,i.name,i.id,i.placeholder,i.getAttribute('aria-label')].join(' ').toLowerCase();
+  if(/username|email/.test(i.autocomplete))s+=5;
+  if(/user|login|email|ident|account/.test(t))s+=3;
+  if(/search|query|find/.test(t))s-=5;return s;}
+ var user=null;
+ if(pw.length){
+  var before=cand.filter(function(i){return i.compareDocumentPosition(pw[0])&Node.DOCUMENT_POSITION_FOLLOWING;});
+  user=before.length?before[before.length-1]:null;
+ }else if(cand.length){
+  user=cand.slice().sort(function(a,b){return score(b)-score(a);})[0];
+  if(score(user)<=0&&cand.length>1)user=null;
+ }
+ if(!user&&!pw.length){alert('No login field found');return;}
+ if(user)setVal(user,u);
+ if(pw.length)setVal(pw[0],p);
+})(__USER__,__PASS__);
+"""
+
+JS_SELECTION = JS_COMMON + """
+(function(u,p){
+ var el=document.activeElement;
+ while(el&&el.shadowRoot&&el.shadowRoot.activeElement)el=el.shadowRoot.activeElement;
+ if(!el||el.tagName!=='INPUT'){alert('No input selected');return;}
+ setVal(el,el.type==='password'?p:u);
+})(__USER__,__PASS__);
+"""
+
+
+def _build(js, username, password):
+    js = js.replace("__USER__", json.dumps(username)).replace("__PASS__", json.dumps(password))
+    return " ".join(js.splitlines())  # FIFO needs a single line (no // comments in the JS!)
+
+
+def make_js_code(username, password):
+    return _build(JS_FILL, username, password)
+
+
+def make_js_insert_on_selection(username, password):
+    return _build(JS_SELECTION, username, password)
+
+def main():
+    if "QUTE_FIFO" not in os.environ:
+        print(
+            f"No QUTE_FIFO found - {sys.argv[0]} must be run as a qutebrowser userscript"
+        )
+        sys.exit(-1)
+
+    try:
+        args = parse_args()
+        assert args.url, "Missing URL"
+        kp = connect_to_keepassxc(args)
+        if not kp:
+            error("Could not connect to KeepassXC")
+            return
+        creds = kp.get_logins(args.url)
+        if not creds:
+            error("No credentials found")
+            return
+        cred = select_account(creds)
+        if not cred:
+            error("No credentials selected")
+            return
+        if args.totp:
+            totp = cred.get("totp")
+            if not totp:
+                error("No TOTP key found")
+                return
+            qute("jseval -q " + make_js_totp_code(totp))
+        else:
+            name, pw = cred["login"], cred["password"]
+            if name and pw:
+                if args.selection:
+                    qute("jseval -q " + make_js_insert_on_selection(name, pw))
+                else:
+                    qute("jseval -q " + make_js_code(name, pw))
+    except Exception as e:
+        error(str(e))
+
+
+if __name__ == "__main__":
+    main()
