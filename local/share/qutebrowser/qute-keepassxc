@@ -14,6 +14,9 @@ import subprocess
 import argparse
 import tempfile
 import time
+import fcntl
+import struct
+import termios
 
 import nacl.utils
 import nacl.public
@@ -412,28 +415,58 @@ def build_js(js, **values):
     )
 
 
-def run_js(js):
-    """Run JS in the page WITHOUT putting the secrets in the qutebrowser command.
+def _pipe_unread_bytes(fd):
+    buf = bytearray(4)
+    fcntl.ioctl(fd, termios.FIONREAD, buf)
+    return struct.unpack("i", bytes(buf))[0]
 
-    The script goes into a private (0600) file, preferably on tmpfs, and
-    qutebrowser is told to run that file. The only thing that appears in the
-    command (and in --debug logs) is the file path. The file is deleted as soon
-    as qutebrowser has had time to read it.
+
+def run_js(js, timeout=5.0):
+    """Run JS in the page WITHOUT putting the secrets in the qutebrowser command
+    and WITHOUT ever writing them to a file.
+
+    The script is written into a named pipe (FIFO) inside a private 0700
+    directory, and qutebrowser is told to run `jseval --file <fifo>`. The only
+    thing in the command (and in --debug logs) is the pipe path. The secret
+    lives only in the kernel pipe buffer until qutebrowser reads it.
+
+    We hold the pipe open ourselves (O_RDWR) for the whole time, so qutebrowser's
+    open() can never block waiting for a writer. If qutebrowser never reads (e.g.
+    the command was rejected) we give up after `timeout` seconds and the data is
+    discarded together with the pipe.
+
+    let's be honest this sucks but qutebrowser don't provide safer api
     """
     runtime = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
     if not os.path.isdir(runtime):
         runtime = None  # fall back to the default temp dir
-    fd, path = tempfile.mkstemp(prefix="qute-kpxc-", suffix=".js", dir=runtime)
+    tmpdir = tempfile.mkdtemp(prefix="qute-kpxc-", dir=runtime)  # mode 0700
+    path = os.path.join(tmpdir, "run.js")
+    fd = None
     try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            f.write(js)
+        os.mkfifo(path, 0o600)
+        fd = os.open(path, os.O_RDWR)  # never blocks on Linux
+        data = js.encode("utf-8")
+        # a pipe buffers 64 KiB by default; our script is a few KiB
+        if os.write(fd, data) != len(data):
+            raise RuntimeError("Could not buffer script in pipe")
         qute(f"jseval -q --file {path}")
-        time.sleep(2)
+
+        # wait until qutebrowser has consumed everything, then close our end
+        # so that its read() sees EOF
+        deadline = time.monotonic() + timeout
+        while _pipe_unread_bytes(fd) > 0:
+            if time.monotonic() > deadline:
+                raise RuntimeError("qutebrowser did not read the script")
+            time.sleep(0.02)
     finally:
-        try:
-            os.unlink(path)
-        except FileNotFoundError:
-            pass
+        if fd is not None:
+            os.close(fd)
+        for cleanup in (lambda: os.unlink(path), lambda: os.rmdir(tmpdir)):
+            try:
+                cleanup()
+            except OSError:
+                pass
 
 
 def main():
