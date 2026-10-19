@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
-# This script was first taken from https://github.com/ususdei/qute-keepassxc
 # Qutebrowser userscript to fetch credentials from KeepassXC password database
 # Copyright (c) 2018-2024 Markus Blöchl
 # Released under the MIT License
 
 import sys
 import os
+import re
 import socket
 import json
 import base64
 import subprocess
 import argparse
+import tempfile
+import time
 
 import nacl.utils
 import nacl.public
@@ -41,7 +43,7 @@ def parse_args():
     parser.add_argument(
         "--key",
         "-k",
-        default="alice@example.com",
+        default="alice@example.com",  # <-- put your real GPG key id here
         help="GPG key to encrypt KeepassXC auth key with",
     )
     parser.add_argument(
@@ -156,11 +158,25 @@ class KeepassXC:
         )
         return self.recv_msg()["entries"]
 
+    def get_totp(self, uuid):
+        self.send_msg(dict(action="get-totp", uuid=uuid))
+        return self.recv_msg().get("totp")
+
     def send_raw_msg(self, msg):
-        self.sock.send(json.dumps(msg).encode("utf-8"))
+        self.sock.sendall(json.dumps(msg).encode("utf-8"))
 
     def recv_raw_msg(self):
-        return json.loads(self.sock.recv(4096).decode("utf-8"))
+        # Responses can be larger than one recv(): read until the JSON is complete
+        buf = b""
+        while True:
+            chunk = self.sock.recv(4096)
+            if not chunk:
+                raise KeepassError(-1, "Connection closed by KeepassXC")
+            buf += chunk
+            try:
+                return json.loads(buf.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                continue
 
     def send_msg(self, msg, **extra):
         nonce = nacl.utils.random(nacl.public.Box.NONCE_SIZE)
@@ -201,7 +217,8 @@ class SecretKeyStore:
     def load(self):
         "Load existing association key from file"
         if self.gpgkey is None:
-            jsondata = open(self.path, "r").read()
+            with open(self.path, "r") as f:
+                jsondata = f.read()
         else:
             jsondata = subprocess.check_output(["gpg", "--decrypt", self.path]).decode(
                 "utf-8"
@@ -222,13 +239,16 @@ class SecretKeyStore:
             {"id": self.id, "key": base64.b64encode(self.key).decode("utf-8")}
         )
         if self.gpgkey is None:
-            open(self.path, "w").write(jsondata)
+            fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "w") as f:
+                f.write(jsondata)
         else:
             subprocess.run(
                 ["gpg", "--encrypt", "-o", self.path, "-r", self.gpgkey],
                 input=jsondata.encode("utf-8"),
                 check=True,
             )
+            os.chmod(self.path, 0o600)
 
 
 def qute(cmd):
@@ -240,12 +260,14 @@ def qute(cmd):
 
 def error(msg):
     print(msg, file=sys.stderr)
-    qute('message-error "{}"'.format(msg))
+    # No quotes/backslashes/newlines: they would break (or inject into) the command
+    safe = str(msg).replace("\\", "/").replace('"', "'").replace("\n", " ")
+    qute(f'message-error "{safe}"')
 
 
 def connect_to_keepassxc(args):
     assert args.key or args.insecure, "Missing GPG key to use for auth key encryption"
-    keystore = SecretKeyStore(args.key)
+    keystore = SecretKeyStore(None if args.insecure else args.key)
     if os.path.isfile(keystore.path):
         keystore.load()
         kp = KeepassXC(keystore.id, key=keystore.key, socket_path=args.socket)
@@ -264,12 +286,11 @@ def connect_to_keepassxc(args):
         keystore.store(kp.id)
     return kp
 
+
 def select_account(creds):
     try:
         if len(creds) == 1:
             return creds[0]
-        with open("/tmp/data.json", "w", encoding="utf-8") as f:
-            json.dump(creds, f, ensure_ascii=False, indent=4)
 
         idx = subprocess.check_output(
             [
@@ -299,80 +320,121 @@ def select_account(creds):
         error(f"Error while picking account: {e}")
         return None
 
-def make_js_totp_code(totp):
-    return " ".join(
-        """
-        (function () {
-            var input = document.activeElement;
-            if (!input || input.tagName !== "INPUT") {
-                alert("No TOTP input field selected");
-                return;
-            }
-            input.value = %s;
-            input.dispatchEvent(new Event('input', { 'bubbles': true }));
-            input.dispatchEvent(new Event('change', { 'bubbles': true }));
-        })();
-    """.splitlines()
-    ) % (json.dumps(totp),)
+
+# ---------------------------------------------------------------------------
+# JavaScript injected into the page
+# ---------------------------------------------------------------------------
 
 JS_COMMON = """
-function visible(e){var r=e.getBoundingClientRect(),s=getComputedStyle(e);
- return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none';}
-function allInputs(root){var res=[];(function walk(n){
- n.querySelectorAll('input').forEach(function(i){res.push(i);});
- n.querySelectorAll('*').forEach(function(el){if(el.shadowRoot)walk(el.shadowRoot);});})(root);return res;}
-function setVal(el,v){el.focus();
- Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,v);
- el.dispatchEvent(new InputEvent('input',{bubbles:true,composed:true,inputType:'insertText',data:v}));
- el.dispatchEvent(new Event('change',{bubbles:true}));}
+function visible(e){
+  var r = e.getBoundingClientRect(), s = getComputedStyle(e);
+  return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none';
+}
+function allInputs(root){
+  var res = [];
+  (function walk(n){
+    n.querySelectorAll('input').forEach(function(i){ res.push(i); });
+    n.querySelectorAll('*').forEach(function(el){ if (el.shadowRoot) walk(el.shadowRoot); });
+  })(root);
+  return res;
+}
+function setVal(el, v){
+  el.focus();
+  // Use the native setter so React/Vue/Angular notice the change
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, v);
+  el.dispatchEvent(new InputEvent('input', {bubbles: true, composed: true, inputType: 'insertText', data: v}));
+  el.dispatchEvent(new Event('change', {bubbles: true}));
+}
+function activeInput(){
+  var el = document.activeElement;
+  while (el && el.shadowRoot && el.shadowRoot.activeElement) el = el.shadowRoot.activeElement;
+  return (el && el.tagName === 'INPUT') ? el : null;
+}
 """
 
 JS_FILL = JS_COMMON + """
-(function(u,p){
- var all=allInputs(document).filter(visible);
- var pw=all.filter(function(i){return i.type==='password';});
- var cand=all.filter(function(i){
-  var r=i.getAttribute('role');
-  return ['text','email','tel',''].indexOf(i.type)>=0&&!i.readOnly&&!i.disabled&&r!=='combobox'&&r!=='searchbox';});
- function score(i){var s=0,t=[i.autocomplete,i.name,i.id,i.placeholder,i.getAttribute('aria-label')].join(' ').toLowerCase();
-  if(/username|email/.test(i.autocomplete))s+=5;
-  if(/user|login|email|ident|account/.test(t))s+=3;
-  if(/search|query|find/.test(t))s-=5;return s;}
- var user=null;
- if(pw.length){
-  var before=cand.filter(function(i){return i.compareDocumentPosition(pw[0])&Node.DOCUMENT_POSITION_FOLLOWING;});
-  user=before.length?before[before.length-1]:null;
- }else if(cand.length){
-  user=cand.slice().sort(function(a,b){return score(b)-score(a);})[0];
-  if(score(user)<=0&&cand.length>1)user=null;
- }
- if(!user&&!pw.length){alert('No login field found');return;}
- if(user)setVal(user,u);
- if(pw.length)setVal(pw[0],p);
-})(__USER__,__PASS__);
+(function(u, p){
+  var all = allInputs(document).filter(visible);
+  var pw = all.filter(function(i){ return i.type === 'password'; });
+  var cand = all.filter(function(i){
+    var r = i.getAttribute('role');
+    return ['text', 'email', 'tel', ''].indexOf(i.type) >= 0 && !i.readOnly && !i.disabled
+           && r !== 'combobox' && r !== 'searchbox';
+  });
+  function score(i){
+    var s = 0;
+    var t = [i.autocomplete, i.name, i.id, i.placeholder, i.getAttribute('aria-label')].join(' ').toLowerCase();
+    if (/username|email/.test(i.autocomplete)) s += 5;
+    if (/user|login|email|ident|account/.test(t)) s += 3;
+    if (/search|query|find/.test(t)) s -= 5;
+    return s;
+  }
+  var user = null;
+  if (pw.length) {
+    // the last visible text field before the password field
+    var before = cand.filter(function(i){
+      return i.compareDocumentPosition(pw[0]) & Node.DOCUMENT_POSITION_FOLLOWING;
+    });
+    user = before.length ? before[before.length - 1] : null;
+  } else if (cand.length) {
+    user = cand.slice().sort(function(a, b){ return score(b) - score(a); })[0];
+    if (score(user) <= 0 && cand.length > 1) user = null;
+  }
+  if (!user && !pw.length) { alert('No login field found'); return; }
+  if (user && u) setVal(user, u);
+  if (pw.length && p) setVal(pw[0], p);
+})(__USER__, __PASS__);
 """
 
 JS_SELECTION = JS_COMMON + """
-(function(u,p){
- var el=document.activeElement;
- while(el&&el.shadowRoot&&el.shadowRoot.activeElement)el=el.shadowRoot.activeElement;
- if(!el||el.tagName!=='INPUT'){alert('No input selected');return;}
- setVal(el,el.type==='password'?p:u);
-})(__USER__,__PASS__);
+(function(u, p){
+  var el = activeInput();
+  if (!el) { alert('No input selected'); return; }
+  setVal(el, el.type === 'password' ? p : u);
+})(__USER__, __PASS__);
+"""
+
+JS_TOTP = JS_COMMON + """
+(function(t){
+  var el = activeInput();
+  if (!el) { alert('No TOTP input field selected'); return; }
+  setVal(el, t);
+})(__TOTP__);
 """
 
 
-def _build(js, username, password):
-    js = js.replace("__USER__", json.dumps(username)).replace("__PASS__", json.dumps(password))
-    return " ".join(js.splitlines())  # FIFO needs a single line (no // comments in the JS!)
+def build_js(js, **values):
+    # single pass, so a secret that happens to contain "__PASS__" is never re-substituted
+    return re.sub(
+        r"__(USER|PASS|TOTP)__",
+        lambda m: json.dumps(values.get(m.group(1).lower(), "")),
+        js,
+    )
 
 
-def make_js_code(username, password):
-    return _build(JS_FILL, username, password)
+def run_js(js):
+    """Run JS in the page WITHOUT putting the secrets in the qutebrowser command.
 
+    The script goes into a private (0600) file, preferably on tmpfs, and
+    qutebrowser is told to run that file. The only thing that appears in the
+    command (and in --debug logs) is the file path. The file is deleted as soon
+    as qutebrowser has had time to read it.
+    """
+    runtime = os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}"
+    if not os.path.isdir(runtime):
+        runtime = None  # fall back to the default temp dir
+    fd, path = tempfile.mkstemp(prefix="qute-kpxc-", suffix=".js", dir=runtime)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(js)
+        qute(f"jseval -q --file {path}")
+        time.sleep(2)
+    finally:
+        try:
+            os.unlink(path)
+        except FileNotFoundError:
+            pass
 
-def make_js_insert_on_selection(username, password):
-    return _build(JS_SELECTION, username, password)
 
 def main():
     if "QUTE_FIFO" not in os.environ:
@@ -396,19 +458,23 @@ def main():
         if not cred:
             error("No credentials selected")
             return
+
         if args.totp:
             totp = cred.get("totp")
+            if not totp and cred.get("uuid"):
+                totp = kp.get_totp(cred["uuid"])
             if not totp:
                 error("No TOTP key found")
                 return
-            qute("jseval -q " + make_js_totp_code(totp))
-        else:
-            name, pw = cred["login"], cred["password"]
-            if name and pw:
-                if args.selection:
-                    qute("jseval -q " + make_js_insert_on_selection(name, pw))
-                else:
-                    qute("jseval -q " + make_js_code(name, pw))
+            run_js(build_js(JS_TOTP, totp=totp))
+            return
+
+        name, pw = cred.get("login"), cred.get("password")
+        if not (name or pw):
+            error("Entry has no username and no password")
+            return
+        js = JS_SELECTION if args.selection else JS_FILL
+        run_js(build_js(js, user=name or "", **{"pass": pw or ""}))
     except Exception as e:
         error(str(e))
 
