@@ -358,6 +358,18 @@ cd /
 sudo umount /mnt
 ```
 
+## No space left on device
+This command with balance out chunk with les then 10% used space
+
+    sudo btrfs balance start -dusage=10 -musage=10 /
+    # then
+    sudo btrfs balance start -dusage=20 -musage=20 /
+
+This can reclaim some unalocated disk space
+Then this is to check the chunk states
+
+    sudo btrfs inspect-internal list-chunks --sort usage /
+
 ### snapper
 First we need to create a config, the default config name is root, if you only
 whant to snapshot un subvolume just don't change the same so you don't have to
