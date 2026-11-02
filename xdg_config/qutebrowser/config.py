@@ -1,6 +1,7 @@
 import configparser
 
 from qutebrowser.utils import message
+import persistent_hints
 
 # {{{ Defaults
 config.load_autoconfig()
