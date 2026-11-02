@@ -23,6 +23,7 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 
 require 'notifkb'
 local aw = require 'awlib'
+local asaw = require("asaw")
 
 -- }}}
 -- {{{ Error handling
@@ -138,66 +139,6 @@ local function debug_popup_client()
     end
     debug_popup(out.class)
 end
-
--- }}}
--- {{{ True easy async
-
-
----@class asaw
-local asaw = {}
-
----This run the given function into a corotoine
----@param fn function
----@async
-function asaw.run(fn)
-    coroutine.wrap(function() fn() end)()
-end
-
----This function will convert any function in the form
----```lua
----function(arg1, argn, callback)
----```
----into it's async await form using the power of coroutine
----@param fun function
----@return function
-function asaw.build_from_cb_based_async(fun)
-    return function(...)
-        local co = coroutine.running()
-        local cb = function(...)
-            coroutine.resume(co, ...)
-        end
-        fun(..., cb)
-        return coroutine.yield()
-    end
-end
-
---- This will call awful.spawn.easy_async but within coroutine
---- So you can run it like this:
----
---- ```lua
---- asaw.run(function()
----     local out, err = async_spawn("command that take time")
----     local out2 = async_spawn("command that take time with previous output: " .. out)
---- end)
---- print("here you can use all argument provided by the easy_async* callback:" .. out2)
---- -- acheive the same result with
---- awful.spawn.easy_async("command that take time", function (out, err)
----     awful.spawn.easy_async("command that take time with previous output: " .. out, function (out2)
----         print(out2)
----     end)
---- end)
---- ```
----
---- No need to add callback this is handled within the coroutine
---- with yield and resume, your code look synchronous but it'async
---- behind the hood
----@async
----@type fun(cmd: string|string[]): string, string, string, string
-local async_spawn = asaw.build_from_cb_based_async(awful.spawn.easy_async)
-
----@async
----@type fun(cmd: string|string[]): string, string, string, string
-local async_spawn_with_shell = asaw.build_from_cb_based_async(awful.spawn.easy_async_with_shell)
 
 -- }}}
 -- {{{ Tag layout
@@ -356,14 +297,14 @@ end
 -- {{{ Functional call
 local function backlight_ctrl(nb)
     asaw.run(function()
-        local bright_max = async_spawn("brightnessctl max")
-        local bright = async_spawn("brightnessctl get")
+        local bright_max = asaw.spawn("brightnessctl max")
+        local bright = asaw.spawn("brightnessctl get")
         local bright_percent = math.min(100, math.floor(bright / bright_max * 100) + nb)
         if (bright_percent < 5) then
             -- prevent to go bellow 0 or the screen can be black
             bright_percent = 1
         end
-        async_spawn(("brightnessctl set %d%%"):format(bright_percent))
+        asaw.spawn(("brightnessctl set %d%%"):format(bright_percent))
         _G.backlight_ctrl_notif_id = naughty.notify {
             text = ("LCD Backlight %d%%"):format(bright_percent),
             timeout = 0.500,
@@ -380,10 +321,10 @@ end
 
 local function screenshot()
     asaw.run(function()
-        async_spawn(('flameshot gui --path=%s/Pictures/screenshot/'):format(home_dir))
+        asaw.spawn(('flameshot gui --path=%s/Pictures/screenshot/'):format(home_dir))
         local filename = get_last_screen_shot()
         debug_popup(filename)
-        async_spawn(("dragon '%s/Pictures/screenshot/%s'"):format(home_dir, filename))
+        asaw.spawn(("dragon '%s/Pictures/screenshot/%s'"):format(home_dir, filename))
     end)
 end
 -- }}}
@@ -630,6 +571,9 @@ local mode_keys_notif = gears.table.join(
     awful.key({}, "j", aw.cba(notif_focus_move, 1),  { description = "focus next notif", group = "Mode:notif" }),
     awful.key({}, "k", aw.cba(notif_focus_move, -1), { description = "focus prev notif", group = "Mode:notif" }),
     awful.key({}, "d", aw.cba(notif_delete_focused), { description = "delete focused notif", group = "Mode:notif" }),
+    awful.key({}, "h", function ()
+        naughty.suspended = not naughty.suspended
+    end , { description = "Toggle hide notif", group = "Mode:notif" }),
     awful.key({}, "Return", aw.cba(notif_trigger_action), { description = "trigger notif action", group = "Mode:notif" }),
     awful.key({}, "Escape", 
     function()
