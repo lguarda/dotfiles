@@ -59,6 +59,7 @@ local lsps = {
     { "ruff" },
     { "rust_analyzer" },
     { "jsonls" },
+    { "fish_lsp" },
 }
 
 for _, lsp in ipairs(lsps) do
