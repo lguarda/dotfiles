@@ -638,7 +638,7 @@ local audiomixer_cmd =
 kb_append_bindings('mode_keys_move', mode_keys_move)
 -- {{{ Global key bind
 local globalkeys = gears.table.join(
-    ak("Shift+h", "show help", "awesome", hotkeys_popup.show_help),
+    ak("Ctrl+h", "show help", "awesome", hotkeys_popup.show_help),
     ak("Escape", "go back", "tag", awful.tag.history.restore),
     ak("o", "move mouse to other screen", "screen", aw.cba(awful.screen.focus_relative, 1)),
     ak("f", "toggle fullscreen", "client",
