@@ -1,7 +1,8 @@
 local remap = vim.keymap.set
 -- {{{ Nvim
+vim.g.mapleader = " "
 remap('i', '<Tab>', '<Tab>', { noremap = true }) -- neovim map this to a weird shit that break neovim so let's unbind it
-remap("", "<space><space>", function()
+remap("", "<space>v", function()
     vim.cmd.tabedit("~/.config/nvim/init.lua")
 end, { remap = true })
 -- }}}
