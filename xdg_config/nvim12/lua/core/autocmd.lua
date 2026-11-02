@@ -98,9 +98,10 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
     command = "set spell",
 })
 
-vim.api.nvim_create_autocmd("BufRead", {
-    pattern = "SConscript",
-    command = "set filetype=python",
+vim.filetype.add({
+    filename = {
+        SConscript = "python",
+    },
 })
 -- }}}
 -- {{{ GUI
