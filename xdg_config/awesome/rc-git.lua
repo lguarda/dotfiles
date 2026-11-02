@@ -443,7 +443,7 @@ keybaord_layout:connect_signal("button::press", function()
         current_keyboard_layout = 'us'
     end
 
-    awful.spawn('setxkbmap -option caps:escape ' .. current_keyboard_layout)
+    awful.spawn('setxkbmap -option ' .. current_keyboard_layout)
 end)
 
 local function create_wibar(s)

@@ -3,7 +3,7 @@
 WM=${WM:=awesome}
 
 xset r rate 180 35
-setxkbmap -option caps:escape
+#setxkbmap -option caps:escape
 
 XDG_DATA_HOME="$HOME/.local/share"
 XDG_CONFIG_HOME="$HOME/.config"
