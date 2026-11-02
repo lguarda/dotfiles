@@ -781,7 +781,10 @@ local globalkeys = gears.table.join(
         end),
     ak("Shift+c", "Pop up pavucontrol", "launcher",
         aw.cba(aw.toggle_spawn, 'pavucontrol', true)),
-
+    ak("u", "Set layout to max", "layout", function()
+        awful.spawn("warpd --hint")
+    end
+    ),
     ak("b", "Pop up Blueman", "launcher",
         aw.cba(aw.toggle_spawn, aw.path('blueman-manager '), true, { class = "Blueman-manager" }, { border_width = 0 })),
     ak("p", "keepmenu auto type username", "keepmenu",
