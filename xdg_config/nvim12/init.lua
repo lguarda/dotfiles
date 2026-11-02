@@ -1,4 +1,4 @@
-# design mostly copy paste from https://github.com/boltlessengineer/NativeVim
+-- design mostly copy paste from https://github.com/boltlessengineer/NativeVim
 if vim.fn.has("nvim-0.12") == 0 then
     vim.notify("only supports Neovim 0.12+", vim.log.levels.ERROR)
     return
