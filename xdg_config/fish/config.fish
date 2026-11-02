@@ -30,15 +30,19 @@ function fshow
   git log --graph --color=always \
       --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
   fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --preview "echo {} | grep -o '[a-f0-9]\{7\}' | head -1 | xargs -I % sh -c 'git show --color=always % | delta'" \
+      --preview-window=right:60%:wrap \
       --bind "ctrl-m:execute:
                 echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
                 xargs -I % sh -c 'git show % | delta --paging always'"
 end
 
 function fshowa
-  git log --graph --color=always --all\
+  git log --graph --color=always --all \
       --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
   fzf --no-mouse --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --preview "echo {} | grep -o '[a-f0-9]\{7\}' | head -1 | xargs -I % sh -c 'git show --color=always % | delta'" \
+      --preview-window=right:60%:wrap \
       --bind "ctrl-m:execute:
                 echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
                 xargs -I % sh -c 'git show % | delta --paging always'"
